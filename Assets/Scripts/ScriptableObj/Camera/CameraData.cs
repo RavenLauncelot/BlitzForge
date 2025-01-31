@@ -8,7 +8,7 @@ public class CameraData : ScriptableObject
     //camera movement
     public float movementSpeed;
     public float movementSlerpSpeed;
-    public float cameraHeightOffset;
+    public float cameraTerrainOffset;
 
     //camera view
     public float orbitSens;

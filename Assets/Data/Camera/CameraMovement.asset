@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: CameraMovement
   m_EditorClassIdentifier: 
   movementSpeed: 50
-  movementSlerpSpeed: 10
-  cameraHeightOffset: 5
+  movementSlerpSpeed: 4
+  cameraTerrainOffset: 2
   orbitSens: 20
   camOrbitSlerpSpeed: 10
   zoomSens: 10
   zoomSlerpSpeed: 5
   maxZoom: 80
-  minZoom: 2
+  minZoom: 1
   minXAngle: 2
   maxXAngle: 85

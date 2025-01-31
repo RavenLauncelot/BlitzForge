@@ -14,11 +14,6 @@ public class CameraMovement : MonoBehaviour
     InputAction mouseInput;
     InputAction zoomInput;
 
-    //variables for input
-    Vector2 movementVec;
-    Vector2 mouseVec;
-    float cameraZoom;
-
     //when enabled camera will take mouse input and orbit the camera
     private bool orbitEnabled;
 
@@ -36,8 +31,9 @@ public class CameraMovement : MonoBehaviour
     //camera movement
     float movementSpeed;
     float movementSlerpSpeed;
-    float terrainHeight;
-    float cameraHeightOffset;
+    float cameraTerrainOffset;
+
+    Vector3 movementTarget; //this is persistent between frames
 
     //camera view
     float orbitSens;
@@ -45,15 +41,14 @@ public class CameraMovement : MonoBehaviour
 
     float zoomSens;
     float zoomSlerpSpeed;
-    float zoomMovement;
     float maxZoom;
     float minZoom;
+    float zoomTargetPos; //this basically tracks where the zoom is and uses this to make sure it's within limits
 
     float minXAngle;
     float maxXAngle;
 
-    float yMovement = 0;
-    float currentX = 10;
+    float camCurrentX = 10; //this is persistent between frames
 
     private void Awake()
     {
@@ -78,6 +73,8 @@ public class CameraMovement : MonoBehaviour
 
         //getting data from scriptableObj
         movementSpeed = cameraData.movementSpeed;
+        movementSlerpSpeed = cameraData.movementSlerpSpeed;
+        cameraTerrainOffset = cameraData.cameraTerrainOffset;
         orbitSens = cameraData.orbitSens;
         zoomSens = cameraData.zoomSens;
         maxZoom = cameraData.maxZoom;
@@ -89,8 +86,8 @@ public class CameraMovement : MonoBehaviour
         maxZoom = cameraData.maxZoom;
         minZoom = cameraData.minZoom;
 
-        currentX = camTargetX.eulerAngles.x;
-        zoomMovement = cameraTrans.position.z;
+        camCurrentX = camTargetX.eulerAngles.x;
+        zoomTargetPos = cameraTrans.position.z;
     }
 
     private void OnDisable()
@@ -109,28 +106,31 @@ public class CameraMovement : MonoBehaviour
     }
 
     void viewMovement()
-    {       
+    {
+        float cameraZoom = 0;
+
         //for the zoom 
         cameraZoom = zoomInput.ReadValue<float>();        
         cameraZoom *= zoomSens;    //because the scroll wheel is pressed like a button it doesn't need a time.delta and usually it has a value for one frame at a time
         
-        zoomMovement += Mathf.Clamp(cameraZoom, -maxZoom - zoomMovement, -minZoom - zoomMovement);  //These are the wrong way round on purpase since it's in negative numbers of z
+        //this makes sure the lerp target is within limits and maintains this target across frames. Once you stop pressing the button it should come to a smooth stop
+        zoomTargetPos += Mathf.Clamp(cameraZoom, -maxZoom - zoomTargetPos, -minZoom - zoomTargetPos);  //These are the wrong way round on purpase since it's in negative numbers of z
 
         //Slerping movement for zoom
-        cameraTrans.localPosition = Vector3.Lerp(cameraTrans.localPosition, new Vector3(0,0,zoomMovement), Time.deltaTime * zoomSlerpSpeed);
-
-        Debug.Log(Time.deltaTime);
+        cameraTrans.localPosition = Vector3.Lerp(cameraTrans.localPosition, new Vector3(0,0,zoomTargetPos), Time.deltaTime * zoomSlerpSpeed);
 
 
         //camera orbit 
         if (orbitEnabled) //when enabled it will read value from the mouse and set the targets positionf or the camera
         {
-            mouseVec = mouseInput.ReadValue<Vector2>();
+            float yMovement = 0;
+
+            Vector2 mouseVec = mouseInput.ReadValue<Vector2>();
             mouseVec *= (orbitSens * Time.deltaTime);   
             yMovement = mouseVec.x;
            
-            mouseVec.y = Mathf.Clamp(mouseVec.y, minXAngle-currentX, maxXAngle-currentX);
-            currentX += mouseVec.y;
+            mouseVec.y = Mathf.Clamp(mouseVec.y, minXAngle-camCurrentX, maxXAngle-camCurrentX);
+            camCurrentX += mouseVec.y;
 
             camTargetY.Rotate(0, yMovement, 0);
             camTargetX.Rotate(mouseVec.y,0,0);
@@ -146,11 +146,24 @@ public class CameraMovement : MonoBehaviour
 
     void cameraMovement()
     {
-        movementVec = movement.ReadValue<Vector2>();
+        float terrainHeight = 0;     
+
+        
+
+        Vector2 movementVec = movement.ReadValue<Vector2>();
         movementVec *= (movementSpeed * Time.deltaTime);
 
+        ////this makes sure the lerp target is within limits and maintains this target across frames. Once you stop pressing the button it should come to a smooth stop
+        //zoomTargetPos += Mathf.Clamp(cameraZoom, -maxZoom - zoomTargetPos, -minZoom - zoomTargetPos);  //These are the wrong way round on purpase since it's in negative numbers of z
+
+        ////Slerping movement for zoom
+        //cameraTrans.localPosition = Vector3.Lerp(cameraTrans.localPosition, new Vector3(0, 0, zoomTargetPos), Time.deltaTime * zoomSlerpSpeed);
+
+        movementTarget += camTargetY.TransformVector(movementVec.x, 0, movementVec.y);
+        
+        //finding where the ground is from the sky for the new point
         RaycastHit hit;
-        if (Physics.Raycast(transform.position + new Vector3(0, 100, 0), Vector3.down, out hit))
+        if (Physics.Raycast(movementTarget + new Vector3(0, 100, 0), Vector3.down * 150, out hit))
         {
             terrainHeight = hit.point.y;
         }
@@ -159,14 +172,17 @@ public class CameraMovement : MonoBehaviour
             terrainHeight = 0;
         }
 
-        terrainHeight += cameraHeightOffset;
+        terrainHeight += cameraTerrainOffset;
 
-        Vector3 SlerpTarget = camTargetY.TransformPoint(camTargetY.localPosition + new Vector3(movementVec.x, 0, movementVec.y));
-        SlerpTarget += new Vector3(0, terrainHeight, 0);
+        //adding the terrain offset
+        movementTarget = new Vector3(movementTarget.x, terrainHeight, movementTarget.z);
 
-        transform.position = Vector3.Slerp(transform.position, SlerpTarget, movementSlerpSpeed * Time.deltaTime);
+        //smooth damp towards location. I may change this to lerp especially when I speed up camera functionality
+        Vector3 Velocity = Vector3.zero;
+        transform.position = Vector3.Slerp(transform.position, movementTarget, movementSlerpSpeed * Time.deltaTime);
 
-        Debug.DrawRay(transform.position + new Vector3(0, 100, 0), Vector3.down * 200, Color.black);
+        Debug.DrawRay(transform.position, movementTarget - transform.position, Color.black);
+        Debug.Log(movementTarget);
     }
 
     void enableOrbit(InputAction.CallbackContext input)
