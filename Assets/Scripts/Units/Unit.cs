@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
+    UnitManager manager;
+
     public enum team
     {
         teamA,
@@ -17,12 +19,6 @@ public class Unit : MonoBehaviour
         teamF,
         teamG,
         teamH,
-    }
-
-    public enum command
-    {
-        move,
-        attack
     }
 
     protected float health;
@@ -36,20 +32,28 @@ public class Unit : MonoBehaviour
 
     public void SetCommand(CommandTypes command)
     {
-        
-    }   
+        activeCMD = command;
+        commandList.Clear();
+    }    
 
-    public class CommandTypes
+    private void OnEnable()
     {
-        command CMD;
+        manager.commandTick += commandTick;
+        manager.navTick += navTick;
     }
 
-    public class CMDMove : CommandTypes
+    private void OnDisable()
     {
-        CMD = command.move;
+        manager.commandTick -= commandTick;
+        manager.navTick -= navTick; 
     }
 
-    public class CMDAttack : CommandTypes
+    private void commandTick(object sender, EventArgs e)  //this will check current commands. if there completed/incompleted, or new commands are issued.
+    {
+        //this might not be needed as this may not improve performance significantly enough
+    }
+
+    private void navTick(object sender, EventArgs e)   //this will update the nav to check for blockages and other thigns.
     {
 
     }
