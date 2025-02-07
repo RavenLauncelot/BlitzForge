@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 9137765740670200317}
   - component: {fileID: 3915621566029484523}
   - component: {fileID: 479650136431943720}
+  - component: {fileID: 4166682346926427208}
   m_Layer: 0
   m_Name: DebugInfantry
   m_TagString: Untagged
@@ -86,3 +87,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4166682346926427208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579116725553385102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9266da4daca644478d2e95948795d56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  setSpeed: 0
+  setHealth: 0
+  setTeam: 0
+  setCanAttack: 0
+  setCanMove: 0
+  setManager: {fileID: 0}
+  setPos: {x: 0, y: 0, z: 0}
+  previousPos: {x: 0, y: 0, z: 0}

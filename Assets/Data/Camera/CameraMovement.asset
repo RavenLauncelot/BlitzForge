@@ -15,11 +15,13 @@ MonoBehaviour:
   movementSpeed: 100
   movementSlerpSpeed: 4
   cameraTerrainOffset: 2
+  shiftSpeedMod: 1.5
+  zoomSpeedMod: 2
   orbitSens: 20
   camOrbitSlerpSpeed: 10
-  zoomSens: 10
+  zoomSens: 0.05
   zoomSlerpSpeed: 5
-  maxZoom: 500
+  maxZoom: 350
   minZoom: 2
   minXAngle: 2
   maxXAngle: 85

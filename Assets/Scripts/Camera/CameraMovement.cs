@@ -33,6 +33,9 @@ public class CameraMovement : MonoBehaviour
     float movementSlerpSpeed;
     float cameraTerrainOffset;
 
+    float zoomSpeedMod;
+    float shiftSpeedMod;
+
     Vector3 movementTarget; //this is persistent between frames
 
     //camera view
@@ -43,12 +46,12 @@ public class CameraMovement : MonoBehaviour
     float zoomSlerpSpeed;
     float maxZoom;
     float minZoom;
-    float zoomTargetPos; //this basically tracks where the zoom is and uses this to make sure it's within limits
 
     float minXAngle;
     float maxXAngle;
 
     float camCurrentX = 10; //this is persistent between frames
+    float currentZoom;
 
     private void Awake()
     {
@@ -71,7 +74,8 @@ public class CameraMovement : MonoBehaviour
         mouseInput.Enable();
         zoomInput.Enable();
 
-        //getting data from scriptableObj
+        #region getting data from scriptableObj       
+
         movementSpeed = cameraData.movementSpeed;
         movementSlerpSpeed = cameraData.movementSlerpSpeed;
         cameraTerrainOffset = cameraData.cameraTerrainOffset;
@@ -85,10 +89,12 @@ public class CameraMovement : MonoBehaviour
         zoomSlerpSpeed = cameraData.zoomSlerpSpeed;
         maxZoom = cameraData.maxZoom;
         minZoom = cameraData.minZoom;
+        shiftSpeedMod = cameraData.shiftSpeedMod;
+        zoomSpeedMod = cameraData.zoomSpeedMod;
+        #endregion
 
+        //These track the position of something. So need to be set to the current position on enable
         camCurrentX = camTargetX.eulerAngles.x;
-        zoomTargetPos = cameraTrans.position.z;
-
         movementTarget = transform.position;
     }
 
@@ -109,14 +115,13 @@ public class CameraMovement : MonoBehaviour
 
     void viewMovement()
     {
-        float cameraZoom = 0;
-
-        //for the zoom 
-        cameraZoom = zoomInput.ReadValue<float>();        
-        cameraZoom *= zoomSens;    //because the scroll wheel is pressed like a button it doesn't need a time.delta and usually it has a value for one frame at a time
         
-        //this makes sure the lerp target is within limits and maintains this target across frames. Once you stop pressing the button it should come to a smooth stop
-        zoomTargetPos += Mathf.Clamp(cameraZoom, -maxZoom - zoomTargetPos, -minZoom - zoomTargetPos);  //These are the wrong way round on purpase since it's in negative numbers of z
+
+        //for the zoom. This will make currentZoom hopefully a number between 0 and 1
+        currentZoom += zoomInput.ReadValue<float>() * zoomSens;        
+        currentZoom = Mathf.Clamp01(currentZoom);
+
+        float zoomTargetPos = -(currentZoom * (maxZoom - minZoom)) + minZoom;  
 
         //Slerping movement for zoom
         cameraTrans.localPosition = Vector3.Lerp(cameraTrans.localPosition, new Vector3(0,0,zoomTargetPos), Time.deltaTime * zoomSlerpSpeed);
@@ -150,22 +155,19 @@ public class CameraMovement : MonoBehaviour
     {
         float terrainHeight = 0;     
 
-        
-
         Vector2 movementVec = movement.ReadValue<Vector2>();
         movementVec *= (movementSpeed * Time.deltaTime);
 
-        ////this makes sure the lerp target is within limits and maintains this target across frames. Once you stop pressing the button it should come to a smooth stop
-        //zoomTargetPos += Mathf.Clamp(cameraZoom, -maxZoom - zoomTargetPos, -minZoom - zoomTargetPos);  //These are the wrong way round on purpase since it's in negative numbers of z
+        //figuring out the movement modifiers
+        //the more you zoom out the more speed you get
+        movementVec += movementVec * (currentZoom * zoomSpeedMod);
 
-        ////Slerping movement for zoom
-        //cameraTrans.localPosition = Vector3.Lerp(cameraTrans.localPosition, new Vector3(0, 0, zoomTargetPos), Time.deltaTime * zoomSlerpSpeed);
 
         movementTarget += camTargetY.TransformVector(movementVec.x, 0, movementVec.y);
         
         //finding where the ground is from the sky for the new point
         RaycastHit hit;
-        if (Physics.Raycast(movementTarget + new Vector3(0, 100, 0), Vector3.down * 150, out hit))
+        if (Physics.Raycast(movementTarget + new Vector3(0, 1000, 0), Vector3.down * 1500, out hit))
         {
             terrainHeight = hit.point.y;
         }
@@ -194,5 +196,10 @@ public class CameraMovement : MonoBehaviour
     void disableOrbit(InputAction.CallbackContext input)
     {
         orbitEnabled = false;
+    }
+    
+    void shiftPressed(InputAction.CallbackContext input)
+    {
+
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class DebugInfantry : Unit
 {
@@ -15,6 +16,8 @@ public class DebugInfantry : Unit
     public Vector3 setPos;
 
     public Vector3 previousPos; //this is just so it can check if the command changed
+
+    public NavMeshAgent agent;
 
     private void Awake()
     {
@@ -43,6 +46,8 @@ public class DebugInfantry : Unit
             activeCMD = new CommandTypes(CommandTypes.command.move, setPos);
 
             previousPos = setPos;
+
+            agent.SetDestination(setPos);
         }
     }
 }
