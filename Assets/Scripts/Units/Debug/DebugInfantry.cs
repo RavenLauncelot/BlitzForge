@@ -40,14 +40,6 @@ public class DebugInfantry : Unit
 
     private void Update()
     {
-        //this is temporary whenever it detects a new position being set it will make a new move command
-        if (previousPos != setPos)
-        {
-            activeCMD = new CommandTypes(CommandTypes.command.move, setPos);
 
-            previousPos = setPos;
-
-            agent.SetDestination(setPos);
-        }
     }
 }
