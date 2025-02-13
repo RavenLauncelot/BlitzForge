@@ -66,8 +66,8 @@ public class CameraMovement : MonoBehaviour
         mouseInput = cameraControls.BattleCamera.MouseInput;
         zoomInput = cameraControls.BattleCamera.Zoom;
 
-        orbitInput.started += enableOrbit;
-        orbitInput.canceled += disableOrbit;
+        orbitInput.started += EnableOrbit;
+        orbitInput.canceled += DisableOrbit;
 
         orbitInput.Enable();
         movement.Enable();
@@ -109,11 +109,11 @@ public class CameraMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        viewMovement();
-        cameraMovement();
+        ViewMovement();
+        MoveCamera();
     }
 
-    void viewMovement()
+    void ViewMovement()
     {
         
 
@@ -151,7 +151,7 @@ public class CameraMovement : MonoBehaviour
         Debug.DrawRay(camTargetX.position, camTargetX.forward * -cameraTrans.position.z, Color.blue);
     }
 
-    void cameraMovement()
+    void MoveCamera()
     {
         float terrainHeight = 0;     
 
@@ -164,10 +164,9 @@ public class CameraMovement : MonoBehaviour
 
 
         movementTarget += camTargetY.TransformVector(movementVec.x, 0, movementVec.y);
-        
+
         //finding where the ground is from the sky for the new point
-        RaycastHit hit;
-        if (Physics.Raycast(movementTarget + new Vector3(0, 1000, 0), Vector3.down * 1500, out hit))
+        if (Physics.Raycast(movementTarget + new Vector3(0, 1000, 0), Vector3.down * 1500, out RaycastHit hit))
         {
             terrainHeight = hit.point.y;
         }
@@ -182,23 +181,23 @@ public class CameraMovement : MonoBehaviour
         movementTarget = new Vector3(movementTarget.x, terrainHeight, movementTarget.z);
 
         //smooth damp towards location. I may change this to lerp especially when I speed up camera functionality
-        Vector3 Velocity = Vector3.zero;
+        
         transform.position = Vector3.Slerp(transform.position, movementTarget, movementSlerpSpeed * Time.deltaTime);
 
         Debug.DrawRay(transform.position, movementTarget - transform.position, Color.black);
     }
 
-    void enableOrbit(InputAction.CallbackContext input)
+    void EnableOrbit(InputAction.CallbackContext input)
     {
         orbitEnabled = true;
     }
 
-    void disableOrbit(InputAction.CallbackContext input)
+    void DisableOrbit(InputAction.CallbackContext input)
     {
         orbitEnabled = false;
     }
     
-    void shiftPressed(InputAction.CallbackContext input)
+    void ShiftPressed(InputAction.CallbackContext input)
     {
 
     }

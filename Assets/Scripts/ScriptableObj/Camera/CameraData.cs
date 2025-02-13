@@ -1,5 +1,3 @@
-using Unity.Android.Gradle.Manifest;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CameraMovement", menuName = "Data/CameraData/CameraMovement")]

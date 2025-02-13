@@ -132,6 +132,74 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "UnitControls",
+            "id": "a6eecf73-6130-4577-b1a6-f8b94a7c8ef6",
+            "actions": [
+                {
+                    "name": "Selection",
+                    "type": "Button",
+                    "id": "4fdfebf6-e2dd-4418-8c69-b0a670a02fa5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "StartAction",
+                    "type": "Button",
+                    "id": "4ba80f03-fd6c-477a-bfee-3f74846a4999",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MousePos",
+                    "type": "Value",
+                    "id": "60f5780e-74a0-48a4-ba82-7ac74b9bf1b9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "d3f714b3-cda9-45f6-9e45-86cc3fadbb6f",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Selection",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "708cb1b7-0102-45e1-a05a-d1b46206dfdd",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b9d0cc6-147c-44f1-915f-27f0e9bb4dca",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MousePos",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

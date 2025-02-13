@@ -154,6 +154,74 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
+        },
+        {
+            ""name"": ""UnitControls"",
+            ""id"": ""a6eecf73-6130-4577-b1a6-f8b94a7c8ef6"",
+            ""actions"": [
+                {
+                    ""name"": ""Selection"",
+                    ""type"": ""Button"",
+                    ""id"": ""4fdfebf6-e2dd-4418-8c69-b0a670a02fa5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""StartAction"",
+                    ""type"": ""Button"",
+                    ""id"": ""4ba80f03-fd6c-477a-bfee-3f74846a4999"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MousePos"",
+                    ""type"": ""Value"",
+                    ""id"": ""60f5780e-74a0-48a4-ba82-7ac74b9bf1b9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""d3f714b3-cda9-45f6-9e45-86cc3fadbb6f"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Selection"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""708cb1b7-0102-45e1-a05a-d1b46206dfdd"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""StartAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b9d0cc6-147c-44f1-915f-27f0e9bb4dca"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MousePos"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -164,11 +232,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_BattleCamera_MouseInput = m_BattleCamera.FindAction("MouseInput", throwIfNotFound: true);
         m_BattleCamera_Zoom = m_BattleCamera.FindAction("Zoom", throwIfNotFound: true);
         m_BattleCamera_CameraMovement = m_BattleCamera.FindAction("CameraMovement", throwIfNotFound: true);
+        // UnitControls
+        m_UnitControls = asset.FindActionMap("UnitControls", throwIfNotFound: true);
+        m_UnitControls_Selection = m_UnitControls.FindAction("Selection", throwIfNotFound: true);
+        m_UnitControls_StartAction = m_UnitControls.FindAction("StartAction", throwIfNotFound: true);
+        m_UnitControls_MousePos = m_UnitControls.FindAction("MousePos", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
     {
         UnityEngine.Debug.Assert(!m_BattleCamera.enabled, "This will cause a leak and performance issues, PlayerControls.BattleCamera.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_UnitControls.enabled, "This will cause a leak and performance issues, PlayerControls.UnitControls.Disable() has not been called.");
     }
 
     public void Dispose()
@@ -296,11 +370,79 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         }
     }
     public BattleCameraActions @BattleCamera => new BattleCameraActions(this);
+
+    // UnitControls
+    private readonly InputActionMap m_UnitControls;
+    private List<IUnitControlsActions> m_UnitControlsActionsCallbackInterfaces = new List<IUnitControlsActions>();
+    private readonly InputAction m_UnitControls_Selection;
+    private readonly InputAction m_UnitControls_StartAction;
+    private readonly InputAction m_UnitControls_MousePos;
+    public struct UnitControlsActions
+    {
+        private @PlayerControls m_Wrapper;
+        public UnitControlsActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Selection => m_Wrapper.m_UnitControls_Selection;
+        public InputAction @StartAction => m_Wrapper.m_UnitControls_StartAction;
+        public InputAction @MousePos => m_Wrapper.m_UnitControls_MousePos;
+        public InputActionMap Get() { return m_Wrapper.m_UnitControls; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(UnitControlsActions set) { return set.Get(); }
+        public void AddCallbacks(IUnitControlsActions instance)
+        {
+            if (instance == null || m_Wrapper.m_UnitControlsActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_UnitControlsActionsCallbackInterfaces.Add(instance);
+            @Selection.started += instance.OnSelection;
+            @Selection.performed += instance.OnSelection;
+            @Selection.canceled += instance.OnSelection;
+            @StartAction.started += instance.OnStartAction;
+            @StartAction.performed += instance.OnStartAction;
+            @StartAction.canceled += instance.OnStartAction;
+            @MousePos.started += instance.OnMousePos;
+            @MousePos.performed += instance.OnMousePos;
+            @MousePos.canceled += instance.OnMousePos;
+        }
+
+        private void UnregisterCallbacks(IUnitControlsActions instance)
+        {
+            @Selection.started -= instance.OnSelection;
+            @Selection.performed -= instance.OnSelection;
+            @Selection.canceled -= instance.OnSelection;
+            @StartAction.started -= instance.OnStartAction;
+            @StartAction.performed -= instance.OnStartAction;
+            @StartAction.canceled -= instance.OnStartAction;
+            @MousePos.started -= instance.OnMousePos;
+            @MousePos.performed -= instance.OnMousePos;
+            @MousePos.canceled -= instance.OnMousePos;
+        }
+
+        public void RemoveCallbacks(IUnitControlsActions instance)
+        {
+            if (m_Wrapper.m_UnitControlsActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IUnitControlsActions instance)
+        {
+            foreach (var item in m_Wrapper.m_UnitControlsActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_UnitControlsActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public UnitControlsActions @UnitControls => new UnitControlsActions(this);
     public interface IBattleCameraActions
     {
         void OnOrbit(InputAction.CallbackContext context);
         void OnMouseInput(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
         void OnCameraMovement(InputAction.CallbackContext context);
+    }
+    public interface IUnitControlsActions
+    {
+        void OnSelection(InputAction.CallbackContext context);
+        void OnStartAction(InputAction.CallbackContext context);
+        void OnMousePos(InputAction.CallbackContext context);
     }
 }
