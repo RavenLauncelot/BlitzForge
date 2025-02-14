@@ -1,16 +1,35 @@
+using NUnit.Framework;
 using UnityEngine;
+using Pathfinding;
 
 public class Unit : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private float health;
+    private float speed;
+    
+    private Seeker seeker;
+
+    private Path currentPath;
+
+    private bool FindPath(out Path p, Vector3 position)
     {
-        //soon
+        p = seeker.StartPath(transform.position, position);
+
+        if (!p.error)
+        {
+            return true;
+        }
+
+        return false;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void navCheck()
     {
-        //soon
+        if (currentPath == null)
+        {
+            return;
+        }
+
+
     }
 }

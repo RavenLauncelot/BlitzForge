@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 
 public class UnitSelector : MonoBehaviour
 {
-    List<Unit> selectedUnits;
+    public List<Unit> selectedUnits;
 
     PlayerControls UnitControls;
 
@@ -47,6 +47,7 @@ public class UnitSelector : MonoBehaviour
     {
         selection.Disable();
         startAction.Disable();
+        mousePos.Disable();
     }
 
     private void StartSelection(InputAction.CallbackContext context)  //player press the leftbutton 
@@ -117,5 +118,25 @@ public class UnitSelector : MonoBehaviour
         Ray debugray = cam.ScreenPointToRay(yeahman, Camera.MonoOrStereoscopicEye.Mono);
 
         Debug.DrawRay(debugray.origin, debugray.direction * 20000, Color.yellow);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.transform.TryGetComponent<Unit>(out Unit UnitScript))
+        {
+            Debug.Log("Inside selected area");
+            selectedUnits.Add(UnitScript);
+        }
+
+       
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.transform.TryGetComponent<Unit>(out Unit UnitScript))
+        {
+            Debug.Log("Outside selected area");
+            selectedUnits.Remove(UnitScript);
+        }
     }
 }
