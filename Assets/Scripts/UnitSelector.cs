@@ -92,15 +92,16 @@ public class UnitSelector : MonoBehaviour
 
             if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
             {
-                Vector3 size = firstSelection - screenRay.point;
-                size = new(size.x,200,size.z);
-                Vector3 centre = firstSelection + size / 2;
+                Vector3 selectionToPoint = screenRay.point - firstSelection;
+                selectionToPoint = new(selectionToPoint.x,200,selectionToPoint.z);
+
+                Vector3 centre = firstSelection + selectionToPoint / 2;
                 centre = new(centre.x, 100, centre.z);
 
                 //selectionTrigger.transform.position = centre;
                 //selectionTrigger.transform.localScale = size;
 
-                selectionTrigger.size = size;  
+                selectionTrigger.size = selectionToPoint;  
                 selectionTrigger.center = centre;
             }
 
