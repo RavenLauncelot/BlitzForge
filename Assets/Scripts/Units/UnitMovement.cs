@@ -1,31 +1,75 @@
 using Pathfinding;
-using System.Linq.Expressions;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
-public class UnitMovement : MonoBehaviour
+public class UnitMovement : UnitComponent
 {
-    public Transform target;
+    private Command currentCommand;
+    private Seeker seeker;
+    private CharacterController controller;
 
-    public int currentWaypoint;
+    private Path path;
 
-    public float speed;
+    private Vector3 currentTarget;
 
-    Seeker seeker;
-    CharacterController controller;
+    //pathfinding
+    [SerializeField] bool reachedEndOfPath;
+    [SerializeField] int currentWaypoint;
+    [SerializeField] float speed;
 
-    Path path;
-
-    public bool reachedEndOfPath;
-
-    //debug bool
-    public bool setNewPath;
-
-    void Start()
+    private void Start()
     {
-        seeker = this.GetComponent<Seeker>();
-        controller = this.GetComponent<CharacterController>();
+        seeker = GetComponent<Seeker>();
+        controller = GetComponent<CharacterController>();
+    }
 
-        seeker.StartPath(transform.position, target.position, OnPathComplete);
+    public override void CommandTick()   //checks for new commands and acts on them
+    {
+        base.CommandTick();
+
+        if (unit.GetCommand() == null)
+        {
+            currentCommand = null;
+            return;
+        }
+
+        else if (reachedEndOfPath)
+        {
+            unit.CommandCompleted();
+            reachedEndOfPath = false;
+            path = null;
+            return;
+        }
+
+        else if (currentCommand == unit.GetCommand())
+        {
+            return;
+        }
+
+        else  //different command detected
+        {
+            currentCommand = unit.GetCommand();
+
+            if (currentCommand.commandType == CommandTypes.Move)
+            {
+                
+            }
+        }
+    }
+
+    public override void NavTick()
+    {
+        base.NavTick();
+
+        if (currentCommand.commandType == CommandTypes.Move && path == null)
+        {           
+            seeker.StartPath(transform.position, currentCommand.positionData, OnPathComplete);
+        }
+
+        else if (currentCommand.commandType == CommandTypes.Attack)
+        {
+            //do stuff for attack
+        }
     }
 
     public void OnPathComplete(Path p)
@@ -34,19 +78,19 @@ public class UnitMovement : MonoBehaviour
         {
             path = p;
             currentWaypoint = 0;
+            unit.CommandCompleted();
         }
     }
 
-    // Update is called once per frame
     void Update()
-    {
+    {        
+
         if (path == null)
         {
             return;
         }
 
         reachedEndOfPath = false;
-
         float distanceToWaypoint;
 
         while (true)
@@ -76,13 +120,6 @@ public class UnitMovement : MonoBehaviour
 
         Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;
         Vector3 velocity = dir * speed;
-
         controller.Move(velocity);
-
-        if (setNewPath)
-        {
-            seeker.StartPath(transform.position, target.transform.position, OnPathComplete);
-            setNewPath = false;
-        }
     }
 }

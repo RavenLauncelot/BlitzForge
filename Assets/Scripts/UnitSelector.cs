@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using UnityEditor.SceneManagement;
 
 public class UnitSelector : MonoBehaviour
 {
@@ -52,6 +53,8 @@ public class UnitSelector : MonoBehaviour
 
     private void StartSelection(InputAction.CallbackContext context)  //player press the leftbutton 
     {
+        selectedUnits.Clear();
+
         Vector2 mousePosition = mousePos.ReadValue<Vector2>();
         Vector3 screenPos = new (mousePosition.x, mousePosition.y, cam.nearClipPlane);
 
@@ -79,7 +82,26 @@ public class UnitSelector : MonoBehaviour
 
     private void StartAction(InputAction.CallbackContext context)
     {
+        Vector2 mousePosition = mousePos.ReadValue<Vector2>();
+        Vector3 screenPos = new(mousePosition.x, mousePosition.y, cam.nearClipPlane);
 
+        if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
+        {
+            //debug int
+            int counter = 0;
+
+            //Command cmd = new Command();
+            //cmd.MoveCommand(screenRay.point);
+
+            foreach (Unit unit in selectedUnits)
+            {
+                unit.addedCommand = new MoveCommand(screenRay.point);
+                unit.AddCommand();
+                counter++;
+            }
+
+            Debug.Log("Command given to " + counter + "units");
+        }
     }
 
     private void Update()
@@ -112,7 +134,7 @@ public class UnitSelector : MonoBehaviour
             }
         }
 
-
+        //Debug ray
         Vector2 debugMouse = mousePos.ReadValue<Vector2>();
         Vector3 yeahman = new(debugMouse.x, debugMouse.y, cam.nearClipPlane);
         Ray debugray = cam.ScreenPointToRay(yeahman, Camera.MonoOrStereoscopicEye.Mono);
@@ -122,18 +144,16 @@ public class UnitSelector : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.TryGetComponent<Unit>(out Unit UnitScript))
+        if (other.gameObject.TryGetComponent<Unit>(out Unit UnitScript))
         {
             Debug.Log("Inside selected area");
             selectedUnits.Add(UnitScript);
         }
-
-       
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.transform.TryGetComponent<Unit>(out Unit UnitScript))
+        if (other.gameObject.TryGetComponent<Unit>(out Unit UnitScript))
         {
             Debug.Log("Outside selected area");
             selectedUnits.Remove(UnitScript);
