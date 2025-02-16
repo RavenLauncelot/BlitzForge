@@ -95,8 +95,11 @@ public class UnitSelector : MonoBehaviour
 
             foreach (Unit unit in selectedUnits)
             {
-                unit.addedCommand = new MoveCommand(screenRay.point);
-                unit.AddCommand();
+                if (unit.CheckCommand(Unit.commandStates.Move))
+                {
+                    unit.MoveCommand(screenRay.point);
+                }
+                
                 counter++;
             }
 

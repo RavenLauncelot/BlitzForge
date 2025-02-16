@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class UnitComponent : MonoBehaviour
 {
-    public Unit unit;
-    public CommandTypes commandType;
+    public enum UnitComponents
+    {
+        UnitAttack,
+        UnitMovement
+    }
+
+    public UnitComponents componentType;
 
     public virtual void CommandTick()
     {
@@ -13,6 +18,11 @@ public class UnitComponent : MonoBehaviour
     }
 
     public virtual void NavTick()
+    {
+
+    }
+
+    public virtual void SetMovementTarget(Vector3 position)
     {
 
     }

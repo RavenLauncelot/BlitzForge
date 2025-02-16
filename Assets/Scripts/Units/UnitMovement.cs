@@ -1,10 +1,8 @@
 using Pathfinding;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class UnitMovement : UnitComponent
 {
-    private Command currentCommand;
     private Seeker seeker;
     private CharacterController controller;
 
@@ -13,7 +11,7 @@ public class UnitMovement : UnitComponent
     private Vector3 currentTarget;
 
     //pathfinding
-    [SerializeField] bool reachedEndOfPath;
+    [SerializeField] public bool movementDone;
     [SerializeField] int currentWaypoint;
     [SerializeField] float speed;
 
@@ -21,55 +19,17 @@ public class UnitMovement : UnitComponent
     {
         seeker = GetComponent<Seeker>();
         controller = GetComponent<CharacterController>();
+
+        componentType = UnitComponents.UnitMovement;
     }
 
-    public override void CommandTick()   //checks for new commands and acts on them
+    public override void SetMovementTarget(Vector3 position)
     {
-        base.CommandTick();
+        base.SetMovementTarget(position);
 
-        if (unit.GetCommand() == null)
-        {
-            currentCommand = null;
-            return;
-        }
+        currentTarget = position;
 
-        else if (reachedEndOfPath)
-        {
-            unit.CommandCompleted();
-            reachedEndOfPath = false;
-            path = null;
-            return;
-        }
-
-        else if (currentCommand == unit.GetCommand())
-        {
-            return;
-        }
-
-        else  //different command detected
-        {
-            currentCommand = unit.GetCommand();
-
-            if (currentCommand.commandType == CommandTypes.Move)
-            {
-                
-            }
-        }
-    }
-
-    public override void NavTick()
-    {
-        base.NavTick();
-
-        if (currentCommand.commandType == CommandTypes.Move && path == null)
-        {           
-            seeker.StartPath(transform.position, currentCommand.positionData, OnPathComplete);
-        }
-
-        else if (currentCommand.commandType == CommandTypes.Attack)
-        {
-            //do stuff for attack
-        }
+        seeker.StartPath(transform.position, currentTarget, OnPathComplete);
     }
 
     public void OnPathComplete(Path p)
@@ -78,19 +38,20 @@ public class UnitMovement : UnitComponent
         {
             path = p;
             currentWaypoint = 0;
-            unit.CommandCompleted();
+            return;
         }
+
+        movementDone = true;
     }
 
     void Update()
     {        
-
         if (path == null)
         {
             return;
         }
 
-        reachedEndOfPath = false;
+        movementDone = false;
         float distanceToWaypoint;
 
         while (true)
@@ -106,7 +67,8 @@ public class UnitMovement : UnitComponent
                 }
                 else
                 {
-                    reachedEndOfPath = true;
+                    movementDone = true;
+                    path = null;
                     break;
                 }
             }
@@ -121,5 +83,8 @@ public class UnitMovement : UnitComponent
         Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;
         Vector3 velocity = dir * speed;
         controller.Move(velocity);
+
+        movementDone = false;
+        path = null;
     }
 }

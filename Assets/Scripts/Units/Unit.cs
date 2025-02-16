@@ -1,91 +1,91 @@
-using NUnit.Framework;
 using UnityEngine;
-using Pathfinding;
 using System.Collections.Generic;
-using Unity.Android.Types;
 using System;
+using System.Linq;
 
 public class Unit : MonoBehaviour
 {
     //Unit behaviours
-    UnitComponent[] unitComponents;
-    [SerializeField] List<CommandTypes> availableCommands;
+    protected UnitComponent[] unitComponents;
 
     //Unit stats
-    [SerializeField] private float health;
-    [SerializeField] private float speed;
-
-    //active commands list
-    [SerializeField] private List<Command> commandList;
+    protected float health;
+    protected float speed;
 
     //Team name
-    public UnitCommander.teamName teamName;
+    public UnitCommander.teamName teamName;   
 
-    //new command 
-    public Command addedCommand;
-
-    private void Start()
+    //Available commands
+    public enum commandStates
     {
-        //find attached components/behaviours
-        unitComponents = transform.GetComponents<UnitComponent>();
-        foreach(UnitComponent unitCom in unitComponents)
-        {
-            availableCommands.Add(unitCom.commandType);
-            unitCom.unit = this;
-        }
+        Idle,
+        Move,
+        Attack
+    }
+    commandStates[] commands;
+
+    //holds current state of unit
+    [SerializeField] protected commandStates currentState = commandStates.Idle;
+
+    public void initUnit(commandStates[] setCommands)
+    {
+        commands = setCommands;
+
+        //find attached components
+        unitComponents = GetComponents<UnitComponent>();
     }
 
-    public void AddCommand()
-    {
-        if (checkCommand(addedCommand))
-        {
-            ClearCommands();
-            commandList.Add(addedCommand);
-        }
-    }
-
-    public void QueueCommand(Command command)
-    {
-        if (checkCommand(command))
-        {
-            commandList.Add(command);
-        }
-    }
-
-    public void ClearCommands()
-    {
-        commandList.Clear();
-    }
-
-    public Command GetCommand()
-    {
-        return commandList[0];
-    }
-
-    public bool checkCommand(Command command)
-    {
-        return commandList.Contains(command);
-    }
-
-    public void CommandCompleted()
-    {
-        commandList.RemoveAt(0);
-    }
-
-    public void NavigationTick(object sender, EventArgs e)
+    private void NavigationTick(object sender, EventArgs e)
     {
         foreach(UnitComponent component in unitComponents)
         {
             component.NavTick();
         }
     }
-
-    public void CommandTick(object sender, EventArgs e)
+    private void CommandTick(object sender, EventArgs e)
     {
         foreach (UnitComponent component in unitComponents)
         {
             component.CommandTick();
         }
+    }
+
+    //checks if command is valid
+    public bool CheckCommand(commandStates checkCommand)
+    {
+        return commands.Contains(checkCommand);
+    }
+
+    protected UnitComponent FindComponent(UnitComponent.UnitComponents componentEnum)
+    {
+        foreach (UnitComponent unitComp in unitComponents)
+        {
+            if (unitComp.componentType == componentEnum)
+            {
+                return unitComp;
+            }
+        }
+
+        return null;
+    }
+   
+
+    //Command setters
+    //These will set a command and then change the state of the unit
+    //These will be defined in the specific units logic
+    public virtual void AttackCommand()
+    {
+
+    }
+
+    public virtual void MoveCommand(Vector3 position)
+    {
+        
+    }
+
+    public virtual void IdleCommand()
+    {
+        
     }
 }
 
