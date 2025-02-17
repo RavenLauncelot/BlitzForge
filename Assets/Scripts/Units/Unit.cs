@@ -13,21 +13,18 @@ public class Unit : MonoBehaviour
     protected float speed;
 
     //Team name
-    public UnitCommander.teamName teamName;   
+    //public UnitCommander.teamName teamName;
+    
+    //Command methods
+    
 
     //Available commands
-    public enum commandStates
-    {
-        Idle,
-        Move,
-        Attack
-    }
-    commandStates[] commands;
+    UnitDictator.commandStates[] commands;
 
     //holds current state of unit
-    [SerializeField] protected commandStates currentState = commandStates.Idle;
+    [SerializeField] protected UnitDictator.commandStates currentState = UnitDictator.commandStates.Idle;
 
-    public void initUnit(commandStates[] setCommands)
+    public void initUnit(UnitDictator.commandStates[] setCommands)
     {
         commands = setCommands;
 
@@ -51,7 +48,7 @@ public class Unit : MonoBehaviour
     }
 
     //checks if command is valid
-    public bool CheckCommand(commandStates checkCommand)
+    public bool CheckCommand(UnitDictator.commandStates checkCommand)
     {
         return commands.Contains(checkCommand);
     }

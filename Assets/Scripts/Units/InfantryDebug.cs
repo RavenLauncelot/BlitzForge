@@ -2,17 +2,18 @@ using UnityEngine;
 
 public class InfantryDebug : Unit
 {
+    //this will be set in the inspector
+    [SerializeReference] public UnitDictator.commandStates[] unitCommands;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        Unit.commandStates[] unitCommands = { Unit.commandStates.Move };
-
         this.initUnit(unitCommands);       
     }
 
     private void Update()
     {
-        if (currentState == Unit.commandStates.Move)
+        if (currentState == UnitDictator.commandStates.Move)
         {
             Move();
         }
@@ -24,7 +25,7 @@ public class InfantryDebug : Unit
         
         unitComp.SetMovementTarget(Position);   
 
-        currentState = Unit.commandStates.Move;
+        currentState = UnitDictator.commandStates.Move;
     }
 
     private void Move()
@@ -34,7 +35,7 @@ public class InfantryDebug : Unit
         //movement is complete back to idle
         if (transform.GetComponent<UnitMovement>().movementDone == true)
         {
-            currentState = commandStates.Idle;
+            currentState = UnitDictator.commandStates.Idle;
         }
     }
 
