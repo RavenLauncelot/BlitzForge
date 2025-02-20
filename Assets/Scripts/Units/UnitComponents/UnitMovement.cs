@@ -13,6 +13,7 @@ public class UnitMovement : UnitComponent
     //pathfinding
     [SerializeField] public bool movementDone;
     [SerializeField] int currentWaypoint;
+    [SerializeField] int totalWaypoint;
     [SerializeField] float speed;
 
     private void Start()
@@ -30,6 +31,8 @@ public class UnitMovement : UnitComponent
         currentTarget = position;
 
         seeker.StartPath(transform.position, currentTarget, OnPathComplete);
+
+        movementDone = false;
     }
 
     public void OnPathComplete(Path p)
@@ -40,8 +43,6 @@ public class UnitMovement : UnitComponent
             currentWaypoint = 0;
             return;
         }
-
-        movementDone = true;
     }
 
     void Update()
@@ -75,8 +76,8 @@ public class UnitMovement : UnitComponent
 
             else
             {
-                break;
                 //no change in direction
+                break;
             }
         }
 
@@ -84,7 +85,6 @@ public class UnitMovement : UnitComponent
         Vector3 velocity = dir * speed;
         controller.Move(velocity);
 
-        movementDone = false;
-        path = null;
+        totalWaypoint = path.vectorPath.Count;
     }
 }

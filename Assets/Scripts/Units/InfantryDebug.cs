@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class InfantryDebug : Unit
@@ -13,9 +14,19 @@ public class InfantryDebug : Unit
 
     private void Update()
     {
-        if (currentState == UnitDictator.commandStates.Move)
+        switch (currentState)
         {
-            Move();
+            case(UnitDictator.commandStates.Idle):
+                Idle();
+                break;
+            case(UnitDictator.commandStates.Move):
+                Move();
+                break;
+            case(UnitDictator.commandStates.Attack):
+                Attack();
+                break;
+            default:
+                break;
         }
     }
 
@@ -45,5 +56,10 @@ public class InfantryDebug : Unit
 
         //runs after unit needs to udpate position 
         //specficially fire at enemy 
+    }
+
+    private void Idle()
+    {
+
     }
 }

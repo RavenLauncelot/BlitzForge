@@ -14,9 +14,6 @@ public class Unit : MonoBehaviour
 
     //Team name
     //public UnitCommander.teamName teamName;
-    
-    //Command methods
-    
 
     //Available commands
     UnitDictator.commandStates[] commands;
@@ -80,9 +77,12 @@ public class Unit : MonoBehaviour
         
     }
 
-    public virtual void IdleCommand()
+    public void IdleCommand()
     {
-        
+        foreach (UnitComponent unitComp in unitComponents)
+        {
+            unitComp.StopComponent();
+        }
     }
 }
 

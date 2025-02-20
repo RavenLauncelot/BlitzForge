@@ -12,6 +12,12 @@ public class UnitComponent : MonoBehaviour
 
     public UnitComponents componentType;
 
+    //stops any component doing manually assigned commands
+    public virtual void StopComponent()
+    {
+
+    }
+
     public virtual void CommandTick()
     {
 

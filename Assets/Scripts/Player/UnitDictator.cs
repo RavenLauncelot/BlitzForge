@@ -3,11 +3,14 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.InputSystem;
+using UnityEditor.Build.Pipeline;
+using Unity.VisualScripting;
+using System.Xml;
 
 public class UnitDictator : MonoBehaviour
 {
-    List<Unit> selectedUnits;
-    UnitSelector unitSelector;
+    [SerializeField] List<Unit> selectedUnits;
+    public UnitSelector unitSelector;
 
     public commandStates currentlySetCommand;
 
@@ -17,34 +20,54 @@ public class UnitDictator : MonoBehaviour
 
     Camera cam;
 
+    //ignore for now
+    public float positionMod;
+
     private void OnEnable()
     {
         playerControls = new PlayerControls();
-        startAction = playerControls.UnitControls.StartAction;\
+        startAction = playerControls.UnitControls.StartAction;
         mousePos = playerControls.UnitControls.MousePos;
 
-        startAction.performed += setCommand;
+        startAction.performed += SetCommand;
+
+        mousePos.Enable();
+        startAction.Enable();
 
         cam = Camera.main;
     }
 
+    private void OnDisable()
+    {
+        startAction.performed -= SetCommand;
+
+        startAction.Disable();
+        mousePos.Disable();
+    }
+
     public enum commandStates
     {
-        Stop,
+        Idle,
         Move,
         Attack
     }
 
-    private void setCommand(InputAction.CallbackContext input)
+    private void SetCommand(InputAction.CallbackContext input)
     {
+        Debug.Log("Bruh");
+
+        selectedUnits = unitSelector.GetSelectedUnits();
+
         switch (currentlySetCommand)
         {
-            case commandStates.Stop:
-                break;
+            case commandStates.Idle:
+                SetStopCmd();
+                break;               
             case commandStates.Move:
                 SetMovementCmd();
                 break;
             case commandStates.Attack:
+                SetAttackCmd();
                 break;
             default:
                 break;
@@ -58,38 +81,100 @@ public class UnitDictator : MonoBehaviour
 
         if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
         {
-            //debug int
-            int counter = 0;
+            int unitCount = selectedUnits.Count;
+            List<Vector3> unitPositions = new List<Vector3>();
 
-            //Command cmd = new Command();
-            //cmd.MoveCommand(screenRay.point);
+            //checks if square number 
+            if (Mathf.Sqrt(unitCount) % 1  == 0)
+            {
+                Debug.Log("Square Number");
 
+                float result = Mathf.Sqrt(unitCount);
+                for (int x = 0; x < result; x++)
+                {
+                    for (int y = 0; y < result; y++)
+                    {
+                        unitPositions.Add(new Vector3(x, 0, y));
+                    }
+                }
+            }
+
+            //if its not a square number
+            else
+            {
+                Debug.Log("Not Sqaure");            
+
+                float result = Mathf.Sqrt(unitCount);
+                result -= result % 1;
+                float remainder = unitCount - (result * result);
+
+                Debug.Log("Not Square result: " + result);
+
+                for (int x = 0; x < result; x++)
+                {
+                    for (int y = 0; y < result; y++)
+                    {
+                        unitPositions.Add(new Vector3(x, 0, y));
+
+                        Debug.Log(x + " and " + y + "Square Loop");
+                    }
+                }
+
+                float xRemainder = 0;  
+                float yRemainder = result;   //result is the square number so represents the height of the square. this is where the new line of units will start
+                for (int i = 0; i < remainder; i++)
+                {
+                    if (xRemainder >= result)
+                    {
+                        xRemainder = 0;
+                        yRemainder++;
+                    }
+
+                    Debug.Log(xRemainder + " and " + yRemainder + "Remainder Loop");
+
+                    unitPositions.Add(new Vector3(xRemainder,0 , yRemainder));
+
+                    xRemainder++;
+                }
+            }
+
+            //applying modifier to positions
+            for(int i = 0; i < unitPositions.Count; i++)
+            {
+                unitPositions[i] = unitPositions[i] * positionMod;
+                Debug.Log(unitPositions[i]);
+            }
+
+            //applying command to each unit with position
+            int unitCounter = 0;
             foreach (Unit unit in selectedUnits)
             {
                 if (unit.CheckCommand(UnitDictator.commandStates.Move))
                 {
-                    unit.MoveCommand(screenRay.point);
+                    unit.MoveCommand(screenRay.point + unitPositions[unitCounter]);
                 }
 
-                counter++;
+                unitCounter++;
             }
+        }
 
-            Debug.Log("Command given to " + counter + "units");
+        else
+        {
+            //ray didnt return anything 
+            return;
         }
     }
 
     private void SetStopCmd()
     {
-
+        foreach (Unit unit in selectedUnits)
+        {
+            unit.IdleCommand();
+        }
     }
 
     private void SetAttackCmd()
     {
 
-    }
-
-    public void GetSelectedUnits()
-    {
-        selectedUnits = unitSelector.getSelectedUnits();
     }
 }

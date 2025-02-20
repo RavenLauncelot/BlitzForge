@@ -29,16 +29,12 @@ public class UnitSelector : MonoBehaviour
         UnitControls = new PlayerControls();
 
         selection = UnitControls.UnitControls.Selection;
-        startAction = UnitControls.UnitControls.StartAction;
         mousePos = UnitControls.UnitControls.MousePos;
 
         selection.started += StartSelection;
         selection.canceled += EndSelection;
 
-        startAction.performed += StartAction;
-
         selection.Enable();
-        startAction.Enable();
         mousePos.Enable();
 
 
@@ -49,7 +45,6 @@ public class UnitSelector : MonoBehaviour
     private void OnDisable()
     {
         selection.Disable();
-        startAction.Disable();
         mousePos.Disable();
     }
 
@@ -120,7 +115,7 @@ public class UnitSelector : MonoBehaviour
         Debug.DrawRay(debugray.origin, debugray.direction * 20000, Color.yellow);
     }
 
-    public List<Unit> getSelectedUnits()
+    public List<Unit> GetSelectedUnits()
     {
         return selectedUnits;
     }
