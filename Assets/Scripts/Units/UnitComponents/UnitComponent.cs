@@ -17,19 +17,4 @@ public class UnitComponent : MonoBehaviour
     {
 
     }
-
-    public virtual void CommandTick()
-    {
-
-    }
-
-    public virtual void NavTick()
-    {
-
-    }
-
-    public virtual void SetMovementTarget(Vector3 position)
-    {
-
-    }
 }

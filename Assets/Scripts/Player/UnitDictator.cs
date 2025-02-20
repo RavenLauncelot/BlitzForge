@@ -145,9 +145,10 @@ public class UnitDictator : MonoBehaviour
             int unitCounter = 0;
             foreach (Unit unit in selectedUnits)
             {
-                if (unit.CheckCommand(UnitDictator.commandStates.Move))
+                if (unit.CheckCommand(CmdLogic.commandType.MovementCmd))
                 {
-                    unit.MoveCommand(screenRay.point + unitPositions[unitCounter]);
+                    MovementLogic movementLog = unit.GetComponent<MovementLogic>();
+                    movementLog.MovementCmd(screenRay.point + unitPositions[unitCounter]);
                 }
 
                 unitCounter++;
@@ -165,7 +166,7 @@ public class UnitDictator : MonoBehaviour
     {
         foreach (Unit unit in selectedUnits)
         {
-            unit.IdleCommand();
+            unit.StopAllCommands();
         }
     }
 

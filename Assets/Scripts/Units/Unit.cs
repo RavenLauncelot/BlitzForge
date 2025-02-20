@@ -6,82 +6,54 @@ using System.Linq;
 public class Unit : MonoBehaviour
 {
     //Unit behaviours
-    protected UnitComponent[] unitComponents;
-
-    //Unit stats
-    protected float health;
-    protected float speed;
+    protected CmdLogic[] unitLogic;
 
     //Team name
     //public UnitCommander.teamName teamName;
 
     //Available commands
-    UnitDictator.commandStates[] commands;
+    CmdLogic.commandType[] commands;
 
     //holds current state of unit
-    [SerializeField] protected UnitDictator.commandStates currentState = UnitDictator.commandStates.Idle;
+    [SerializeField] protected CmdLogic.commandType cmdState = CmdLogic.commandType.StopCmd;
 
-    public void initUnit(UnitDictator.commandStates[] setCommands)
+    public void initUnit(CmdLogic.commandType[] setCommands)
     {
         commands = setCommands;
 
         //find attached components
-        unitComponents = GetComponents<UnitComponent>();
+        unitLogic = GetComponents<CmdLogic>();
     }
 
-    private void NavigationTick(object sender, EventArgs e)
+    private void Update()
     {
-        foreach(UnitComponent component in unitComponents)
+        foreach(CmdLogic cmdLogic in unitLogic)
         {
-            component.NavTick();
-        }
-    }
-    private void CommandTick(object sender, EventArgs e)
-    {
-        foreach (UnitComponent component in unitComponents)
-        {
-            component.CommandTick();
+            if (cmdLogic.getCmdType() == cmdState)
+            {
+                cmdLogic.LogicUpdate();
+
+                return;
+            }
         }
     }
 
     //checks if command is valid
-    public bool CheckCommand(UnitDictator.commandStates checkCommand)
+    public bool CheckCommand(CmdLogic.commandType checkCommand)
     {
         return commands.Contains(checkCommand);
+    } 
+
+    public void SetState(CmdLogic.commandType state)
+    {
+        this.cmdState = state;
     }
 
-    protected UnitComponent FindComponent(UnitComponent.UnitComponents componentEnum)
+    public void StopAllCommands()
     {
-        foreach (UnitComponent unitComp in unitComponents)
+        foreach (CmdLogic cmdLogic in unitLogic)
         {
-            if (unitComp.componentType == componentEnum)
-            {
-                return unitComp;
-            }
-        }
-
-        return null;
-    }
-   
-
-    //Command setters
-    //These will set a command and then change the state of the unit
-    //These will be defined in the specific units logic
-    public virtual void AttackCommand()
-    {
-
-    }
-
-    public virtual void MoveCommand(Vector3 position)
-    {
-        
-    }
-
-    public void IdleCommand()
-    {
-        foreach (UnitComponent unitComp in unitComponents)
-        {
-            unitComp.StopComponent();
+            cmdLogic.StopCommand();
         }
     }
 }
