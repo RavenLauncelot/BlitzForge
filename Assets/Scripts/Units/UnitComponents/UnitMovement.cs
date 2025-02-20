@@ -70,7 +70,7 @@ public class UnitMovement : UnitComponent
                 {
                     movementDone = true;
                     path = null;
-                    break;
+                    return;
                 }
             }
 

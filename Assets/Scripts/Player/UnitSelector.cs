@@ -13,7 +13,6 @@ public class UnitSelector : MonoBehaviour
     PlayerControls UnitControls;
 
     InputAction selection;
-    InputAction startAction;
     InputAction mousePos;
 
     BoxCollider selectionTrigger;
