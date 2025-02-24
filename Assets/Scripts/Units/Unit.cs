@@ -10,6 +10,7 @@ public class Unit : MonoBehaviour
 
     //Team name
     //public UnitCommander.teamName teamName;
+    public unitManager unitManager;
 
     //Available commands
     CmdLogic.commandType[] commands;

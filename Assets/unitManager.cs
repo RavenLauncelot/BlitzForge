@@ -15,6 +15,7 @@ public class unitManager : MonoBehaviour
         if (detectedEnemies == null)
         {
             enemyUnit = null;
+            Debug.Log("No detected enemies");
             return false;
         }
 

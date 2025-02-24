@@ -45,7 +45,5 @@ public class MovementLogic : CmdLogic
         {
             Unit.SetState(CmdLogic.commandType.StopCmd);
         }
-
-        Debug.Log("MovementUpdate");
     }
 }
