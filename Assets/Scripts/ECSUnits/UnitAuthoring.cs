@@ -15,8 +15,7 @@ public class UnitAuthoring : MonoBehaviour
 
             AddComponent(entity, new UnitData
             {
-                speed = authoring.speed,
-                direction = authoring.direction,
+               health = 0
             });
         }
     }

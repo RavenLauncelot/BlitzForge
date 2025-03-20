@@ -28,7 +28,7 @@ public partial struct UnitSystem : ISystem
 
         public void Execute(ref UnitData unit, ref LocalTransform transform)
         {
-            transform = transform.Translate(unit.direction * unit.speed * deltaTime);
+            //transform = transform.Translate(unit.direction * unit.speed * deltaTime);
         }
     }
 }
