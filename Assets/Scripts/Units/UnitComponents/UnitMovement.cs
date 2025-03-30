@@ -33,6 +33,11 @@ public class UnitMovement : UnitComponent
         movementDone = false;
     }
 
+    public void SetMovementTarget(Unit target)
+    {
+        //we'll do this later
+    }
+
     public override void StopComponent()
     {
         base.StopComponent();

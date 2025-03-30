@@ -1,136 +1,174 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering.UI;
 
-public class UnitAttack : UnitComponent
+public class UnitAttack : UnitComponent, ILogicUpdate
 {
-    public Unit commandTarget;
-    public Unit autofireTarget;
-    public Unit activeTarget;
-    public Unit Unit;
+    //target info   
+    public Unit currentTarget;
 
-    public float range;
-    public float firerate;
-    public float damage;
-
+    //firing mode
+    public bool forcedTarget;
     public bool fireAtWill;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public bool canFire;
+
+    //gun stats
+    public float range;
+    public float damage;
+    public float reloadTime;
+
+    //layer mask
+    public LayerMask layerMask;
+
+    //reference points
+    public Transform turretPivotPos;
+
+    private void Start()
     {
         componentType = UnitComponents.UnitAttack;
-        Unit = GetComponent<Unit>();
 
-        StartCoroutine(FireCoroutine());
+        StartCoroutine(FireTimer());
     }
 
-    public void SetAttackTarget(Unit target)
+    public void SetForcedTarget(Unit target)
     {
-        commandTarget = target;
+        currentTarget = target;
+        forcedTarget = true;
     }
 
-    public void Update()
+    public void TimedLogicUpdate()
     {
-        //no command has been assigned auto
-        if (commandTarget == null)
+        if(currentTarget == null)
         {
-            activeTarget = autofireTarget;
-            AutofireTargetFinder();
+            forcedTarget = false;
+            canFire = false;
+            Debug.Log("Current Target null fnding new target");
+            currentTarget = FindTarget();
         }
 
-        else
+        else if(InRange() & LineOfSight())
         {
-            activeTarget = commandTarget;
-        }
-    }
-
-    public void AutofireTargetFinder()
-    {
-        //find new target autofireTarget is null
-        if (autofireTarget == null)
-        {
-            //Unit found 
-            //This may be bad for performannce checking every frame, especially when no untis have been discovered yet.
-            if (Unit.unitManager.FindClosestEnemy(transform.position, out Unit foundTarget))
+            if (fireAtWill)
             {
-                //within range
-                if (Vector3.Distance(foundTarget.transform.position, transform.position) < range)
-                {
-                    autofireTarget = foundTarget;
-                }
-
-                //out of range
-                else
-                {
-                    autofireTarget = null;
-                }
+                canFire = true;
             }
-        }
-
-        //check auto fire target is still valid (in range)
-        else
-        {
-            //checks if within range
-            if(Vector3.Distance(autofireTarget.transform.position, transform.position) > range)
+            else if (forcedTarget)
             {
-                autofireTarget = null;
+                canFire = true;
             }
-        }
-    }
-
-    public void Fire(Unit target)
-    {
-        Debug.Log("Fired");
-    }
-
-    public IEnumerator FireCoroutine()
-    {
-        while (true)
-        {
-            if (activeTarget != null)
-            {
-                if (fireAtWill & checkTarget(activeTarget))
-                {
-                    Fire(activeTarget);
-                }
-            }
-
-            yield return new WaitForSeconds(firerate);
-        }
-    }
-
-    public bool checkTarget(Unit target)
-    {
-        //check range
-
-        if (Vector3.Distance(target.transform.position, transform.position) < range)
-        {
-            //check line of sight
-            RaycastHit hit;
-            Ray ray = new Ray(transform.position, target.transform.position - transform.position);
-            if (Physics.Raycast(ray, out hit))
-            {
-                if (hit.collider.gameObject.TryGetComponent<Unit>(out Unit hitUnit))
-                {
-                    Debug.Log("Within line of sight");
-                    return true;
-                }
-
-                Debug.Log("TargetBlocked collider name: " + hit.collider.name);
-            }
-
             else
             {
-                Debug.Log("Ray Didnt hit");
+                canFire = false;
             }
+        }
 
-            Debug.DrawRay(transform.position, target.transform.position - transform.position, Color.magenta, 1);
+        else if(forcedTarget)
+        {
+            canFire = false;
+            return;
         }
 
         else
         {
-            Debug.Log("Out of range");
+            Debug.Log("Target out of range and out of sight getting new target");
+            canFire = false;
+            currentTarget = FindTarget();
+        }
+
+        Debug.Log("Logic update");
+    }
+
+    private Unit FindTarget()
+    {
+        Collider[] inRange = Physics.OverlapSphere(transform.position, range, layerMask);
+
+        foreach (Collider collider in inRange)
+        {           
+            Ray ray = new Ray(turretPivotPos.position, collider.transform.position - turretPivotPos.position);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, layerMask))
+            {
+                if (hit.transform.TryGetComponent<Unit>(out Unit selectedUnit) == collider.gameObject.GetComponent<Unit>())
+                {
+                    if (selectedUnit != this)
+                    {
+                        //raycast has hit enemy within range. enemy selection successful
+                        Debug.Log("Found unit distance: " + Vector3.Distance(collider.transform.position, turretPivotPos.position));
+                        return selectedUnit;
+                    }                                  
+                }
+            }
+        }
+
+        Debug.Log("No valid targets: " + this.gameObject.name);
+        return null;
+    }
+
+    private bool InRange()
+    {
+        if (currentTarget == null)
+        {
+            return false;
+        }
+
+        else if (Vector3.Distance(currentTarget.transform.position, transform.position) <= range)
+        {
+            return true;
+        }
+
+
+        return false;
+    }
+
+    private bool LineOfSight()
+    {
+        if (currentTarget == null)
+        {
+            return false;
+        }
+
+        Ray ray = new Ray(turretPivotPos.position, currentTarget.transform.position - turretPivotPos.position);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, layerMask))
+        {
+            if (hit.transform.TryGetComponent<Unit>(out Unit selectedUnit) == currentTarget.gameObject.GetComponent<Unit>())
+            {
+                Debug.Log("Target in line of sight");
+                return true;
+            }
         }
 
         return false;
+    }
+
+    private IEnumerator FireTimer()
+    {
+        while (true)
+        {
+            if (canFire)
+            {
+                //fire bullet innit
+                Fire();
+                yield return new WaitForSeconds(reloadTime);
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    private void Fire()
+    {
+        Vector3 Gunvector = currentTarget.transform.position - transform.position;
+        
+        Ray tankShot = new Ray(turretPivotPos.transform.position, Gunvector);
+
+        if(Physics.Raycast(tankShot, out RaycastHit hit))
+        {
+            if (hit.collider.TryGetComponent<IDamageable>(out IDamageable dealDamage))
+            {
+                dealDamage.Damage(damage);
+            }
+        }
     }
 }

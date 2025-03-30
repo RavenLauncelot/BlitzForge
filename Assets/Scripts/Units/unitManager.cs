@@ -1,40 +1,34 @@
 using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using Mono.Cecil.Cil;
+using Unity.VisualScripting;
+using System.Collections;
 
 public class unitManager : MonoBehaviour
 {
-    [SerializeField] List<Unit> alliedUnits = new List<Unit>();
-    [SerializeField] List<Unit> detectedEnemies = new List<Unit>();
+    Unit[] Units;
 
-    public bool FindClosestEnemy(Vector3 position, out Unit enemyUnit)
+    private void Start()
     {
-        Unit closestUnit = null;
-        Vector3 closestUnitPos;
+        Units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
 
-        if (detectedEnemies == null)
+        StartCoroutine(LogicUpdate());
+    }
+
+    private IEnumerator LogicUpdate()
+    {
+        while (true)
         {
-            enemyUnit = null;
-            Debug.Log("No detected enemies");
-            return false;
-        }
-
-        foreach(Unit unit in detectedEnemies)
-        {
-            if (closestUnit == null)
+            foreach (Unit unit in Units)
             {
-                closestUnit = unit;
-                closestUnitPos = closestUnit.transform.position;
-            }
+                if (unit.gameObject.TryGetComponent<ILogicUpdate>(out ILogicUpdate logicUpdate))
+                {
+                    logicUpdate.TimedLogicUpdate();
+                }
 
-            if (Vector3.Distance(closestUnit.transform.position, position) < Vector3.Distance(unit.transform.position, position))
-            {
-                closestUnit = unit;
-                closestUnitPos = unit.transform.position;
+                yield return new WaitForEndOfFrame();
             }
         }
-
-        enemyUnit = closestUnit;
-        return true;
     }
 }

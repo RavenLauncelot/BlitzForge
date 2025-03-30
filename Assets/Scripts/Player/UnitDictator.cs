@@ -145,10 +145,9 @@ public class UnitDictator : MonoBehaviour
             int unitCounter = 0;
             foreach (Unit unit in selectedUnits)
             {
-                if (unit.CheckCommand(CmdLogic.commandType.MovementCmd))
+                if (unit.TryGetComponent<IMoveable>(out IMoveable moveable) == true)
                 {
-                    MovementLogic movementLog = unit.GetComponent<MovementLogic>();
-                    movementLog.MovementCmd(screenRay.point + unitPositions[unitCounter]);
+                    moveable.MoveCommand(screenRay.point + unitPositions[unitCounter]);
                 }
 
                 unitCounter++;
@@ -164,10 +163,7 @@ public class UnitDictator : MonoBehaviour
 
     private void SetStopCmd()
     {
-        foreach (Unit unit in selectedUnits)
-        {
-            unit.StopAllCommands();
-        }
+
     }
 
     private void SetAttackCmd()
