@@ -46,7 +46,7 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
             currentTarget = FindTarget();
         }
 
-        else if(InRange() & LineOfSight())
+        else if(LineOfSight())
         {
             if (fireAtWill)
             {
@@ -104,21 +104,6 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
         return null;
     }
 
-    private bool InRange()
-    {
-        if (currentTarget == null)
-        {
-            return false;
-        }
-
-        else if (Vector3.Distance(currentTarget.transform.position, transform.position) <= range)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
     private bool LineOfSight()
     {
         if (currentTarget == null)
@@ -130,9 +115,9 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
 
         if (Physics.Raycast(ray, out RaycastHit hit, layerMask))
         {
-            if (hit.transform.TryGetComponent<Unit>(out Unit selectedUnit) == currentTarget.gameObject.GetComponent<Unit>())
+            if (hit.transform.TryGetComponent<Unit>(out Unit selectedUnit) == currentTarget.gameObject.GetComponent<Unit>() && hit.distance < range)
             {
-                Debug.Log("Target in line of sight");
+                Debug.Log("Target in line of sight and in range Range: " + hit.distance);
                 return true;
             }
         }
@@ -142,10 +127,19 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
 
     public void OnDrawGizmos()
     {
-        Ray r = new Ray(transform.position, currentTarget.transform.position - transform.position);
+        if (currentTarget != null)
+        {
+            Ray r = new Ray(transform.position, currentTarget.transform.position - transform.position);
+            Gizmos.DrawRay(r);
+        }
 
         Gizmos.DrawWireSphere(transform.position, range);
-        Gizmos.DrawRay(r);
+        
+    }
+
+    public Transform GetTargetTrans()
+    {
+        return currentTarget.transform;
     }
 
     //private IEnumerator FireTimer()
