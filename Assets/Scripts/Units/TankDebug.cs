@@ -4,7 +4,7 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
 {
     //Component list
     UnitMovement movementComp;
-    UnitAttack attackComp;
+    UnitTargetting attackComp;
 
     public float setHealth;
 
@@ -12,7 +12,7 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
     void Start()
     {      
         movementComp = GetComponent<UnitMovement>();
-        attackComp = GetComponent<UnitAttack>();
+        attackComp = GetComponent<UnitTargetting>();
 
         health = setHealth;
     }

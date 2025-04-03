@@ -1,8 +1,9 @@
 ﻿using System.Collections;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.UI;
 
-public class UnitAttack : UnitComponent, ILogicUpdate
+public class UnitTargetting : UnitComponent, ILogicUpdate
 {
     //target info   
     public Unit currentTarget;
@@ -26,9 +27,7 @@ public class UnitAttack : UnitComponent, ILogicUpdate
 
     private void Start()
     {
-        componentType = UnitComponents.UnitAttack;
-
-        StartCoroutine(FireTimer());
+        componentType = UnitComponents.UnitTargeting;
     }
 
     public void SetForcedTarget(Unit target)
@@ -117,7 +116,6 @@ public class UnitAttack : UnitComponent, ILogicUpdate
             return true;
         }
 
-
         return false;
     }
 
@@ -142,33 +140,41 @@ public class UnitAttack : UnitComponent, ILogicUpdate
         return false;
     }
 
-    private IEnumerator FireTimer()
+    public void OnDrawGizmos()
     {
-        while (true)
-        {
-            if (canFire)
-            {
-                //fire bullet innit
-                Fire();
-                yield return new WaitForSeconds(reloadTime);
-            }
+        Ray r = new Ray(transform.position, currentTarget.transform.position - transform.position);
 
-            yield return new WaitForEndOfFrame();
-        }
+        Gizmos.DrawWireSphere(transform.position, range);
+        Gizmos.DrawRay(r);
     }
 
-    private void Fire()
-    {
-        Vector3 Gunvector = currentTarget.transform.position - transform.position;
+    //private IEnumerator FireTimer()
+    //{
+    //    while (true)
+    //    {
+    //        if (canFire)
+    //        {
+    //            //fire bullet innit
+    //            Fire();
+    //            yield return new WaitForSeconds(reloadTime);
+    //        }
+
+    //        yield return new WaitForEndOfFrame();
+    //    }
+    //}
+
+    //private void Fire()
+    //{
+    //    Vector3 Gunvector = currentTarget.transform.position - transform.position;
         
-        Ray tankShot = new Ray(turretPivotPos.transform.position, Gunvector);
+    //    Ray tankShot = new Ray(turretPivotPos.transform.position, Gunvector);
 
-        if(Physics.Raycast(tankShot, out RaycastHit hit))
-        {
-            if (hit.collider.TryGetComponent<IDamageable>(out IDamageable dealDamage))
-            {
-                dealDamage.Damage(damage);
-            }
-        }
-    }
+    //    if(Physics.Raycast(tankShot, out RaycastHit hit))
+    //    {
+    //        if (hit.collider.TryGetComponent<IDamageable>(out IDamageable dealDamage))
+    //        {
+    //            dealDamage.Damage(damage);
+    //        }
+    //    }
+    //}
 }

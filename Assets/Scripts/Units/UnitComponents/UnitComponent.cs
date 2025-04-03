@@ -6,7 +6,7 @@ public class UnitComponent : MonoBehaviour
 {
     public enum UnitComponents
     {
-        UnitAttack,
+        UnitTargeting,
         UnitMovement
     }
 
