@@ -17,8 +17,9 @@ public class UnitSelector : MonoBehaviour
 
     BoxCollider selectionTrigger;
     Camera cam;
+    [SerializeField] private Transform camYaw;
 
-    Vector3 firstSelection;
+    Vector3 pointA;
 
     bool isSelecting = false;
 
@@ -58,7 +59,7 @@ public class UnitSelector : MonoBehaviour
         if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
         {
             isSelecting = true;
-            firstSelection = screenRay.point;
+            pointA = screenRay.point;
 
             selectionTrigger.enabled = true;
         }
@@ -87,17 +88,20 @@ public class UnitSelector : MonoBehaviour
 
             if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
             {
-                Vector3 selectionToPoint = screenRay.point - firstSelection;
-                selectionToPoint = new(selectionToPoint.x,200,selectionToPoint.z);
+                Vector3 pointAtoB = screenRay.point - pointA;
+                Vector3 pointAtoBLocal = transform.InverseTransformPoint(screenRay.point) - transform.InverseTransformPoint(pointA);
 
-                Vector3 centre = firstSelection + selectionToPoint / 2;
-                centre = new(centre.x, 100, centre.z);
+                pointAtoB = new(pointAtoB.x,200,pointAtoB.z);
+                pointAtoBLocal = new(pointAtoBLocal.x, 200, pointAtoBLocal.z);
+
+                Vector3 centre = pointA + pointAtoB / 2;
+                centre = new(centre.x, 0, centre.z);
 
                 //selectionTrigger.transform.position = centre;
                 //selectionTrigger.transform.localScale = size;
 
-                selectionTrigger.size = selectionToPoint;  
-                selectionTrigger.center = centre;
+                selectionTrigger.size = pointAtoBLocal;  
+                transform.position = centre;
             }
 
             else
@@ -105,6 +109,9 @@ public class UnitSelector : MonoBehaviour
                 //lol it stays the same cus like the mouse didnt hit stuff
             }
         }
+
+        //Updating rotation copies the player camera.
+        transform.rotation = camYaw.rotation;
 
         //Debug ray
         Vector2 debugMouse = mousePos.ReadValue<Vector2>();
