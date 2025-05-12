@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class UnitDebugger : MonoBehaviour
 {
-    public unitManager unitManager;
+    public UnitManager unitManager;
     
     Unit attachedUnit;
 

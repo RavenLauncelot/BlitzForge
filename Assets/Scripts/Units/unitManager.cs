@@ -6,12 +6,13 @@ using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using Unity.VisualScripting;
 using Unity.Android.Gradle.Manifest;
 using System.Linq;
+using JetBrains.Annotations;
 
-public class unitManager : MonoBehaviour
+public class UnitManager : MonoBehaviour
 {
     [SerializeField] private Unit[] units;
-    [SerializeField] private UnitData[] unitData;
-    [SerializeField] private Dictionary<Unit, int> unitIndexLookup;  //This specifically works with the unitData array. (NOTHING ELSE) IMPORTANTTTT
+    [SerializeField] protected UnitData[] unitData;
+    [SerializeField] protected Dictionary<Unit, int> unitIndexLookup;  //This specifically works with the unitData array. (NOTHING ELSE) IMPORTANTTTT
 
     [SerializeField] private LayerMask unitLayermask;
 
@@ -32,6 +33,7 @@ public class unitManager : MonoBehaviour
 
     private void Start()
     {       
+        //finding units on map
         unitIndexLookup = new Dictionary<Unit, int>();
         units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
         unitData = new UnitData[units.Length];
@@ -47,7 +49,7 @@ public class unitManager : MonoBehaviour
         }    
 
 
-
+        //setting up the unitdata struct array
         int i = 0;
         foreach (Unit unit in units)
         {
@@ -64,7 +66,8 @@ public class unitManager : MonoBehaviour
             i++;           
         }
 
-
+        MeshRendManager meshRend = GetComponent<MeshRendManager>();
+        meshRend.SetUnitManager(this);
 
         StartCoroutine(LogicUpdate());
         StartCoroutine(DetectionUpdate());
@@ -118,23 +121,23 @@ public class unitManager : MonoBehaviour
 
         while (true)
         {
-            foreach (UnitData data in unitData)
+            for(int u = 0; u < unitData.Count(); u++)             
             {
-                tempList = DetectEnemies(data);
+                tempList = DetectEnemies(unitData[u]);
                 
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    UnitData unitDataRef = findUnitData(detected);
+                    int detectedIndex = unitIndexLookup[detected];
 
-                    unitDataRef.detectedTimers[(int)data.teamId] = detectionTime;
+                    unitData[detectedIndex].detectedTimers[(int)unitData[u].teamId] = detectionTime;
 
-                    unitDataRef.teamVisibility |= (1u << (int)data.teamId);                                
+                    unitData[detectedIndex].teamVisibility |= (1u << (int)unitData[u].teamId);                                
                 }
 
                 yield return new WaitForEndOfFrame();
             }
-
+            
             //this is so unity doesn't crash when there are zero units lmoa
             yield return new WaitForEndOfFrame();
         }
@@ -162,7 +165,7 @@ public class unitManager : MonoBehaviour
         return detectedUnits;
     }
 
-    private struct UnitData
+    public struct UnitData
     {
         public Unit unitScript;
         public TeamId teamId;
@@ -170,13 +173,21 @@ public class unitManager : MonoBehaviour
         public float[] detectedTimers;
     }
 
-    private UnitData findUnitData(Unit unit)
+    //finds all enemy units of that team
+    public List<UnitData> GetEnemyUnits(TeamId team)
     {
-        return unitData[unitIndexLookup[unit]];
+        List<UnitData> detectedUnits = new List<UnitData>();
+
+        for (int u = 0; u < unitData.Count(); u++)
+        {
+            if (unitData[u].teamId != team)
+            {
+                detectedUnits.Add(unitData[u]);
+            }         
+        }
+
+        return detectedUnits;
     }
-
-
-
 
 
     //Debug functions

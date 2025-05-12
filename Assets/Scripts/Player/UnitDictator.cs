@@ -16,7 +16,7 @@ public class UnitDictator : MonoBehaviour
 
     Camera cam;
 
-    [SerializeField] private unitManager.TeamId teamId;
+    [SerializeField] private UnitManager.TeamId teamId;
 
     //ignore for now
     public float positionMod;

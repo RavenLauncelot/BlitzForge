@@ -7,8 +7,8 @@ using Unity.Mathematics;
 
 public class Unit : MonoBehaviour
 {
-    [SerializeField] private unitManager.TeamId teamId;
-    public unitManager.TeamId TeamId
+    [SerializeField] private UnitManager.TeamId teamId;
+    public UnitManager.TeamId TeamId
     {
         get { return teamId; }
     }
@@ -21,7 +21,7 @@ public class Unit : MonoBehaviour
     public float maxHealth;
     public float detectionRange;
 
-    public unitManager unitManager;
+    public UnitManager unitManager;
  
     public void MeshRendEnabled(bool enabled)
     {

@@ -23,7 +23,7 @@ public class UnitSelector : MonoBehaviour
 
     bool isSelecting = false;
 
-    [SerializeField] private unitManager.TeamId teamId;
+    [SerializeField] private UnitManager.TeamId teamId;
 
     private void OnEnable()
     {
