@@ -9,12 +9,14 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
     public float setHealth;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {      
         movementComp = GetComponent<UnitMovement>();
         attackComp = GetComponent<UnitTargetting>();
 
         health = setHealth;
+
+        unitInit();
     }
 
     public void MoveCommand(Vector3 position)

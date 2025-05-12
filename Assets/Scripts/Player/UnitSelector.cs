@@ -23,6 +23,7 @@ public class UnitSelector : MonoBehaviour
 
     bool isSelecting = false;
 
+    [SerializeField] private unitManager.TeamId teamId;
 
     private void OnEnable()
     {
@@ -130,8 +131,11 @@ public class UnitSelector : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent<Unit>(out Unit UnitScript))
         {
-            Debug.Log("Inside selected area");
-            selectedUnits.Add(UnitScript);
+            if (UnitScript.TeamId == teamId)
+            {
+                Debug.Log("Inside selected area");
+                selectedUnits.Add(UnitScript);
+            }
         }
     }
 
@@ -139,8 +143,11 @@ public class UnitSelector : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent<Unit>(out Unit UnitScript))
         {
-            Debug.Log("Outside selected area");
-            selectedUnits.Remove(UnitScript);
+            if (UnitScript.TeamId == teamId)
+            {
+                Debug.Log("Outside selected area");
+                selectedUnits.Remove(UnitScript);
+            }
         }
     }
 }

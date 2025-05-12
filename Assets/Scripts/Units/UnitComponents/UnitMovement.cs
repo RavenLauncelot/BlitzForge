@@ -1,13 +1,11 @@
 using Pathfinding;
 using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.UIElements;
 
 public class UnitMovement : UnitComponent
 {
-    private Seeker seeker;
-    private CharacterController controller;
-
-    private Path path;
-
+    private NavMeshAgent agent;
     private Vector3 currentTarget;
 
     //pathfinding
@@ -18,19 +16,18 @@ public class UnitMovement : UnitComponent
 
     private void Start()
     {
-        seeker = GetComponent<Seeker>();
-        controller = GetComponent<CharacterController>();
-
         componentType = UnitComponents.UnitMovement;
+
+        agent = GetComponent<NavMeshAgent>();
     }
 
     public void SetMovementTarget(Vector3 position)
     {
+        movementDone = true;
+        agent.isStopped = false;
         currentTarget = position;
-
-        seeker.StartPath(transform.position, currentTarget, OnPathComplete);
-
-        movementDone = false;
+        
+        agent.SetDestination(position);
     }
 
     public void SetMovementTarget(Unit target)
@@ -40,62 +37,16 @@ public class UnitMovement : UnitComponent
 
     public override void StopComponent()
     {
-        base.StopComponent();
-
-        path = null;
-        currentWaypoint = 0;
-    }
-
-    public void OnPathComplete(Path p)
-    {
-        if (!p.error)
-        {
-            path = p;
-            currentWaypoint = 0;
-            return;
-        }
+        agent.isStopped = true;
     }
 
     void Update()
     {        
-        if (path == null)
+        if (movementDone) { return; }
+        
+        if (Vector3.Distance(transform.position ,currentTarget) <= agent.stoppingDistance)
         {
-            return;
+            movementDone = true;
         }
-
-        movementDone = false;
-        float distanceToWaypoint;
-
-        while (true)
-        {
-            distanceToWaypoint = Vector3.Distance(transform.position, path.vectorPath[currentWaypoint]);
-
-            if (distanceToWaypoint < 4)
-            {
-                if (currentWaypoint + 1 < path.vectorPath.Count)
-                {
-                    currentWaypoint++;
-                    //reached a waypoint moving on to next waypoint
-                }
-                else
-                {
-                    movementDone = true;
-                    path = null;
-                    return;
-                }
-            }
-
-            else
-            {
-                //no change in direction
-                break;
-            }
-        }
-
-        Vector3 dir = (path.vectorPath[currentWaypoint] - transform.position).normalized;
-        Vector3 velocity = dir * speed;
-        controller.Move(velocity);
-
-        debugTotalWaypoint = path.vectorPath.Count;
     }
 }
