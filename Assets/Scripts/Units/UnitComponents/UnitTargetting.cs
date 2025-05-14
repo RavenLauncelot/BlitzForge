@@ -5,6 +5,9 @@ using UnityEngine.Rendering.UI;
 
 public class UnitTargetting : UnitComponent, ILogicUpdate
 {
+    //tank info
+    private Unit unit;
+
     //target info   
     public Unit currentTarget;
 
@@ -20,13 +23,15 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
     public float reloadTime;
 
     //layer mask
-    public LayerMask layerMask;
+    public LayerMask unitLayer;
 
     //reference points
     public Transform turretPivotPos;
 
     private void Start()
     {
+        unit = GetComponent<Unit>();
+
         componentType = UnitComponents.UnitTargeting;
         if (turretPivotPos == null)
         {
@@ -42,56 +47,43 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
 
     public void TimedLogicUpdate()
     {
-        if(currentTarget == null)
+        if (currentTarget != null & CanHitTarget(currentTarget) & fireAtWill)
         {
-            forcedTarget = false;
-            canFire = false;
-            Debug.Log("Current Target null fnding new target");
-            currentTarget = FindTarget();
-        }
-
-        else if(LineOfSight())
-        {
-            if (fireAtWill)
-            {
-                canFire = true;
-            }
-            else if (forcedTarget)
-            {
-                canFire = true;
-            }
-            else
-            {
-                canFire = false;
-            }
-        }
-
-        else if(forcedTarget)
-        {
-            canFire = false;
-            return;
+            canFire = true;           
         }
 
         else
         {
-            Debug.Log("Target out of range and out of sight getting new target");
             canFire = false;
-            currentTarget = FindTarget();
-        }
 
-        Debug.Log("Logic update");
+            if (currentTarget == null)
+            {
+                forcedTarget = false;
+                currentTarget = FindTarget();
+            }
+
+            else if (!forcedTarget & !CanHitTarget(currentTarget))
+            {
+                currentTarget = FindTarget();
+            }
+
+            else
+            {
+                //do nothing fireatll was most likely set yo false
+            }
+        }
     }
 
     private Unit FindTarget()
     {
-        Collider[] inRange = Physics.OverlapSphere(transform.position, range, layerMask);
+        Collider[] inRange = Physics.OverlapSphere(transform.position, range, unitLayer);
 
         foreach (Collider collider in inRange)
         {           
             Ray ray = new Ray(turretPivotPos.position, collider.transform.position - turretPivotPos.position);
-            Debug.DrawRay(turretPivotPos.position, collider.transform.position - turretPivotPos.position, Color.yellow);
+            Debug.DrawRay(turretPivotPos.position, collider.transform.position - turretPivotPos.position, Color.yellow, 4f);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, layerMask))
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 if (hit.transform.TryGetComponent<Unit>(out Unit selectedUnit) == collider.gameObject.GetComponent<Unit>())
                 {
@@ -109,22 +101,36 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
         return null;
     }
 
-    private bool LineOfSight()
-    {
-        if (currentTarget == null)
+    private bool CanHitTarget(Unit target)
+    {    
+        if (target == null)
         {
             return false;
         }
 
-        Ray ray = new Ray(turretPivotPos.position, currentTarget.transform.position - turretPivotPos.position);
+        Ray ray = new Ray(turretPivotPos.position, target.transform.position - turretPivotPos.position);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, layerMask))
+        if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            if (hit.transform.TryGetComponent<Unit>(out Unit selectedUnit) == currentTarget.gameObject.GetComponent<Unit>() && hit.distance < range)
+            if (hit.distance > range)
             {
-                Debug.Log("Target in line of sight and in range Range: " + hit.distance);
-                return true;
+                Debug.Log("Target out of range");
+                return false;
             }
+            else if (hit.collider.TryGetComponent<Unit>(out Unit unitTarg) == false)
+            {
+                Debug.Log("Target blocked");
+                return false;
+            }
+            else if (hit.collider.TryGetComponent(out Unit unitTarg2) == true && unitTarg2.TeamId == unit.TeamId)
+            {
+                Debug.Log("Friendly is within line of fire");
+                return false;
+            }
+            else
+            {
+                return true;
+            }            
         }
 
         return false;

@@ -507,7 +507,8 @@ MonoBehaviour:
   speed: 0
   maxHealth: 0
   detectionRange: 20
-  detectionRaycastPos: {fileID: 0}
+  observingPos: {fileID: 0}
+  detectionPos: {fileID: 0}
   objId: 0
   unitManager: {fileID: 43397206}
   setHealth: 0
@@ -1387,13 +1388,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4eccd27ec031549448bda759b9f4b95e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teamId: 3
+  teamId: 2
   meshRend: {fileID: 0}
   health: 0
   speed: 0
   maxHealth: 0
   detectionRange: 20
-  detectionRaycastPos: {fileID: 0}
+  observingPos: {fileID: 0}
+  detectionPos: {fileID: 0}
   objId: 0
   unitManager: {fileID: 43397206}
   setHealth: 0
@@ -1619,13 +1621,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4eccd27ec031549448bda759b9f4b95e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teamId: 4
+  teamId: 2
   meshRend: {fileID: 0}
   health: 0
   speed: 0
   maxHealth: 0
   detectionRange: 20
-  detectionRaycastPos: {fileID: 0}
+  observingPos: {fileID: 0}
+  detectionPos: {fileID: 0}
   objId: 0
   unitManager: {fileID: 43397206}
   setHealth: 0
@@ -1803,6 +1806,7 @@ GameObject:
   - component: {fileID: 2027448801}
   - component: {fileID: 2027448800}
   - component: {fileID: 2027448799}
+  - component: {fileID: 2027448804}
   - component: {fileID: 2027448798}
   - component: {fileID: 2027448802}
   - component: {fileID: 2027448803}
@@ -1848,7 +1852,8 @@ MonoBehaviour:
   speed: 0
   maxHealth: 0
   detectionRange: 200
-  detectionRaycastPos: {fileID: 596225034}
+  observingPos: {fileID: 0}
+  detectionPos: {fileID: 0}
   objId: 0
   unitManager: {fileID: 43397206}
   setHealth: 0
@@ -1929,6 +1934,30 @@ MonoBehaviour:
   visibilityMask: 0
   detectionTimers: []
   confirmedUnitName: 
+--- !u!114 &2027448804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2027448797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29fb9787232e65944a9b49fc6e527ec4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  componentType: 0
+  currentTarget: {fileID: 0}
+  forcedTarget: 0
+  fireAtWill: 0
+  canFire: 0
+  range: 200
+  damage: 0
+  reloadTime: 0
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  turretPivotPos: {fileID: 0}
 --- !u!1001 &2099692022
 PrefabInstance:
   m_ObjectHideFlags: 0
