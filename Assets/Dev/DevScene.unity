@@ -1954,9 +1954,9 @@ MonoBehaviour:
   range: 200
   damage: 0
   reloadTime: 0
-  layerMask:
+  unitLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
   turretPivotPos: {fileID: 0}
 --- !u!1001 &2099692022
 PrefabInstance:
