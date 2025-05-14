@@ -52,8 +52,6 @@ public class UnitDictator : MonoBehaviour
 
     private void SetCommand(InputAction.CallbackContext input)
     {
-        Debug.Log("Bruh");
-
         selectedUnits = unitSelector.GetSelectedUnits();
 
         switch (currentlySetCommand)
@@ -85,8 +83,6 @@ public class UnitDictator : MonoBehaviour
             //checks if square number 
             if (Mathf.Sqrt(unitCount) % 1  == 0)
             {
-                Debug.Log("Square Number");
-
                 float result = Mathf.Sqrt(unitCount);
                 for (int x = 0; x < result; x++)
                 {
@@ -100,13 +96,10 @@ public class UnitDictator : MonoBehaviour
             //if its not a square number
             else
             {
-                Debug.Log("Not Sqaure");            
-
                 float result = Mathf.Sqrt(unitCount);
                 result -= result % 1;
                 float remainder = unitCount - (result * result);
 
-                Debug.Log("Not Square result: " + result);
 
                 for (int x = 0; x < result; x++)
                 {
@@ -114,7 +107,6 @@ public class UnitDictator : MonoBehaviour
                     {
                         unitPositions.Add(new Vector3(x, 0, y));
 
-                        Debug.Log(x + " and " + y + "Square Loop");
                     }
                 }
 

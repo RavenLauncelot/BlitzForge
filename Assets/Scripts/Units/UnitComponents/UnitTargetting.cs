@@ -28,6 +28,10 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
     private void Start()
     {
         componentType = UnitComponents.UnitTargeting;
+        if (turretPivotPos == null)
+        {
+            turretPivotPos = this.transform;
+        }
     }
 
     public void SetForcedTarget(Unit target)
@@ -85,6 +89,7 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
         foreach (Collider collider in inRange)
         {           
             Ray ray = new Ray(turretPivotPos.position, collider.transform.position - turretPivotPos.position);
+            Debug.DrawRay(turretPivotPos.position, collider.transform.position - turretPivotPos.position, Color.yellow);
 
             if (Physics.Raycast(ray, out RaycastHit hit, layerMask))
             {

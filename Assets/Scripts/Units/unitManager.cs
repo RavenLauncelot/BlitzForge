@@ -1,26 +1,20 @@
 using System.Collections;
-using UnityEngine;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting.Antlr3.Runtime.Tree;
-using Unity.VisualScripting;
-using Unity.Android.Gradle.Manifest;
+using UnityEngine;
 using System.Linq;
-using JetBrains.Annotations;
+using System.Diagnostics.SymbolStore;
 
 public class UnitManager : MonoBehaviour
 {
     [SerializeField] private Unit[] units;
     [SerializeField] protected UnitData[] unitData;
-    [SerializeField] protected Dictionary<Unit, int> unitIndexLookup;  //This specifically works with the unitData array. (NOTHING ELSE) IMPORTANTTTT
+    [SerializeField] protected Dictionary<int, int> unitIndexLookup;  //This specifically works with the unitData array. (NOTHING ELSE) IMPORTANTTTT
 
     [SerializeField] private LayerMask unitLayermask;
 
     [SerializeField] private TeamId playerTeamId;
 
     public float detectionTime;
-
-    //[SerializeField] private List<Unit> playerVisibleUnits;
 
     public enum TeamId
     {
@@ -34,7 +28,7 @@ public class UnitManager : MonoBehaviour
     private void Start()
     {       
         //finding units on map
-        unitIndexLookup = new Dictionary<Unit, int>();
+        unitIndexLookup = new Dictionary<int, int>();
         units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
         unitData = new UnitData[units.Length];
 
@@ -48,20 +42,21 @@ public class UnitManager : MonoBehaviour
             }
         }    
 
-
         //setting up the unitdata struct array
         int i = 0;
         foreach (Unit unit in units)
         {
             unitData[i] = new UnitData
             {
-                unitScript = units[i],
+                unitScript = unit,
+                observingPos = unit.observingPos,
                 detectedTimers = new float[highestTeamint+1],
                 teamVisibility = 0,
-                teamId = unit.TeamId
+                teamId = unit.TeamId,
+                instanceId = unit.objId,
             };
 
-            unitIndexLookup.Add(units[i], i);
+            unitIndexLookup.Add(unit.objId, i);
 
             i++;           
         }
@@ -128,7 +123,7 @@ public class UnitManager : MonoBehaviour
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    int detectedIndex = unitIndexLookup[detected];
+                    int detectedIndex = unitIndexLookup[detected.objId];
 
                     unitData[detectedIndex].detectedTimers[(int)unitData[u].teamId] = detectionTime;
 
@@ -147,20 +142,34 @@ public class UnitManager : MonoBehaviour
     {
         List<Unit> detectedUnits = new List<Unit>();
 
-        Vector3 UnitPosition = unit.unitScript.transform.position;
+        Vector3 unitPosition = unit.observingPos.position;
         Collider[] detected = new Collider[20];
 
-        int collisions = Physics.OverlapSphereNonAlloc(UnitPosition, unit.unitScript.detectionRange, detected, unitLayermask);
+        int collisions = Physics.OverlapSphereNonAlloc(unitPosition, unit.unitScript.detectionRange, detected, unitLayermask);
         for (int i = 0; i < collisions; i++)
         {
-            if (detected[i].TryGetComponent<Unit>(out Unit unitCode))
-            {               
-                if (unit.teamId != unitCode.TeamId)
+            //found unit now need to send ray cast to check if not blocked by anything
+            if (detected[i].TryGetComponent<Unit>(out Unit unitCode) && unitCode.TeamId != unit.teamId)
+            {
+                Ray ray = new Ray(unitPosition, unitCode.detectionPos.position - unitPosition);
+                RaycastHit hit;
+                //Debug.DrawRay(unitPosition, unitCode.transform.position - unitPosition, Color.blue, 2);
+
+                if (Physics.Raycast(ray, out hit))
                 {
-                    detectedUnits.Add(unitCode);                   
+                    if (hit.collider.GetComponentInParent<Unit>() == unitCode)
+                    {
+                        detectedUnits.Add(unitCode);
+                    }
+
+                    else
+                    {
+                        //try again
+                    }
                 }
             }            
         }
+
 
         return detectedUnits;
     }
@@ -171,43 +180,46 @@ public class UnitManager : MonoBehaviour
         public TeamId teamId;
         public uint teamVisibility;
         public float[] detectedTimers;
+        public int instanceId;
+        public Transform observingPos;
+        public Transform detectionPos;
     }
 
     //finds all enemy units of that team
     public List<UnitData> GetEnemyUnits(TeamId team)
     {
-        List<UnitData> detectedUnits = new List<UnitData>();
+        List<UnitData> enemyUnits = new List<UnitData>();
 
         for (int u = 0; u < unitData.Count(); u++)
         {
             if (unitData[u].teamId != team)
             {
-                detectedUnits.Add(unitData[u]);
+                enemyUnits.Add(unitData[u]);
             }         
         }
 
-        return detectedUnits;
+        return enemyUnits;
     }
 
 
     //Debug functions
     public int getDebugTeam(Unit unit)
     {
-        return (int)unitData[unitIndexLookup[unit]].teamId;
+        return (int)unitData[unitIndexLookup[unit.objId]].teamId;
     }
 
     public uint getDebugVisMask(Unit unit)
     {
-        return unitData[unitIndexLookup[unit]].teamVisibility;
+        return unitData[unitIndexLookup[unit.objId]].teamVisibility;
     }
 
     public float[] getDebugTime(Unit unit)
     {
-        return unitData[unitIndexLookup[unit]].detectedTimers;
+        return unitData[unitIndexLookup[unit.objId]].detectedTimers;
     }
 
     public string getDebugUnit(Unit unit)
     {
-        return unitData[unitIndexLookup[unit]].unitScript.gameObject.name;
+        return unitData[unitIndexLookup[unit.objId]].unitScript.gameObject.name;
     }
 }

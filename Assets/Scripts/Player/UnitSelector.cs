@@ -133,7 +133,7 @@ public class UnitSelector : MonoBehaviour
         {
             if (UnitScript.TeamId == teamId)
             {
-                Debug.Log("Inside selected area");
+                //Debug.Log("Inside selected area");
                 selectedUnits.Add(UnitScript);
             }
         }
@@ -145,7 +145,7 @@ public class UnitSelector : MonoBehaviour
         {
             if (UnitScript.TeamId == teamId)
             {
-                Debug.Log("Outside selected area");
+                //Debug.Log("Outside selected area");
                 selectedUnits.Remove(UnitScript);
             }
         }

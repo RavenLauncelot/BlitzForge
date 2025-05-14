@@ -20,6 +20,9 @@ public class Unit : MonoBehaviour
     public float speed;
     public float maxHealth;
     public float detectionRange;
+    public Transform observingPos;
+    public Transform detectionPos;
+    public int objId;
 
     public UnitManager unitManager;
  
@@ -28,9 +31,21 @@ public class Unit : MonoBehaviour
         meshRend.enabled = enabled;
     }
 
-    public void unitInit()
+    public void awakeInit()
     {
         meshRend = GetComponentInChildren<MeshRenderer>();
+
+        objId = gameObject.GetInstanceID();
+
+        if (observingPos == null)
+        {
+            observingPos = this.transform;
+        }
+
+        if (detectionPos == null)
+        {
+            detectionPos = this.transform;
+        }
     }
 }
 

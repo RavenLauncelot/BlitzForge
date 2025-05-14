@@ -16,7 +16,7 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
 
         health = setHealth;
 
-        unitInit();
+        awakeInit();
     }
 
     public void MoveCommand(Vector3 position)
