@@ -28,14 +28,14 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
     //reference points
     public Transform turretPivotPos;
 
-    private void Start()
+    private void Awake()
     {
         unit = GetComponent<Unit>();
 
         componentType = UnitComponents.UnitTargeting;
         if (turretPivotPos == null)
         {
-            turretPivotPos = this.transform;
+            turretPivotPos = transform;
         }
     }
 
@@ -153,33 +153,13 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
         return currentTarget.transform;
     }
 
-    //private IEnumerator FireTimer()
-    //{
-    //    while (true)
-    //    {
-    //        if (canFire)
-    //        {
-    //            //fire bullet innit
-    //            Fire();
-    //            yield return new WaitForSeconds(reloadTime);
-    //        }
+    public Vector3 GetTargetPos()
+    {
+        if (currentTarget == null)
+        {
+            return Vector3.forward;
+        }
 
-    //        yield return new WaitForEndOfFrame();
-    //    }
-    //}
-
-    //private void Fire()
-    //{
-    //    Vector3 Gunvector = currentTarget.transform.position - transform.position;
-        
-    //    Ray tankShot = new Ray(turretPivotPos.transform.position, Gunvector);
-
-    //    if(Physics.Raycast(tankShot, out RaycastHit hit))
-    //    {
-    //        if (hit.collider.TryGetComponent<IDamageable>(out IDamageable dealDamage))
-    //        {
-    //            dealDamage.Damage(damage);
-    //        }
-    //    }
-    //}
+        return currentTarget.transform.position;
+    }
 }
