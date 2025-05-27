@@ -26,16 +26,16 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
     public LayerMask unitLayer;
 
     //reference points
-    public Transform turretPivotPos;
+    public Transform detectionRayPos;
 
     private void Awake()
     {
         unit = GetComponent<Unit>();
 
         componentType = UnitComponents.UnitTargeting;
-        if (turretPivotPos == null)
+        if (detectionRayPos == null)
         {
-            turretPivotPos = transform;
+            detectionRayPos = transform;
         }
     }
 
@@ -80,8 +80,8 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
 
         foreach (Collider collider in inRange)
         {           
-            Ray ray = new Ray(turretPivotPos.position, collider.transform.position - turretPivotPos.position);
-            Debug.DrawRay(turretPivotPos.position, collider.transform.position - turretPivotPos.position, Color.yellow, 4f);
+            Ray ray = new Ray(detectionRayPos.position, collider.transform.position - detectionRayPos.position);
+            Debug.DrawRay(detectionRayPos.position, collider.transform.position - detectionRayPos.position, Color.yellow, 4f);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
@@ -90,7 +90,7 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
                     if (selectedUnit != this)
                     {
                         //raycast has hit enemy within range. enemy selection successful
-                        Debug.Log("Found unit distance: " + Vector3.Distance(collider.transform.position, turretPivotPos.position));
+                        Debug.Log("Found unit distance: " + Vector3.Distance(collider.transform.position, detectionRayPos.position));
                         return selectedUnit;
                     }                                  
                 }
@@ -108,7 +108,7 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
             return false;
         }
 
-        Ray ray = new Ray(turretPivotPos.position, target.transform.position - turretPivotPos.position);
+        Ray ray = new Ray(detectionRayPos.position, target.transform.position - detectionRayPos.position);
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
@@ -150,7 +150,14 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
 
     public Transform GetTargetTrans()
     {
-        return currentTarget.transform;
+        if (currentTarget != null)
+        {
+            return currentTarget.transform;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public Vector3 GetTargetPos()

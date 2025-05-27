@@ -2,38 +2,86 @@ using UnityEngine;
 
 public class TurretAutoAim : MonoBehaviour
 {
-    [SerializeField] private Vector3 target;
-    private Vector3 pivotXTarget;
-    private Vector3 pivotYTarget;
+    [SerializeField] float turretYawSpeed;
+    [SerializeField] float turretPitchSpeed;
 
-    private UnitTargetting targettingComp;
+    Transform target;
+    Vector3 targetPos;
+    UnitTargetting unitTargetting;
 
-    [SerializeField] private Transform pivotX;
-    [SerializeField] private Transform pivotY;
+    [SerializeField] Transform turretYawer;
+    [SerializeField] Transform turretPitcher;
+    [SerializeField] Transform turretPosReference;
+    [SerializeField] Transform gunPosReference;
 
     private void Start()
     {
-        targettingComp = GetComponentInParent<UnitTargetting>();
+        if (!this.transform.parent.TryGetComponent<UnitTargetting>(out unitTargetting))
+        {
+            Debug.Log("No unit targetting component attached (Turret auto aim): " + this.gameObject.name);
+            this.enabled = false;
+        }
     }
 
     private void Update()
     {
-        target = targettingComp.GetTargetPos();
+        Debug.DrawRay(turretPitcher.position, turretPitcher.forward * 100);
+        Debug.DrawRay(turretYawer.position, turretYawer.forward * 100);
 
-        pivotYTarget = new Vector3(target.x, pivotY.position.y, target.z);
-        pivotY.LookAt(pivotYTarget);
+        target = unitTargetting.GetTargetTrans();
+        if (target != null)
+        {
+            //rotating the y axis first (yaw)
+            targetPos = target.position;
 
-        pivotXTarget = new Vector3(0, target.y - pivotX.position.y, Vector3.Distance(pivotX.position, target));
-        pivotX.localRotation = Quaternion.LookRotation(pivotX.
+            Quaternion turretAngleY = getTargetDirection("y");
+            Quaternion turretAngleX = getTargetDirection("x");
 
-        Debug.DrawRay(pivotY.position, pivotY.forward * 10, Color.yellow);
-        Debug.DrawRay(pivotX.position, pivotX.forward * 10, Color.red);
+            turretYawer.localRotation = Quaternion.RotateTowards(turretYawer.localRotation, turretAngleY, turretYawSpeed * Time.deltaTime);
 
-        Debug.DrawRay(pivotY.position, pivotY.TransformPoint(pivotXTarget));
-        Debug.Log("Pivot Y target: " + pivotYTarget + "    Pivot X target: " + pivotXTarget);
+            turretPitcher.localRotation = Quaternion.RotateTowards(turretPitcher.localRotation, turretAngleX, turretPitchSpeed * Time.deltaTime);
 
-        
+            
+        }
     }
 
-    
+    private Quaternion getTargetDirection(string axis)
+    {
+        Vector3 direction = new Vector3(0, 0, 0);
+        Quaternion rotationDifference;
+
+        Vector3 targetPos = unitTargetting.GetTargetTrans().position;
+
+        if (axis == "y")   //these are the axis specifcally for the gun 
+        {
+            direction = turretPosReference.InverseTransformPoint(targetPos);   //for this one I had to convert it to the local position to another gameobject in the same position as the turret rotates and the local positions change
+            direction.y = 0;
+
+            //Debug.Log("Y axis target vector: " + direction);
+            rotationDifference = Quaternion.LookRotation(direction, Vector3.up);   //this finds the rotation of the vector from the gun to the target the cameras looking at
+
+            Debug.Log("Y target local direction: " + direction + "    world direction should be teh same: " + (targetPos - turretYawer.position));
+            Debug.Log("TargetPos: " + targetPos);
+
+            return rotationDifference;
+        }
+        else if (axis == "x")
+        {
+            //since this is angle of the X axis i cant just get the y positon otherwise it would just point vertical
+            //I also need it so that the direction is straight ahead of the gun so it rotates on the correct axis this means i need to find the lenght of the hypotenuse of the x and z values and then point it forward ahead of the gun to get the correct rotation
+            float distanceToTarget = Mathf.Sqrt(Mathf.Pow(gunPosReference.InverseTransformPoint(targetPos).x, 2) + Mathf.Pow(gunPosReference.InverseTransformPoint(targetPos).z, 2));       //using a^2 + b^2 = c^2  - once ive found the distance to the target im going to point it in the same direction as the gun
+            direction.z = distanceToTarget;
+            direction.y = gunPosReference.InverseTransformPoint(targetPos).y;
+            direction.x = 0;
+
+            //Debug.Log("X axis target vector: " + direction);
+
+            rotationDifference = Quaternion.LookRotation(direction, Vector3.up);
+            return rotationDifference;
+        }
+        else
+        {
+            return Quaternion.Euler(0, 0, 0); //error
+        }
+    }
 }
