@@ -1,4 +1,6 @@
+using System.Net.Mail;
 using UnityEngine;
+using static UnitManager;
 
 public class UnitDebugger : MonoBehaviour
 {
@@ -7,13 +9,14 @@ public class UnitDebugger : MonoBehaviour
     Unit attachedUnit;
 
     public int teamId;
-    public uint visibilityMask;
+    public bool[] visibilityMask;
     public float[] detectionTimers;
     public string confirmedUnitName;
 
     private void Start()
     {
         attachedUnit = GetComponent<Unit>();
+        unitManager = attachedUnit.unitManager;
     }
 
     private void Update()
@@ -24,9 +27,9 @@ public class UnitDebugger : MonoBehaviour
         confirmedUnitName = unitManager.getDebugUnit(attachedUnit);
     }
 
-    public string GetBinary()
+    public void OnDrawGizmos()
     {
-        return System.Convert.ToString(visibilityMask, 2).PadLeft(32, '0');
+        Gizmos.DrawWireSphere(attachedUnit.detectionPos.position, attachedUnit.detectionRange);
     }
 }
 

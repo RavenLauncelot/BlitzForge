@@ -14,6 +14,9 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
         movementComp = GetComponent<UnitMovement>();
         attackComp = GetComponent<UnitTargetting>();
 
+        damage = 20;
+        speed = 10;
+        reloadTime = 1;
         health = setHealth;
 
         awakeInit();

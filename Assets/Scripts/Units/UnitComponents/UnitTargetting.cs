@@ -90,14 +90,14 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
                     if (selectedUnit != this)
                     {
                         //raycast has hit enemy within range. enemy selection successful
-                        Debug.Log("Found unit distance: " + Vector3.Distance(collider.transform.position, detectionRayPos.position));
+                        Debug.Log("Found target" + gameObject.name);
                         return selectedUnit;
                     }                                  
                 }
             }
         }
 
-        Debug.Log("No valid targets: " + this.gameObject.name);
+        Debug.Log("No valid targets" + gameObject.name);
         return null;
     }
 
@@ -114,17 +114,17 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
         {
             if (hit.distance > range)
             {
-                Debug.Log("Target out of range");
+                Debug.Log("Target out of range" + gameObject.name);
                 return false;
             }
             else if (hit.collider.TryGetComponent<Unit>(out Unit unitTarg) == false)
             {
-                Debug.Log("Target blocked");
+                Debug.Log("Target blocked" + gameObject.name);
                 return false;
             }
             else if (hit.collider.TryGetComponent(out Unit unitTarg2) == true && unitTarg2.TeamId == unit.TeamId)
             {
-                Debug.Log("Friendly is within line of fire");
+                Debug.Log("Friendly is within line of fire" + gameObject.name);
                 return false;
             }
             else
@@ -134,18 +134,6 @@ public class UnitTargetting : UnitComponent, ILogicUpdate
         }
 
         return false;
-    }
-
-    public void OnDrawGizmos()
-    {
-        if (currentTarget != null)
-        {
-            Ray r = new Ray(transform.position, currentTarget.transform.position - transform.position);
-            Gizmos.DrawRay(r);
-        }
-
-        Gizmos.DrawWireSphere(transform.position, range);
-        
     }
 
     public Transform GetTargetTrans()

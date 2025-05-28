@@ -4,15 +4,10 @@ using System.Collections.Generic;
 
 public class MeshRendManager : MonoBehaviour
 {
-    [SerializeField] private UnitManager.TeamId managedTeam;
-    private UnitManager unitManager;
+    [SerializeField] public UnitManager.TeamId managedTeam;
+    public UnitManager unitManager;
 
     List<UnitManager.UnitData> detectedUnits;
-
-    public void SetUnitManager(UnitManager manager)
-    {
-        unitManager = manager;
-    }
 
     // Update is called once per frame
     void Update()
@@ -21,7 +16,7 @@ public class MeshRendManager : MonoBehaviour
 
         foreach (UnitManager.UnitData unit in detectedUnits)
         {
-            if ((unit.teamVisibility & (1u << (int)managedTeam)) != 0)
+            if (unit.teamVisibility[(int)managedTeam] == true)
             {
                 unit.unitScript.GetComponentInChildren<MeshRenderer>().enabled = true;
             }

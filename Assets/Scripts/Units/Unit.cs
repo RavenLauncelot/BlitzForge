@@ -11,15 +11,22 @@ public class Unit : MonoBehaviour
     public UnitManager.TeamId TeamId
     {
         get { return teamId; }
+        set { teamId = value; }
     }
 
     [SerializeField] private MeshRenderer meshRend;
 
     //Basic unit stats
-    public float health;
     public float speed;
+
+    public float health;
     public float maxHealth;
+
+    public float damage;
+    public float reloadTime;
+
     public float detectionRange;  
+
     [Header("observing pos is the position in which this object will send rays to other units in detection range \ndetection pos is the location in which rays are sent to, these need to be inside the collider to work. \nThese can both be set as null but will be both assume the parent's origin")]
     public Transform observingPos;
     public Transform detectionPos;
