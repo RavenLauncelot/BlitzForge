@@ -79,12 +79,12 @@ public class AttackManager : ManagerModule
 
     public void Update()
     {
-        int currentIndex;
+        int currentUnitDataIndex;
         AttackData attackData = null;
 
         foreach (int id in unitIds)
         {
-            currentIndex = manager.getUnitDataIndex(id);
+            currentUnitDataIndex = manager.unitIndexLookup[id];
 
             //getting the attack data object
             if (manager.getCompData(id, UnitComponent.ComponentType.AttackComp) is AttackData AttackData)
@@ -100,7 +100,7 @@ public class AttackManager : ManagerModule
 
 
 
-            if (attackData.currentTargetId != 0 & CanHitTarget(manager.unitData[currentIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)) & attackData.fireAtWill)
+            if (attackData.currentTargetId != 0 & CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)) & attackData.fireAtWill)
             {
                 attackData.canFire = true;
             }
@@ -112,12 +112,12 @@ public class AttackManager : ManagerModule
                 if (attackData.currentTargetId == 0)
                 {
                     attackData.forcedTarget = false;
-                    attackData.currentTargetId = FindTarget(manager.unitData[currentIndex], attackData);
+                    attackData.currentTargetId = FindTarget(manager.unitData[currentUnitDataIndex], attackData);
                 }
 
-                else if (!attackData.forcedTarget & !CanHitTarget(manager.unitData[currentIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)))
+                else if (!attackData.forcedTarget & !CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)))
                 {
-                    attackData.currentTargetId = FindTarget(manager.unitData[currentIndex], attackData);
+                    attackData.currentTargetId = FindTarget(manager.unitData[currentUnitDataIndex], attackData);
                 }
 
                 else

@@ -140,11 +140,6 @@ public class UnitManager : MonoBehaviour
         return idList.ToArray();
     }
 
-    public int getUnitDataIndex(int instanceId)
-    {
-        return unitIndexLookup[instanceId];
-    }
-
     public UnitComponent getCompData(int instanceId, UnitComponent.ComponentType type)
     {
         int index = unitIndexLookup[instanceId];
