@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.UI;
 
-public class UnitTargetting : UnitComponent, ILogicUpdate
+public class UnitTargetting : UnitThing, ILogicUpdate
 {
     //tank info
     private Unit unit;

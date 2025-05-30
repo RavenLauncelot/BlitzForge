@@ -27,10 +27,11 @@ public class Unit : MonoBehaviour
 
     public float detectionRange;  
 
-    [Header("observing pos is the position in which this object will send rays to other units in detection range \ndetection pos is the location in which rays are sent to, these need to be inside the collider to work. \nThese can both be set as null but will be both assume the parent's origin")]
+    [Header("Observing pos is the positon it will send raycasts to detect enemies \n aimingPos is the position it will fire from \n ray target is where other units will send rays to")]
     public Transform observingPos;
-    public Transform detectionPos;
-    public int objId;
+    public Transform aimingPos;
+    public Transform rayTarget;
+    public int instanceId;
 
     public UnitManager unitManager;
  
@@ -39,20 +40,20 @@ public class Unit : MonoBehaviour
         meshRend.enabled = enabled;
     }
 
-    public void awakeInit()
+    public void initUnit()
     {
         meshRend = GetComponentInChildren<MeshRenderer>();
 
-        objId = gameObject.GetInstanceID();
+        instanceId = gameObject.GetInstanceID();
 
         if (observingPos == null)
         {
             observingPos = this.transform;
         }
 
-        if (detectionPos == null)
+        if (aimingPos == null)
         {
-            detectionPos = this.transform;
+            aimingPos = this.transform;
         }
     }
 }

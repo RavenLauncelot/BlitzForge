@@ -18,8 +18,6 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
         speed = 10;
         reloadTime = 1;
         health = setHealth;
-
-        awakeInit();
     }
 
     public void MoveCommand(Vector3 position)

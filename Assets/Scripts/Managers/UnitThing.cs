@@ -2,7 +2,7 @@ using System.Data;
 using System.Xml.Serialization;
 using UnityEngine;
 
-public class UnitComponent : MonoBehaviour
+public class UnitThing : MonoBehaviour
 {
     public enum UnitComponents
     {

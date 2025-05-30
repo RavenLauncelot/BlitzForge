@@ -13,7 +13,19 @@ public class UnitDebugger : MonoBehaviour
     public float[] detectionTimers;
     public string confirmedUnitName;
 
-    private void Start()
+    public Vector3 aimingPos;
+    public Vector3 observingPos;
+
+    //attack component
+    public float range;
+    public float damage;
+    public float reloadTime;
+    public int targetId;
+    public bool canfire;
+    public bool fireAtWill;
+    public bool forcedTarget;
+
+    public void Start()
     {
         attachedUnit = GetComponent<Unit>();
         unitManager = attachedUnit.unitManager;
@@ -21,15 +33,31 @@ public class UnitDebugger : MonoBehaviour
 
     private void Update()
     {
-        teamId = unitManager.getDebugTeam(attachedUnit);
-        visibilityMask = unitManager.getDebugVisMask(attachedUnit);
-        detectionTimers = unitManager.getDebugTime(attachedUnit);
-        confirmedUnitName = unitManager.getDebugUnit(attachedUnit);
+        UnitData unitDataCopy = unitManager.unitData[unitManager.getUnitDataIndex(attachedUnit.instanceId)];
+
+        teamId = (int)unitDataCopy.teamId;
+        visibilityMask = unitDataCopy.teamVisibility;
+        detectionTimers = unitDataCopy.detectedTimers;
+        confirmedUnitName = unitDataCopy.unitScript.gameObject.name;
+        aimingPos = unitDataCopy.aimingPos.position;
+        observingPos = unitDataCopy.observingPos.position;
+
+        //attack module debug
+        AttackData attackData = unitManager.getCompData(attachedUnit.instanceId, UnitComponent.ComponentType.AttackComp) as AttackData;
+
+        range = attackData.range;
+        damage = attackData.damage;
+        reloadTime = attackData.reloadTime;
+        targetId = attackData.currentTargetId;
+        canfire = attackData.canFire;
+        fireAtWill = attackData.fireAtWill;
+        forcedTarget = attackData.forcedTarget;
+        
     }
 
     public void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(attachedUnit.detectionPos.position, attachedUnit.detectionRange);
+        Gizmos.DrawWireSphere(attachedUnit.aimingPos.position, attachedUnit.detectionRange);
     }
 }
 

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.Rendering;
 
 public class UnitManager : MonoBehaviour
 {
@@ -30,7 +31,8 @@ public class UnitManager : MonoBehaviour
         TeamC
     }
 
-    //this is temp in the future it will use a scritable object 
+    //this is temp in the future it will use a scritable object as it's parameters
+    //this is ran in awake inside of the levelmanager
     public void InitManager(int TankAmount, GameObject tank, TeamId team, LevelManager levelManager)
     {
         this.levelManager = levelManager;
@@ -43,34 +45,47 @@ public class UnitManager : MonoBehaviour
             units[i].TeamId = managedTeam;
             units[i].unitManager = this;
             units[i].gameObject.name = managedTeam.ToString() + " Tank " + i;
+            units[i].initUnit();
+        }
+
+        ManagerModule[] modules = GetComponents<ManagerModule>();
+        foreach(ManagerModule module in modules)
+        {
+            module.initModule(this, levelManager);
+        }
+
+        //finding units on map
+        unitIndexLookup = new Dictionary<int, int>();
+        unitData = new UnitData[units.Length];
+
+        //setting up the unitdata struct array
+        int u = 0;
+        foreach (Unit unit in units)
+        {
+            unitData[u] = new UnitData
+            {
+                unitScript = unit,
+                observingPos = unit.observingPos,
+                aimingPos = unit.aimingPos,
+                rayTarget = unit.rayTarget,
+                detectedTimers = new float[50],
+                teamVisibility = new bool[50],
+                teamId = unit.TeamId,
+                instanceId = unit.instanceId,
+
+                //This is temporary and will be decided once all compoennts are found
+                //At the moment units can't attack but it has no means of updating this data yet anyway
+                components = new List<UnitComponent> { new AttackData() }
+            };
+
+            unitIndexLookup.Add(unit.instanceId, u);
+
+            u++;
         }
     }
     
     private void Start()
     {
-        //finding units on map
-        unitIndexLookup = new Dictionary<int, int>();
-        unitData = new UnitData[units.Length];  
-
-        //setting up the unitdata struct array
-        int i = 0;
-        foreach (Unit unit in units)
-        {
-            unitData[i] = new UnitData
-            {
-                unitScript = unit,
-                observingPos = unit.observingPos,
-                detectedTimers = new float[50],
-                teamVisibility = new bool[50],
-                teamId = unit.TeamId,
-                instanceId = unit.objId,
-            };
-
-            unitIndexLookup.Add(unit.objId, i);
-
-            i++;           
-        }
-
         StartCoroutine(LogicUpdate());
         StartCoroutine(DetectionUpdate());
     }
@@ -105,6 +120,46 @@ public class UnitManager : MonoBehaviour
        
     }
 
+    public int[] findUnitsWithComponent(UnitComponent.ComponentType type)
+    {
+        List<int> idList = new List<int>();
+
+        //checking through eachs units data
+        foreach (UnitData data in unitData)
+        {
+            //checking through the component list of each unit
+            foreach (UnitComponent component in data.components)
+            {
+                if (component.compType == type)
+                {
+                    idList.Add(data.instanceId);
+                }
+            }
+        }
+
+        return idList.ToArray();
+    }
+
+    public int getUnitDataIndex(int instanceId)
+    {
+        return unitIndexLookup[instanceId];
+    }
+
+    public UnitComponent getCompData(int instanceId, UnitComponent.ComponentType type)
+    {
+        int index = unitIndexLookup[instanceId];
+
+        foreach (UnitComponent comp in unitData[index].components)
+        {
+            if (comp.compType == type)
+            {
+                return comp;
+            }
+        }
+
+        return null;
+    }
+
     private IEnumerator LogicUpdate()
     {
         while (true)
@@ -134,7 +189,7 @@ public class UnitManager : MonoBehaviour
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    levelManager.setDetected(detected.objId, managedTeam, detectionTime);                            
+                    levelManager.setDetected(detected.instanceId, managedTeam, detectionTime);                            
                 }
 
                 yield return new WaitForEndOfFrame();
@@ -149,42 +204,56 @@ public class UnitManager : MonoBehaviour
     {      
         List<Unit> detectedUnits = new List<Unit>();
 
-        Vector3 unitPosition = unitData.observingPos.position;
+        Vector3 observPos = unitData.observingPos.position;
         Collider[] detected = new Collider[20];
 
-        int collisions = Physics.OverlapSphereNonAlloc(unitPosition, unitData.unitScript.detectionRange, detected, unitLayermask);
+        int collisions = Physics.OverlapSphereNonAlloc(observPos, unitData.unitScript.detectionRange, detected, unitLayermask);
         for (int i = 0; i < collisions; i++)
         {
-            Debug.Log("Units detected within sphere: " + collisions);
-            //found unit now need to send ray cast to check if not blocked by anything
-            if (detected[i].TryGetComponent<Unit>(out Unit unitCode) && unitCode.TeamId != unitData.teamId)
+            //checking if there is a unit script inside the dectected collider
+            if (detected[i].TryGetComponent<Unit>(out Unit unitCode))
             {
-                Ray ray = new Ray(unitPosition, unitCode.detectionPos.position - unitPosition);
-                RaycastHit hit;
-                Debug.DrawRay(unitPosition, unitCode.detectionPos.position - unitPosition, Color.blue, 4f);
-
-                if (Physics.Raycast(ray, out hit, unitData.unitScript.detectionRange))
+                //if the team id is the same as the detecting unit it will skip
+                if (unitCode.TeamId == unitData.teamId)
                 {
-                    if (hit.collider.GetComponentInParent<Unit>() == unitCode)
-                    {
-                        detectedUnits.Add(unitCode);
-                    }
-
-                    else
-                    {
-                        //try again
-                    }
+                    continue;
                 }
+            }
+            //no unit script skip
+            else
+            {
+                continue;
+            }
+
+
+
+            //checking unit is within line of sight 
+            Ray ray = new Ray(observPos, unitCode.rayTarget.position - observPos);
+            RaycastHit hit;
+            Debug.DrawRay(observPos, unitCode.rayTarget.position - observPos, Color.blue, 4f);
+
+            if (Physics.Raycast(ray, out hit, unitData.unitScript.detectionRange))
+            {
+                if (hit.collider.GetComponentInParent<Unit>().instanceId == unitCode.instanceId)
+                {
+                    detectedUnits.Add(unitCode);
+                }
+
                 else
                 {
-                    Debug.Log("Raycast blocked or didn't reach" + gameObject.name);
+                    //try again
                 }
+            }
+            else
+            {
+                 Debug.Log("Raycast blocked or didn't reach" + gameObject.name);
             }            
         }       
 
         return detectedUnits;
     }
 
+    //struct that holds important data about all units in that team
     public struct UnitData
     {
         public Unit unitScript;
@@ -195,11 +264,20 @@ public class UnitManager : MonoBehaviour
 
         public int instanceId;
 
+        //These are positions for raycasts to hit 
+        //observing pos is above the tank itself which sends rays to detect tanks
+        //aimingpos is the position where shots are fire at the pivot. this sends rays too
+        //ray target is where other tanks will send raycasts to 
         public Transform observingPos;
-        public Transform detectionPos;
+        public Transform aimingPos;
+        public Transform rayTarget;
+
+        //These represent the capabilities of each unit 
+        //e.g. if they can move shoot detect etc and any specific data
+        public List<UnitComponent> components;
     }
 
-    //finds all enemy units of that team
+    //finds all enemy units of that team. This will be removed at some point
     public List<UnitData> GetEnemyUnits(TeamId team)
     {
         List<UnitData> enemyUnits = new List<UnitData>();
@@ -218,21 +296,21 @@ public class UnitManager : MonoBehaviour
     //Debug functions
     public int getDebugTeam(Unit unit)
     {
-        return (int)unitData[unitIndexLookup[unit.objId]].teamId;
+        return (int)unitData[unitIndexLookup[unit.instanceId]].teamId;
     }
 
     public bool[] getDebugVisMask(Unit unit)
     {
-        return unitData[unitIndexLookup[unit.objId]].teamVisibility;
+        return unitData[unitIndexLookup[unit.instanceId]].teamVisibility;
     }
 
     public float[] getDebugTime(Unit unit)
     {
-        return unitData[unitIndexLookup[unit.objId]].detectedTimers;
+        return unitData[unitIndexLookup[unit.instanceId]].detectedTimers;
     }
 
     public string getDebugUnit(Unit unit)
     {
-        return unitData[unitIndexLookup[unit.objId]].unitScript.gameObject.name;
+        return unitData[unitIndexLookup[unit.instanceId]].unitScript.gameObject.name;
     }
 }

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4855314865614183306}
   m_Layer: 7
-  m_Name: raycastTo
+  m_Name: AimingPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 281191920126406785}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.035, z: 0}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -106,7 +106,6 @@ GameObject:
   - component: {fileID: 5759084829203769995}
   - component: {fileID: 8282212806853738944}
   - component: {fileID: 2232883596518352618}
-  - component: {fileID: 1707471813761459350}
   - component: {fileID: 7717297148051554785}
   - component: {fileID: 3535589531099394010}
   - component: {fileID: 1817940998702605819}
@@ -132,6 +131,7 @@ Transform:
   m_Children:
   - {fileID: 4485533161673907428}
   - {fileID: 4592614267996161650}
+  - {fileID: 2526086845252344858}
   - {fileID: 4855314865614183306}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
@@ -178,34 +178,11 @@ MonoBehaviour:
   reloadTime: 0
   detectionRange: 100
   observingPos: {fileID: 4592614267996161650}
-  detectionPos: {fileID: 4855314865614183306}
-  objId: 0
+  aimingPos: {fileID: 4855314865614183306}
+  rayTarget: {fileID: 2526086845252344858}
+  instanceId: 0
   unitManager: {fileID: 0}
   setHealth: 0
---- !u!114 &1707471813761459350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2092314433495813802}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29fb9787232e65944a9b49fc6e527ec4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  componentType: 0
-  currentTarget: {fileID: 0}
-  forcedTarget: 0
-  fireAtWill: 0
-  canFire: 0
-  range: 100
-  damage: 0
-  reloadTime: 0
-  unitLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  detectionRayPos: {fileID: 321069211287754678}
 --- !u!114 &7717297148051554785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,6 +238,15 @@ MonoBehaviour:
   visibilityMask: 
   detectionTimers: []
   confirmedUnitName: 
+  aimingPos: {x: 0, y: 0, z: 0}
+  observingPos: {x: 0, y: 0, z: 0}
+  range: 0
+  damage: 0
+  reloadTime: 0
+  targetId: 0
+  canfire: 0
+  fireAtWill: 0
+  forcedTarget: 0
 --- !u!1 &2548181430229943473
 GameObject:
   m_ObjectHideFlags: 0
@@ -271,7 +257,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4592614267996161650}
   m_Layer: 7
-  m_Name: raycastFrom
+  m_Name: ObservingPos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -287,6 +273,37 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5759084829203769995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6642163912575844435
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2526086845252344858}
+  m_Layer: 7
+  m_Name: RayTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2526086845252344858
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6642163912575844435}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.964, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

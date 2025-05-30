@@ -55,16 +55,40 @@ public class LevelManager : MonoBehaviour
         return enemyUnits;
     }
 
+    public UnitData getUnitData(int instanceId)
+    {
+        if (instanceId == 0)
+        {
+            return new UnitData
+            {
+                instanceId = 0
+            };
+        }
+
+        foreach(UnitManager unitManager in unitManagers)
+        {
+            if (unitManager.unitIndexLookup.TryGetValue(instanceId, out var unitDataIndex))
+            {
+                UnitData unitData = unitManager.unitData[unitDataIndex];
+                return unitData;
+            }
+        }
+
+        return new UnitData
+        {         
+            instanceId = 0
+        };
+    }
+
     public void setDetected(int instanceId, UnitManager.TeamId detectedBy, float detectionTime)
     {
-        Debug.Log("Unit was detected potentially");
         for (int i = 0; i <= teams.Count; i++)
         {
             if (unitManagers[i].unitIndexLookup.TryGetValue(instanceId, out int index))
             {
                 unitManagers[i].unitData[index].teamVisibility[(int)detectedBy] = true;
                 unitManagers[i].unitData[index].detectedTimers[(int)detectedBy] = detectionTime;
-                Debug.Log("Set unit as detected");
+                Debug.Log("Set unit as detected - detected by team " + detectedBy);
                 return;
             }
         }

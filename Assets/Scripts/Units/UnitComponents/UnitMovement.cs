@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class UnitMovement : UnitComponent
+public class UnitMovement : UnitThing
 {
     private NavMeshAgent agent;
     private Vector3 currentTarget;
