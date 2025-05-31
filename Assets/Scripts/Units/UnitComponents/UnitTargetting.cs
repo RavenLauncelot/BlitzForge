@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.Rendering.UI;
+﻿using UnityEngine;
 
 public class UnitTargetting : UnitThing, ILogicUpdate
 {
@@ -49,7 +46,7 @@ public class UnitTargetting : UnitThing, ILogicUpdate
     {
         if (currentTarget != null & CanHitTarget(currentTarget) & fireAtWill)
         {
-            canFire = true;           
+            canFire = true;
         }
 
         else
@@ -79,7 +76,7 @@ public class UnitTargetting : UnitThing, ILogicUpdate
         Collider[] inRange = Physics.OverlapSphere(transform.position, range, unitLayer);
 
         foreach (Collider collider in inRange)
-        {           
+        {
             Ray ray = new Ray(detectionRayPos.position, collider.transform.position - detectionRayPos.position);
             Debug.DrawRay(detectionRayPos.position, collider.transform.position - detectionRayPos.position, Color.yellow, 4f);
 
@@ -92,7 +89,7 @@ public class UnitTargetting : UnitThing, ILogicUpdate
                         //raycast has hit enemy within range. enemy selection successful
                         Debug.Log("Found target" + gameObject.name);
                         return selectedUnit;
-                    }                                  
+                    }
                 }
             }
         }
@@ -102,7 +99,7 @@ public class UnitTargetting : UnitThing, ILogicUpdate
     }
 
     private bool CanHitTarget(Unit target)
-    {    
+    {
         if (target == null)
         {
             return false;
@@ -130,7 +127,7 @@ public class UnitTargetting : UnitThing, ILogicUpdate
             else
             {
                 return true;
-            }            
+            }
         }
 
         return false;
