@@ -77,6 +77,7 @@ public class AttackManager : ManagerModule
     //    }
     //}
 
+    //this will get changed to slower update later
     public void Update()
     {
         int currentUnitDataIndex;
@@ -235,4 +236,12 @@ public class AttackData : UnitComponent
     public float range = 10;
     public float damage;
     public float reloadTime;
+}
+
+
+//This is the interface for units with the capability to attack.
+//sends attack data so unit can use it for 
+public interface ICanAttack
+{
+    void UpdateAttack(AttackData attackData);
 }
