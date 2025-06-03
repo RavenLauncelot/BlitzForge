@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class ManagerModule : MonoBehaviour
+public class ModuleManager : MonoBehaviour
 {
     protected UnitManager manager;
     protected LevelManager levelManager;
@@ -20,8 +20,8 @@ public class ManagerModule : MonoBehaviour
         initialised = true;        
     }
 
-    public int[] GetIds(UnitComponent.ComponentType type)
+    public int[] GetIds(ManagerData.ModuleType type)
     {
-        return manager.findUnitsWithComponent(type);
+        return manager.findUnitsWithModule(type);
     }
 }

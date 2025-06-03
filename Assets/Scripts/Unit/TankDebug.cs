@@ -4,7 +4,7 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
 {
     //Component list
     UnitMovement movementComp;
-    UnitTargetting attackComp;
+    UnitAttackModule attackComp;
 
     public float setHealth;
 
@@ -12,7 +12,7 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
     void Awake()
     {      
         movementComp = GetComponent<UnitMovement>();
-        attackComp = GetComponent<UnitTargetting>();
+        attackComp = GetComponent<UnitAttackModule>();
 
         damage = 20;
         speed = 10;
@@ -37,13 +37,12 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
 
     public void AttackCommand(Unit unit)
     {
-        attackComp.SetForcedTarget(unit);
-        movementComp.SetMovementTarget(unit);
+        
     }
 
     public void FireAtWill(bool enabled)
     {
-        attackComp.fireAtWill = enabled;
+        
     }
 
     public void Damage(float damage)

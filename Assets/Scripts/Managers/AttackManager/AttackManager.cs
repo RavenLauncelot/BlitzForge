@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class AttackManager : ManagerModule
+public class AttackManager : ModuleManager
 {
     //This script will do all the processing of the unitsusing the attack data
     //object stored in each struct
@@ -16,7 +16,7 @@ public class AttackManager : ManagerModule
     //first lets get all instance Ids we need that have this component
     public void Start()
     {
-        unitIds = GetIds(UnitComponent.ComponentType.AttackComp);
+        unitIds = GetIds(ManagerData.ModuleType.AttackModule);
 
         //StartCoroutine(TimedUpdate());
     }
@@ -88,7 +88,7 @@ public class AttackManager : ManagerModule
             currentUnitDataIndex = manager.unitIndexLookup[id];
 
             //getting the attack data object
-            if (manager.getCompData(id, UnitComponent.ComponentType.AttackComp) is AttackData AttackData)
+            if (manager.getCompData(id, ManagerData.ModuleType.AttackModule) is AttackData AttackData)
             {
                 attackData = AttackData;
             }
@@ -126,6 +126,8 @@ public class AttackManager : ManagerModule
                     //do nothing fireatll was most likely set yo false
                 }
             }
+
+            UnitUpdate(id, levelManager.getUnitData(id).rayTarget.position);
         }
     }
 
@@ -186,7 +188,7 @@ public class AttackManager : ManagerModule
         }
 
         Vector3 aimingRayPos = currentUnit.aimingPos.position;
-        Vector3 targetPos = target.unitScript.transform.position;
+        Vector3 targetPos = target.rayTarget.position;
 
 
         Ray ray = new Ray(aimingRayPos, targetPos - aimingRayPos);
@@ -215,27 +217,43 @@ public class AttackManager : ManagerModule
 
         return false;
     }
+
+    //Makes a unit fire
+    private void UnitUpdate(int id, Vector3 target)
+    {
+        levelManager.getUnitData(id).unitScript.GetComponent<UnitAttackModule>().UpdateAttackModule(target);
+    }
+
+    private void UnitFire(int id)
+    {
+
+    }
 }
 
 //this will hold data for attacking. This will be stored in the unitmanager
 //struct list which contains an array of all the components it has. 
-public class AttackData : UnitComponent
+public class AttackData : ManagerData
 {
     public AttackData()
     {
-        compType = ComponentType.AttackComp;
+        compType = ModuleType.AttackModule;
     }
 
     //the current targets instance Id
-    public int currentTargetId;
+    public int currentTargetId = 0;
 
-    public bool forcedTarget;
-    public bool fireAtWill;
+    public bool forcedTarget = false;
+    public bool fireAtWill = true;
     public bool canFire;
 
-    public float range = 10;
-    public float damage;
-    public float reloadTime;
+    public float range = 0;
+    public float damage = 0;
+    public float reloadTime = 0;
+}
+
+public class UnitAttackData : MonoBehaviour
+{
+    public int longDay;
 }
 
 

@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 5759084829203769995}
   - component: {fileID: 8282212806853738944}
   - component: {fileID: 2232883596518352618}
+  - component: {fileID: 5178506699252748271}
   - component: {fileID: 7717297148051554785}
   - component: {fileID: 3535589531099394010}
   - component: {fileID: 1817940998702605819}
@@ -183,6 +184,21 @@ MonoBehaviour:
   instanceId: 0
   unitManager: {fileID: 0}
   setHealth: 0
+--- !u!114 &5178506699252748271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092314433495813802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5471e29dbb1c8574db6227afe885b457, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackModuleData: {fileID: 11400000, guid: f7168b9565d1c09498536b3052c532f6, type: 2}
+  turretAiming: {fileID: 4667539783627249538}
+  gunParticle: {fileID: 0}
 --- !u!114 &7717297148051554785
 MonoBehaviour:
   m_ObjectHideFlags: 0

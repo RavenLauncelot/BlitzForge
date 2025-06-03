@@ -48,8 +48,8 @@ public class UnitManager : MonoBehaviour
             units[i].initUnit();
         }
 
-        ManagerModule[] modules = GetComponents<ManagerModule>();
-        foreach(ManagerModule module in modules)
+        ModuleManager[] modules = GetComponents<ModuleManager>();
+        foreach(ModuleManager module in modules)
         {
             module.initModule(this, levelManager);
         }
@@ -62,6 +62,17 @@ public class UnitManager : MonoBehaviour
         int u = 0;
         foreach (Unit unit in units)
         {
+            //finding the units avaiable modules 
+            UnitModule[] unitModules = unit.GetComponents<UnitModule>();
+            List<ManagerData> managerData = new List<ManagerData>();
+
+            //This goes through all the unitModules (they should all inherit UnitModule)
+            //and then get the manager data which is made from the connected scritable obj to the unit module. 
+            foreach (UnitModule module in unitModules)
+            {
+                managerData.Add(module.GetManagerData());
+            }
+
             unitData[u] = new UnitData
             {
                 unitScript = unit,
@@ -73,9 +84,8 @@ public class UnitManager : MonoBehaviour
                 teamId = unit.TeamId,
                 instanceId = unit.instanceId,
 
-                //This is temporary and will be decided once all compoennts are found
-                //At the moment units can't attack but it has no means of updating this data yet anyway
-                components = new List<UnitComponent> { new AttackData() }
+                //This is the list created earlier
+                components = managerData
             };
 
             unitIndexLookup.Add(unit.instanceId, u);
@@ -120,7 +130,7 @@ public class UnitManager : MonoBehaviour
        
     }
 
-    public int[] findUnitsWithComponent(UnitComponent.ComponentType type)
+    public int[] findUnitsWithModule(ManagerData.ModuleType type)
     {
         List<int> idList = new List<int>();
 
@@ -128,7 +138,7 @@ public class UnitManager : MonoBehaviour
         foreach (UnitData data in unitData)
         {
             //checking through the component list of each unit
-            foreach (UnitComponent component in data.components)
+            foreach (ManagerData component in data.components)
             {
                 if (component.compType == type)
                 {
@@ -140,11 +150,11 @@ public class UnitManager : MonoBehaviour
         return idList.ToArray();
     }
 
-    public UnitComponent getCompData(int instanceId, UnitComponent.ComponentType type)
+    public ManagerData getCompData(int instanceId, ManagerData.ModuleType type)
     {
         int index = unitIndexLookup[instanceId];
 
-        foreach (UnitComponent comp in unitData[index].components)
+        foreach (ManagerData comp in unitData[index].components)
         {
             if (comp.compType == type)
             {
@@ -269,7 +279,7 @@ public class UnitManager : MonoBehaviour
 
         //These represent the capabilities of each unit 
         //e.g. if they can move shoot detect etc and any specific data
-        public List<UnitComponent> components;
+        public List<ManagerData> components;
     }
 
     //finds all enemy units of that team. This will be removed at some point

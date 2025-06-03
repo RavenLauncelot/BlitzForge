@@ -43,7 +43,7 @@ public class UnitDebugger : MonoBehaviour
         observingPos = unitDataCopy.observingPos.position;
 
         //attack module debug
-        AttackData attackData = unitManager.getCompData(attachedUnit.instanceId, UnitComponent.ComponentType.AttackComp) as AttackData;
+        AttackData attackData = unitManager.getCompData(attachedUnit.instanceId, ManagerData.ModuleType.AttackModule) as AttackData;
 
         range = attackData.range;
         damage = attackData.damage;
