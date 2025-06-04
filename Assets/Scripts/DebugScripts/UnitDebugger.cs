@@ -33,7 +33,7 @@ public class UnitDebugger : MonoBehaviour
 
     private void Update()
     {
-        UnitData unitDataCopy = unitManager.unitData[unitManager.unitIndexLookup[attachedUnit.instanceId]];
+        UnitData unitDataCopy = unitManager.unitData[unitManager.unitDataIndexLookup[attachedUnit.instanceId]];
 
         teamId = (int)unitDataCopy.teamId;
         visibilityMask = unitDataCopy.teamVisibility;

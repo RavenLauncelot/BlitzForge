@@ -5,7 +5,10 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "UnitBlueprint", menuName = "Scriptable Objects/UnitBlueprint")]
 public class UnitBlueprint : ScriptableObject
 {
-    public GameObject ClientUnitPrefab;
+    public string unitName;
 
-    [SerializeReference] public List<ManagerData> ModuleData;
+    public GameObject clientUnitPrefab;
+
+    [SerializeReference] 
+    public List<ModuleDataScriptable> moduleData;
 }

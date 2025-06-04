@@ -167,14 +167,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3c0dba053cfa2547beb745dc9bb29c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  teams: 0100000002000000
-  unitManagers: []
-  tankPerTeam: 1
+  spawnData:
+  - {fileID: 11400000, guid: b37c229273be7cd4291896cc7aa6a1b0, type: 2}
+  - {fileID: 11400000, guid: ae4fa9c56d0a9bb4f83b581ff65f5bd5, type: 2}
   spawnLocations:
   - {fileID: 1986594321}
   - {fileID: 1608271947}
-  unitManager: {fileID: 7525592530265170038, guid: 29ad53db8269fa4488155a3f55e4825f, type: 3}
-  tank: {fileID: 2092314433495813802, guid: 3084bd2814447ad419e67801b467b360, type: 3}
+  unitManagerPrefab: {fileID: 7525592530265170038, guid: 29ad53db8269fa4488155a3f55e4825f, type: 3}
+  unitTypes:
+  - {fileID: 0}
+  unitManagers: []
 --- !u!4 &527524059
 Transform:
   m_ObjectHideFlags: 0
@@ -1330,25 +1332,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5345101927510337221
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7525592530740574990}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 704324c8e7d5dc84fbf05bd6c2b6a07e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  managedTeam: 0
-  units: []
-  unitLayermask:
-    serializedVersion: 2
-    m_Bits: 128
-  playerTeamId: 1
-  detectionTime: 5
 --- !u!1 &7525592530740574990
 GameObject:
   m_ObjectHideFlags: 0
@@ -1358,7 +1341,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3709920297183007647}
-  - component: {fileID: 5345101927510337221}
   - component: {fileID: 43397208}
   m_Layer: 0
   m_Name: PlayerMeshRenderer

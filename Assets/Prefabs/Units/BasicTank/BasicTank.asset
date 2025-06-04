@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f77443553ccae64085f8c4a0dd14008, type: 3}
   m_Name: BasicTank
   m_EditorClassIdentifier: 
-  ClientUnitPrefab: {fileID: 0}
+  unitName: BasicTank
+  clientUnitPrefab: {fileID: 2092314433495813802, guid: 3084bd2814447ad419e67801b467b360, type: 3}
+  moduleData:
+  - {fileID: 11400000, guid: ea3236e32f6442f48ad329c7f12488f6, type: 2}

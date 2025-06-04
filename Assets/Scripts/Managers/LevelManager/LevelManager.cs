@@ -8,28 +8,26 @@ public class LevelManager : MonoBehaviour
     //This loads the entire level. Can set the amount of teams and certain Data 
     //this is only used once upon loading 
 
-    public List<UnitManager.TeamId> teams;
-    public UnitManager[] unitManagers;
-
-    public int tankPerTeam;
-
+    [SerializeReference]
+    public List<SpawnData> spawnData;
     public List<Transform> spawnLocations;
 
-    //this is temporary for now
-    public GameObject unitManager;
-    public GameObject tank;
+    public GameObject unitManagerPrefab;
+    public UnitBlueprint[] unitTypes;
+
+    public UnitManager[] unitManagers;
 
     //this will spawn teams and unit managers
     public void Awake()
     {
-        unitManagers = new UnitManager[teams.Count];
+        unitManagers = new UnitManager[spawnData.Count];
 
-        for(int i  = 0; i < teams.Count; i++)
+        for(int i  = 0; i < spawnData.Count; i++)
         {
             //spawning unitManager
-            GameObject unitMan = Instantiate(unitManager, spawnLocations[i].position, Quaternion.identity);
-            unitMan.GetComponent<UnitManager>().InitManager(tankPerTeam, tank, teams[i], this);
-            unitMan.gameObject.name = teams[i].ToString() + "Manager";
+            GameObject unitMan = Instantiate(unitManagerPrefab, spawnLocations[i].position, Quaternion.identity);
+            unitMan.GetComponent<UnitManager>().InitManager(spawnData[i], this);
+            unitMan.gameObject.name = spawnData[i].teamId.ToString() + " Manager";
 
             //Adding unitManager to unitManager array 
             unitManagers[i] = unitMan.GetComponent<UnitManager>();
@@ -41,7 +39,7 @@ public class LevelManager : MonoBehaviour
     {
         List<UnitData> enemyUnits = new List<UnitData>();
 
-        for (int i = 0; i <= teams.Count; i++)
+        for (int i = 0; i <= unitManagers.Length; i++)
         {   
             for (int u = 0; u < unitManagers[i].unitData.Length; u++)
             {
@@ -67,7 +65,7 @@ public class LevelManager : MonoBehaviour
 
         foreach(UnitManager unitManager in unitManagers)
         {
-            if (unitManager.unitIndexLookup.TryGetValue(instanceId, out var unitDataIndex))
+            if (unitManager.unitDataIndexLookup.TryGetValue(instanceId, out var unitDataIndex))
             {
                 UnitData unitData = unitManager.unitData[unitDataIndex];
                 return unitData;
@@ -82,9 +80,9 @@ public class LevelManager : MonoBehaviour
 
     public void setDetected(int instanceId, UnitManager.TeamId detectedBy, float detectionTime)
     {
-        for (int i = 0; i <= teams.Count; i++)
+        for (int i = 0; i <= spawnData.Count; i++)
         {
-            if (unitManagers[i].unitIndexLookup.TryGetValue(instanceId, out int index))
+            if (unitManagers[i].unitDataIndexLookup.TryGetValue(instanceId, out int index))
             {
                 unitManagers[i].unitData[index].teamVisibility[(int)detectedBy] = true;
                 unitManagers[i].unitData[index].detectedTimers[(int)detectedBy] = detectionTime;

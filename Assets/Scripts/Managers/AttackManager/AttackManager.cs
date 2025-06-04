@@ -85,7 +85,7 @@ public class AttackManager : ModuleManager
 
         foreach (int id in unitIds)
         {
-            currentUnitDataIndex = manager.unitIndexLookup[id];
+            currentUnitDataIndex = manager.unitDataIndexLookup[id];
 
             //getting the attack data object
             if (manager.getCompData(id, ManagerData.ModuleType.AttackModule) is AttackData AttackData)
@@ -234,9 +234,13 @@ public class AttackManager : ModuleManager
 //struct list which contains an array of all the components it has. 
 public class AttackData : ManagerData
 {
-    public AttackData()
+    public AttackData(AttackDataScriptable data)
     {
         compType = ModuleType.AttackModule;
+
+        range = data.range;
+        damage = data.damage;
+        reloadTime = data.reloadTime;
     }
 
     //the current targets instance Id
@@ -251,9 +255,19 @@ public class AttackData : ManagerData
     public float reloadTime = 0;
 }
 
-public class UnitAttackData : MonoBehaviour
+
+
+[CreateAssetMenu(fileName = "AttackModuleData", menuName = "Scriptable Objects/ModuleData/AttackModuleData")]
+public class AttackDataScriptable : ModuleDataScriptable
 {
-    public int longDay;
+    public float range;
+    public float damage;
+    public float reloadTime;
+
+    public override ManagerData GetModuleData()
+    {
+        return new AttackData(this);
+    }
 }
 
 

@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1385ecbcdc0d73b45b16a53263b8cd04, type: 3}
-  m_Name: BasicTankAttackData
+  m_Script: {fileID: 11500000, guid: f6e1f6e8662600840937c9b694b56a91, type: 3}
+  m_Name: TeamA
   m_EditorClassIdentifier: 
-  range: 50
-  damage: 10
-  reloadTime: 10
+  teamId: 2

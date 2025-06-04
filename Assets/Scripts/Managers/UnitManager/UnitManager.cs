@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.Rendering;
+using Unity.VisualScripting;
+using Sirenix.OdinInspector.Editor.Validation;
+using System.Globalization;
+using static UnityEngine.UI.CanvasScaler;
+using Sirenix.OdinInspector.Editor.Modules;
 
 public class UnitManager : MonoBehaviour
 {
@@ -10,15 +15,11 @@ public class UnitManager : MonoBehaviour
 
     private LevelManager levelManager;
 
-    //this is a temp list
     [SerializeField] private Unit[] units;
-
     [SerializeField] public UnitData[] unitData;
-    [SerializeField] public Dictionary<int, int> unitIndexLookup;  //Thhis uses a units gameobject id to find the unitData struct associated wiht it 
+    [SerializeField] public Dictionary<int, int> unitDataIndexLookup;  //Thhis uses a units gameobject id to find the unitData struct associated wiht it 
 
     [SerializeField] private LayerMask unitLayermask;
-
-    [SerializeField] private TeamId playerTeamId;
 
     public float detectionTime;
 
@@ -33,70 +34,70 @@ public class UnitManager : MonoBehaviour
 
     //this is temp in the future it will use a scritable object as it's parameters
     //this is ran in awake inside of the levelmanager
-    public void InitManager(int TankAmount, GameObject tank, TeamId team, LevelManager levelManager)
+    public void InitManager(SpawnData spawnData, LevelManager levelManager)
     {
         this.levelManager = levelManager;
-        managedTeam = team;
-        units = new Unit[TankAmount];
-
-        for(int i = 0; i < TankAmount; i++)
-        {
-            units[i] = Instantiate(tank, transform.position, Quaternion.identity).GetComponent<Unit>();
-            units[i].TeamId = managedTeam;
-            units[i].unitManager = this;
-            units[i].gameObject.name = managedTeam.ToString() + " Tank " + i;
-            units[i].initUnit();
-        }
+        managedTeam = spawnData.teamId;
 
         ModuleManager[] modules = GetComponents<ModuleManager>();
-        foreach(ModuleManager module in modules)
+        foreach (ModuleManager module in modules)
         {
             module.initModule(this, levelManager);
         }
 
-        //finding units on map
-        unitIndexLookup = new Dictionary<int, int>();
-        unitData = new UnitData[units.Length];
-
-        //setting up the unitdata struct array
-        int u = 0;
-        foreach (Unit unit in units)
+        int unitAmount = 0;
+        foreach(SpawnData.UnitSpawn spawn in spawnData.unitSpawns)
         {
-            //finding the units avaiable modules 
-            UnitModule[] unitModules = unit.GetComponents<UnitModule>();
-            List<ManagerData> managerData = new List<ManagerData>();
+            unitAmount += spawn.unitAmount;
+        }
 
-            //This goes through all the unitModules (they should all inherit UnitModule)
-            //and then get the manager data which is made from the connected scritable obj to the unit module. 
-            foreach (UnitModule module in unitModules)
+        //finding units on map
+        unitDataIndexLookup = new Dictionary<int, int>();
+        unitData = new UnitData[unitAmount];
+
+        int counter = 0;
+        Unit tempUnit = null;
+        UnitBlueprint unitBlueprint = null;
+        List<ModuleDataScriptable> moduleData = new List<ModuleDataScriptable>();
+        foreach(SpawnData.UnitSpawn unitSpawn in spawnData.unitSpawns)
+        {
+            unitBlueprint = unitSpawn.unitType;
+            moduleData = unitBlueprint.moduleData;
+
+            tempUnit = Instantiate(unitBlueprint.clientUnitPrefab, transform.position, Quaternion.identity).GetComponent<Unit>();
+            tempUnit.TeamId = managedTeam;
+            tempUnit.unitManager = this;
+            tempUnit.gameObject.name = managedTeam.ToString() + " Tank " + counter;
+            tempUnit.initUnit();
+
+            //TEMP TEMP 
+            List<ManagerData> theRealModuleData = new List<ManagerData>();
+            foreach (ModuleDataScriptable moduleDataScriptable in moduleData)
             {
-                managerData.Add(module.GetManagerData());
+                theRealModuleData.Add(moduleDataScriptable.GetModuleData());
             }
 
-            unitData[u] = new UnitData
+            unitData[counter] = new UnitData
             {
-                unitScript = unit,
-                observingPos = unit.observingPos,
-                aimingPos = unit.aimingPos,
-                rayTarget = unit.rayTarget,
+                unitScript = tempUnit,
+                observingPos = tempUnit.observingPos,
+                aimingPos = tempUnit.aimingPos,
+                rayTarget = tempUnit.rayTarget,
                 detectedTimers = new float[50],
                 teamVisibility = new bool[50],
-                teamId = unit.TeamId,
-                instanceId = unit.instanceId,
+                teamId = tempUnit.TeamId,
+                instanceId = tempUnit.instanceId,
 
-                //This is the list created earlier
-                components = managerData
+                components = theRealModuleData
             };
 
-            unitIndexLookup.Add(unit.instanceId, u);
-
-            u++;
+            unitDataIndexLookup.Add(tempUnit.instanceId, counter);
+            counter++;
         }
     }
-    
+
     private void Start()
     {
-        StartCoroutine(LogicUpdate());
         StartCoroutine(DetectionUpdate());
     }
 
@@ -152,7 +153,7 @@ public class UnitManager : MonoBehaviour
 
     public ManagerData getCompData(int instanceId, ManagerData.ModuleType type)
     {
-        int index = unitIndexLookup[instanceId];
+        int index = unitDataIndexLookup[instanceId];
 
         foreach (ManagerData comp in unitData[index].components)
         {
@@ -163,22 +164,6 @@ public class UnitManager : MonoBehaviour
         }
 
         return null;
-    }
-
-    private IEnumerator LogicUpdate()
-    {
-        while (true)
-        {
-            foreach (Unit unit in units)
-            {
-                if (unit.gameObject.TryGetComponent<ILogicUpdate>(out ILogicUpdate logicUpdate))
-                {
-                    logicUpdate.TimedLogicUpdate();
-                }
-
-                yield return new WaitForEndOfFrame();
-            }
-        }
     }
 
     private IEnumerator DetectionUpdate()
@@ -301,21 +286,21 @@ public class UnitManager : MonoBehaviour
     //Debug functions
     public int getDebugTeam(Unit unit)
     {
-        return (int)unitData[unitIndexLookup[unit.instanceId]].teamId;
+        return (int)unitData[unitDataIndexLookup[unit.instanceId]].teamId;
     }
 
     public bool[] getDebugVisMask(Unit unit)
     {
-        return unitData[unitIndexLookup[unit.instanceId]].teamVisibility;
+        return unitData[unitDataIndexLookup[unit.instanceId]].teamVisibility;
     }
 
     public float[] getDebugTime(Unit unit)
     {
-        return unitData[unitIndexLookup[unit.instanceId]].detectedTimers;
+        return unitData[unitDataIndexLookup[unit.instanceId]].detectedTimers;
     }
 
     public string getDebugUnit(Unit unit)
     {
-        return unitData[unitIndexLookup[unit.instanceId]].unitScript.gameObject.name;
+        return unitData[unitDataIndexLookup[unit.instanceId]].unitScript.gameObject.name;
     }
 }

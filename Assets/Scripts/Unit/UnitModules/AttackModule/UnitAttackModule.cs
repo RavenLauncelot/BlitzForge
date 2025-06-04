@@ -7,7 +7,6 @@ public class UnitAttackModule : UnitModule
 
     //This is the scrtipable object which contains all relevant information for the manaher
     //only used once
-    public AttackModuleData attackModuleData;
     public AttackData attackData;
 
     //This points the turret at a target
@@ -16,22 +15,22 @@ public class UnitAttackModule : UnitModule
     //this will fire the projectile
     public ParticleSystem gunParticle;
 
-    public override ManagerData GetManagerData()
-    {
-        if (attackModuleData == null)
-        {
-            Debug.LogWarning("Attack module data missing");
+    //public override ManagerData GetManagerData()
+    //{
+    //    if (attackModuleData == null)
+    //    {
+    //        Debug.LogWarning("Attack module data missing");
 
-            return new AttackData();
-        }
+    //        return new AttackData();
+    //    }
 
-        return new AttackData()
-        {
-            damage = attackModuleData.damage,
-            range = attackModuleData.range,
-            reloadTime = attackModuleData.reloadTime
-        };
-    }
+    //    return new AttackData()
+    //    {
+    //        damage = attackModuleData.damage,
+    //        range = attackModuleData.range,
+    //        reloadTime = attackModuleData.reloadTime
+    //    };
+    //}
 
 
     private void Start()
