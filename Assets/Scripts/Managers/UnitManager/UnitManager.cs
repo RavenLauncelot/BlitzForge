@@ -2,12 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.Rendering;
-using Unity.VisualScripting;
-using Sirenix.OdinInspector.Editor.Validation;
-using System.Globalization;
-using static UnityEngine.UI.CanvasScaler;
-using Sirenix.OdinInspector.Editor.Modules;
+using Unity.AI.Navigation;
+using JetBrains.Annotations;
+using System.Runtime.CompilerServices;
 
 public class UnitManager : MonoBehaviour
 {
@@ -32,8 +29,6 @@ public class UnitManager : MonoBehaviour
         TeamC
     }
 
-    //this is temp in the future it will use a scritable object as it's parameters
-    //this is ran in awake inside of the levelmanager
     public void InitManager(SpawnData spawnData, LevelManager levelManager)
     {
         this.levelManager = levelManager;
@@ -46,9 +41,9 @@ public class UnitManager : MonoBehaviour
         }
 
         int unitAmount = 0;
-        foreach(SpawnData.UnitSpawn spawn in spawnData.unitSpawns)
+        foreach(int spawnAmount in spawnData.unitAmount)
         {
-            unitAmount += spawn.unitAmount;
+            unitAmount += spawnAmount;
         }
 
         //finding units on map
@@ -60,50 +55,49 @@ public class UnitManager : MonoBehaviour
         int counter = 0;
         Unit tempUnit = null;
         UnitBlueprint unitBlueprint = null;
-        List<ModuleDataScriptable> moduleData = new List<ModuleDataScriptable>();
-        foreach(SpawnData.UnitSpawn unitSpawn in spawnData.unitSpawns)
+        List<ModuleDataConstructor> moduleData = new List<ModuleDataConstructor>();
+        for(int ub = 0; ub < spawnData.unitBlueprint.Length; ub++)
         {
-            //getting the 
-            unitBlueprint = unitSpawn.unitType;
+            unitBlueprint = spawnData.unitBlueprint[ub];
             moduleData = unitBlueprint.moduleData;
 
-            tempUnit = Instantiate(unitBlueprint.clientUnitPrefab, transform.position, Quaternion.identity).GetComponent<Unit>();
-            tempUnit.TeamId = managedTeam;
-            tempUnit.unitManager = this;
-            tempUnit.gameObject.name = managedTeam.ToString() + " Tank " + counter;
-            tempUnit.initUnit();
-
-            List<ModuleData> modulesData = new List<ModuleData>();
-            foreach (ModuleDataScriptable moduleDataScriptable in moduleData)
+            for (int i = 0; i < spawnData.unitAmount[ub]; i++)
             {
-                ModuleData newModuleData = new ModuleData();
-                newModuleData.SetValues(moduleDataScriptable);
+                tempUnit = Instantiate(unitBlueprint.clientUnitPrefab, transform.position, Quaternion.identity).GetComponent<Unit>();
+                tempUnit.TeamId = managedTeam;
+                tempUnit.unitManager = this;
+                tempUnit.gameObject.name = managedTeam.ToString() + " Tank " + counter;
+                tempUnit.initUnit();
 
-                modulesData.Add(newModuleData);
-            }   
+                List<ModuleData> modulesData = new List<ModuleData>();
+                foreach (ModuleDataConstructor moduleDataScriptable in moduleData)
+                {
+                    modulesData.Add(moduleDataScriptable.GetNewData());
+                }
 
-            unitData[counter] = new UnitData
-            {
-                unitScript = tempUnit,
-                observingPos = tempUnit.observingPos,
-                aimingPos = tempUnit.aimingPos,
-                rayTarget = tempUnit.rayTarget,
-                detectedTimers = new float[50],
-                teamVisibility = new bool[50],
-                teamId = tempUnit.TeamId,
-                instanceId = tempUnit.instanceId,
+                unitData[counter] = new UnitData
+                {
+                    unitScript = tempUnit,
+                    observingPos = tempUnit.observingPos,
+                    aimingPos = tempUnit.aimingPos,
+                    rayTarget = tempUnit.rayTarget,
+                    detectedTimers = new float[50],
+                    teamVisibility = new bool[50],
+                    teamId = tempUnit.TeamId,
+                    instanceId = tempUnit.instanceId,
 
-                components = modulesData
-            };
+                    components = modulesData
+                };
 
-            unitDataIndexLookup.Add(tempUnit.instanceId, counter);
-            counter++;
+                unitDataIndexLookup.Add(tempUnit.instanceId, counter);
+                counter++;
+            }
         }
     }
 
     private void Start()
     {
-        StartCoroutine(DetectionUpdate());
+        
     }
 
     private void Update()
@@ -135,7 +129,7 @@ public class UnitManager : MonoBehaviour
        
     }
 
-    public int[] findUnitsWithModule(ModuleData.ModuleType type)
+    public int[] GetIdsWithModule(ModuleData.ModuleType type)
     {
         List<int> idList = new List<int>();
 
@@ -145,7 +139,7 @@ public class UnitManager : MonoBehaviour
             //checking through the component list of each unit
             foreach (ModuleData component in data.components)
             {
-                if (component.compType == type)
+                if (component.moduleType == type)
                 {
                     idList.Add(data.instanceId);
                 }
@@ -155,13 +149,13 @@ public class UnitManager : MonoBehaviour
         return idList.ToArray();
     }
 
-    public ModuleData getCompData(int instanceId, ModuleData.ModuleType type)
+    public ModuleData GetModuleData(int instanceId, ModuleData.ModuleType type)
     {
         int index = unitDataIndexLookup[instanceId];
 
         foreach (ModuleData comp in unitData[index].components)
         {
-            if (comp.compType == type)
+            if (comp.moduleType == type)
             {
                 return comp;
             }
@@ -170,82 +164,82 @@ public class UnitManager : MonoBehaviour
         return null;
     }
 
-    private IEnumerator DetectionUpdate()
-    {
-        List<Unit> tempList = new List<Unit>();
+    //private IEnumerator DetectionUpdate()
+    //{
+    //    List<Unit> tempList = new List<Unit>();
 
-        while (true)
-        {
-            for(int u = 0; u < unitData.Count(); u++)             
-            {
-                tempList = DetectEnemies(unitData[u]);
+    //    while (true)
+    //    {
+    //        for(int u = 0; u < unitData.Count(); u++)             
+    //        {
+    //            tempList = DetectEnemies(unitData[u]);
                 
-                //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
-                foreach (Unit detected in tempList)
-                {
-                    levelManager.setDetected(detected.instanceId, managedTeam, detectionTime);                            
-                }
+    //            //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
+    //            foreach (Unit detected in tempList)
+    //            {
+    //                levelManager.setDetected(detected.instanceId, managedTeam, detectionTime);                            
+    //            }
 
-                yield return new WaitForEndOfFrame();
-            }
+    //            yield return new WaitForEndOfFrame();
+    //        }
             
-            //this is so unity doesn't crash when there are zero units lmoa
-            yield return new WaitForEndOfFrame();
-        }
-    }
+    //        //this is so unity doesn't crash when there are zero units lmoa
+    //        yield return new WaitForEndOfFrame();
+    //    }
+    //}
 
-    private List<Unit> DetectEnemies(UnitData unitData)
-    {      
-        List<Unit> detectedUnits = new List<Unit>();
+    //private List<Unit> DetectEnemies(UnitData unitData)
+    //{      
+    //    List<Unit> detectedUnits = new List<Unit>();
 
-        Vector3 observPos = unitData.observingPos.position;
-        Collider[] detected = new Collider[20];
+    //    Vector3 observPos = unitData.observingPos.position;
+    //    Collider[] detected = new Collider[20];
 
-        int collisions = Physics.OverlapSphereNonAlloc(observPos, unitData.unitScript.detectionRange, detected, unitLayermask);
-        for (int i = 0; i < collisions; i++)
-        {
-            //checking if there is a unit script inside the dectected collider
-            if (detected[i].TryGetComponent<Unit>(out Unit unitCode))
-            {
-                //if the team id is the same as the detecting unit it will skip
-                if (unitCode.TeamId == unitData.teamId)
-                {
-                    continue;
-                }
-            }
-            //no unit script skip
-            else
-            {
-                continue;
-            }
+    //    int collisions = Physics.OverlapSphereNonAlloc(observPos, unitData.unitScript.detectionRange, detected, unitLayermask);
+    //    for (int i = 0; i < collisions; i++)
+    //    {
+    //        //checking if there is a unit script inside the dectected collider
+    //        if (detected[i].TryGetComponent<Unit>(out Unit unitCode))
+    //        {
+    //            //if the team id is the same as the detecting unit it will skip
+    //            if (unitCode.TeamId == unitData.teamId)
+    //            {
+    //                continue;
+    //            }
+    //        }
+    //        //no unit script skip
+    //        else
+    //        {
+    //            continue;
+    //        }
 
 
 
-            //checking unit is within line of sight 
-            Ray ray = new Ray(observPos, unitCode.rayTarget.position - observPos);
-            RaycastHit hit;
-            Debug.DrawRay(observPos, unitCode.rayTarget.position - observPos, Color.blue, 4f);
+    //        //checking unit is within line of sight 
+    //        Ray ray = new Ray(observPos, unitCode.rayTarget.position - observPos);
+    //        RaycastHit hit;
+    //        Debug.DrawRay(observPos, unitCode.rayTarget.position - observPos, Color.blue, 4f);
 
-            if (Physics.Raycast(ray, out hit, unitData.unitScript.detectionRange))
-            {
-                if (hit.collider.GetComponentInParent<Unit>().instanceId == unitCode.instanceId)
-                {
-                    detectedUnits.Add(unitCode);
-                }
+    //        if (Physics.Raycast(ray, out hit, unitData.unitScript.detectionRange))
+    //        {
+    //            if (hit.collider.GetComponentInParent<Unit>().instanceId == unitCode.instanceId)
+    //            {
+    //                detectedUnits.Add(unitCode);
+    //            }
 
-                else
-                {
-                    //try again
-                }
-            }
-            else
-            {
-                 Debug.Log("Raycast blocked or didn't reach" + gameObject.name);
-            }            
-        }       
+    //            else
+    //            {
+    //                //try again
+    //            }
+    //        }
+    //        else
+    //        {
+    //             Debug.Log("Raycast blocked or didn't reach" + gameObject.name);
+    //        }            
+    //    }       
 
-        return detectedUnits;
-    }
+    //    return detectedUnits;
+    //}
 
     //struct that holds important data about all units in that team
     public struct UnitData
@@ -286,6 +280,22 @@ public class UnitManager : MonoBehaviour
 
         return enemyUnits;
     }
+    
+
+    //Commands --------------------- commands
+
+    public void SetMovementCommand(int id, Vector3 position)
+    {
+        int unitDataIndex = unitDataIndexLookup[id];
+
+        if (unitData[unitDataIndex].unitScript is IMoveable)
+        {
+            IMoveable move = unitData[unitDataIndex].unitScript as IMoveable;
+            move.MoveCommand(position);
+        }
+    }
+
+    
 
     //Debug functions
     public int getDebugTeam(Unit unit)

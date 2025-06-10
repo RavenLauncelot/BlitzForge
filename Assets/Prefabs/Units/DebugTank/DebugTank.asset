@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f77443553ccae64085f8c4a0dd14008, type: 3}
-  m_Name: BasicTank
+  m_Name: DebugTank
   m_EditorClassIdentifier: 
   unitName: BasicTank
-  clientUnitPrefab: {fileID: 8727416021569130910, guid: e587bb4c9b821c34fa4f4b1d2daad7d5, type: 3}
+  clientUnitPrefab: {fileID: 2092314433495813802, guid: 3084bd2814447ad419e67801b467b360, type: 3}
   moduleData:
-  - {fileID: 11400000, guid: 08d4be77b57c4d54bb088ecb4023a5bb, type: 2}
-  - {fileID: 11400000, guid: 7e6e9476602b933499118b3563d5a81b, type: 2}
+  - {fileID: 11400000, guid: 2c9f0a8d0b3b52742953fed93c446274, type: 2}
+  - {fileID: 11400000, guid: f7168b9565d1c09498536b3052c532f6, type: 2}

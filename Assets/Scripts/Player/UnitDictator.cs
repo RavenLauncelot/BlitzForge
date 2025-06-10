@@ -120,8 +120,6 @@ public class UnitDictator : MonoBehaviour
                         yRemainder++;
                     }
 
-                    Debug.Log(xRemainder + " and " + yRemainder + "Remainder Loop");
-
                     unitPositions.Add(new Vector3(xRemainder,0 , yRemainder));
 
                     xRemainder++;
@@ -132,7 +130,6 @@ public class UnitDictator : MonoBehaviour
             for(int i = 0; i < unitPositions.Count; i++)
             {
                 unitPositions[i] = unitPositions[i] * positionMod;
-                Debug.Log(unitPositions[i]);
             }
 
             //applying command to each unit with position

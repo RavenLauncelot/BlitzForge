@@ -15,7 +15,7 @@ public class TurretAutoAim : MonoBehaviour
 
     private void Start()
     {
-        if (!this.transform.parent.TryGetComponent<UnitAttackModule>(out meow))
+        if (!this.transform.root.TryGetComponent<UnitAttackModule>(out meow))
         {
             Debug.Log("No unit targetting component attached (Turret auto aim): " + this.gameObject.name);
             this.enabled = false;
@@ -29,6 +29,7 @@ public class TurretAutoAim : MonoBehaviour
 
         if (targetPos != null)
         {
+            Debug.Log("this is working");
             //rotating the y axis first (yaw)
 
             Quaternion turretAngleY = getTargetDirection("y", targetPos);

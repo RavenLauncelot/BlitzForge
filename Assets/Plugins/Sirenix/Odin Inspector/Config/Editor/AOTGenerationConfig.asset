@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6e1f6e8662600840937c9b694b56a91, type: 3}
-  m_Name: TeamA
+  m_Script: {fileID: 1726182683, guid: a4865f1ab4504ed8a368670db22f409c, type: 3}
+  m_Name: AOTGenerationConfig
   m_EditorClassIdentifier: 
-  teamId: 2
-  unitAmount: 01000000
-  unitBlueprint:
-  - {fileID: 11400000, guid: 6981572aa54ec1f498ad86cfb63c5685, type: 2}
+  automateBeforeBuilds: 0
+  deleteDllAfterBuilds: 1
+  AutomateForAllAOTPlatforms: 1
+  automateForPlatforms: 0900000014000000
+  supportSerializedTypes: []

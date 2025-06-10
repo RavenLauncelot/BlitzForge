@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3709920297664432359}
   - component: {fileID: 5345101928094531005}
   - component: {fileID: -8515516161953769519}
+  - component: {fileID: 8381392937698650365}
   m_Layer: 0
   m_Name: UnitManager
   m_TagString: Untagged
@@ -50,7 +51,6 @@ MonoBehaviour:
   unitLayermask:
     serializedVersion: 2
     m_Bits: 128
-  playerTeamId: 0
   detectionTime: 5
 --- !u!114 &-8515516161953769519
 MonoBehaviour:
@@ -69,3 +69,19 @@ MonoBehaviour:
     m_Bits: 128
   unitIds: 
   updatePerSec: 1
+--- !u!114 &8381392937698650365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7525592530265170038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 749208dbd970adb44949d202e8bc7d68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitIds: 
+  unitLayer:
+    serializedVersion: 2
+    m_Bits: 128

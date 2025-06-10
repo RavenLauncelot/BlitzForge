@@ -16,21 +16,11 @@ public class Unit : MonoBehaviour
 
     [SerializeField] private MeshRenderer meshRend;
 
-    //Basic unit stats
-    public float speed;
-
-    public float health;
-    public float maxHealth;
-
-    public float damage;
-    public float reloadTime;
-
-    public float detectionRange;  
-
     [Header("Observing pos is the positon it will send raycasts to detect enemies \n aimingPos is the position it will fire from \n ray target is where other units will send rays to")]
     public Transform observingPos;
     public Transform aimingPos;
     public Transform rayTarget;
+
     public int instanceId;
 
     public UnitManager unitManager;

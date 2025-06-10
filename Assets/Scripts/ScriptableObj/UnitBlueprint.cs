@@ -10,5 +10,5 @@ public class UnitBlueprint : ScriptableObject
     public GameObject clientUnitPrefab;
 
     [SerializeReference] 
-    public List<ModuleDataScriptable> moduleData;
+    public List<ModuleDataConstructor> moduleData;
 }

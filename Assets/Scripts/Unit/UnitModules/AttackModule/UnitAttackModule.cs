@@ -45,10 +45,12 @@ public class UnitAttackModule : UnitModule
     public void UpdateAttackModule(Vector3 targetLocation)
     {
         turretAiming.SetTargetPos(targetLocation);
+        Debug.Log("I should be updating");
+
     }
 
     public void FireGun()
     {
-
+        gunParticle.Play();
     }
 }

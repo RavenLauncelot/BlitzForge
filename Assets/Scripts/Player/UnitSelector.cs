@@ -129,7 +129,7 @@ public class UnitSelector : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.TryGetComponent<Unit>(out Unit UnitScript))
+        if (other.gameObject.transform.root.TryGetComponent<Unit>(out Unit UnitScript))
         {
             if (UnitScript.TeamId == teamId)
             {
@@ -141,7 +141,7 @@ public class UnitSelector : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.TryGetComponent<Unit>(out Unit UnitScript))
+        if (other.gameObject.transform.root.TryGetComponent<Unit>(out Unit UnitScript))
         {
             if (UnitScript.TeamId == teamId)
             {

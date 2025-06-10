@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector.Editor.Modules;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -23,12 +24,15 @@ public class ModuleManager : MonoBehaviour
 
     public int[] GetIds(ModuleData.ModuleType type)
     {
-        return manager.findUnitsWithModule(type);
+        return manager.GetIdsWithModule(type);
     }
 }
 
 [CreateAssetMenu(fileName = "ModuleDataScriptable", menuName = "Scriptable Objects/ModuleData")]
-public class ModuleDataScriptable : ScriptableObject
+public class ModuleDataConstructor : ScriptableObject
 {
-
+    public virtual ModuleData GetNewData()
+    {
+        return new ModuleData();
+    }
 }

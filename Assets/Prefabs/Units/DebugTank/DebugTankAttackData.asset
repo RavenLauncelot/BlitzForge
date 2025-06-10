@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: BasicTankAttackData
+  m_Name: DebugTankAttackData
   m_EditorClassIdentifier: Assembly-CSharp::AttackDataConstructor
   range: 50
-  damage: 20
+  damage: 10
   reloadTime: 10

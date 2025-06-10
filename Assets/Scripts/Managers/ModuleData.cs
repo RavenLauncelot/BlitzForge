@@ -10,10 +10,5 @@ public class ModuleData
         MovementModule,
     }
 
-    public ModuleType compType;
-
-    public virtual void SetValues(ModuleDataScriptable data)
-    {
-
-    }
+    public ModuleType moduleType;
 }

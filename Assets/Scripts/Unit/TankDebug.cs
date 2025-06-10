@@ -1,23 +1,16 @@
 using UnityEngine;
 
-public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
+public class TankDebug : Unit ,IAttackUpdate, IMoveable
 {
     //Component list
     UnitMovement movementComp;
     UnitAttackModule attackComp;
-
-    public float setHealth;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {      
         movementComp = GetComponent<UnitMovement>();
         attackComp = GetComponent<UnitAttackModule>();
-
-        damage = 20;
-        speed = 10;
-        reloadTime = 1;
-        health = setHealth;
     }
 
     public void MoveCommand(Vector3 position)
@@ -35,18 +28,14 @@ public class TankDebug : Unit ,IMoveable, IAttackable, IDamageable
         movementComp.StopComponent();
     }
 
-    public void AttackCommand(Unit unit)
+    //Attack Updates
+    public void AttackVisualUpdate(Vector3 p)
     {
-        
+        attackComp.UpdateAttackModule(p);
     }
 
-    public void FireAtWill(bool enabled)
+    public void AttackFireProjectile()
     {
-        
-    }
-
-    public void Damage(float damage)
-    {
-        health -= damage;
+        attackComp.FireGun();
     }
 }

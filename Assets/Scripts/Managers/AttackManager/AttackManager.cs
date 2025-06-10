@@ -21,62 +21,6 @@ public class AttackManager : ModuleManager
         //StartCoroutine(TimedUpdate());
     }
 
-    //private IEnumerator TimedUpdate()
-    //{
-    //    int currentIndex;
-    //    AttackData attackData = null;
-
-    //    while (true)
-    //    {
-    //        foreach (int id in unitIds)
-    //        {
-    //            currentIndex = manager.getUnitDataIndex(id);
-
-    //            //getting the attack data object
-    //            if (manager.getCompData(id, UnitComponent.ComponentType.AttackComp) is AttackData AttackData)
-    //            {
-    //                attackData = AttackData;
-    //            }
-    //            else
-    //            {
-    //                attackData = null;
-    //                Debug.Log("AttackManager skipping couldn't get unit data");
-    //                continue;
-    //            }
-
-
-
-    //            if (attackData.currentTargetId != 0 & CanHitTarget(manager.unitData[currentIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)) & attackData.fireAtWill)
-    //            {
-    //                attackData.canFire = true;
-    //            }
-
-    //            else
-    //            {
-    //                attackData.canFire = false;
-
-    //                if (attackData.currentTargetId == 0)
-    //                {
-    //                    attackData.forcedTarget = false;
-    //                    attackData.currentTargetId = FindTarget(manager.unitData[currentIndex], attackData);
-    //                }
-
-    //                else if (!attackData.forcedTarget & !CanHitTarget(manager.unitData[currentIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)))
-    //                {
-    //                    attackData.currentTargetId = FindTarget(manager.unitData[currentIndex], attackData);
-    //                }
-
-    //                else
-    //                {
-    //                    //do nothing fireatll was most likely set yo false
-    //                }
-    //            }
-    //        }
-
-    //        yield return new WaitForSeconds(1 / updatePerSec);
-    //    }
-    //}
-
     //this will get changed to slower update later
     public void Update()
     {
@@ -88,7 +32,7 @@ public class AttackManager : ModuleManager
             currentUnitDataIndex = manager.unitDataIndexLookup[id];
 
             //getting the attack data object
-            if (manager.getCompData(id, ModuleData.ModuleType.AttackModule) is AttackData AttackData)
+            if (manager.GetModuleData(id, ModuleData.ModuleType.AttackModule) is AttackData AttackData)
             {
                 attackData = AttackData;
             }
@@ -123,11 +67,36 @@ public class AttackManager : ModuleManager
 
                 else
                 {
-                    //do nothing fireatll was most likely set yo false
+                    //do nothing fireatwill was most likely set to false
                 }
             }
 
-            UnitUpdate(id, levelManager.getUnitData(id).rayTarget.position);
+            if (attackData.currentTargetId == 0)
+            {
+                UnitUpdate(id, manager.unitData[currentUnitDataIndex].rayTarget.forward);
+            }
+            else
+            {
+                UnitUpdate(id, levelManager.getUnitData(attackData.currentTargetId).rayTarget.position);
+            }           
+
+            //firing logic 
+
+            if (attackData.reloadTimer < Time.deltaTime)
+            {
+                attackData.reloadTimer = 0;
+
+                if (attackData.canFire)
+                {
+                    //fire weapon
+                    UnitFire(id);
+                    attackData.reloadTimer = attackData.reloadTime;
+                }
+            }
+            else
+            {
+                attackData.reloadTimer -= Time.deltaTime;
+            }
         }
     }
 
@@ -143,7 +112,7 @@ public class AttackManager : ModuleManager
         {
             Unit unitCode;
 
-            if (collider.TryGetComponent<Unit>(out Unit UnitCode))
+            if (collider.transform.root.TryGetComponent<Unit>(out Unit UnitCode))
             {
                 if (UnitCode.TeamId == unitData.teamId)
                 {
@@ -164,7 +133,7 @@ public class AttackManager : ModuleManager
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                if (hit.transform.TryGetComponent<Unit>(out Unit selectedUnit) && selectedUnit == unitCode)
+                if (hit.transform.root.TryGetComponent<Unit>(out Unit selectedUnit) && selectedUnit == unitCode)
                 {
                     //raycast has hit enemy within range. enemy selection successful
                     Debug.Log("Team: " + unitData.teamId + "Found target " + gameObject.name);
@@ -199,12 +168,12 @@ public class AttackManager : ModuleManager
                 Debug.Log("Target out of range" + gameObject.name);
                 return false;
             }
-            else if (hit.collider.TryGetComponent<Unit>(out Unit unitTarg) == false)
+            else if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unitTarg) == false)
             {
                 Debug.Log("Target blocked" + gameObject.name);
                 return false;
             }
-            else if (hit.collider.TryGetComponent(out Unit unitTarg2) == true && unitTarg2.TeamId == currentUnit.teamId)
+            else if (hit.collider.transform.root.TryGetComponent(out Unit unitTarg2) == true && unitTarg2.TeamId == currentUnit.teamId)
             {
                 Debug.Log("Friendly is within line of fire" + gameObject.name);
                 return false;
@@ -218,15 +187,21 @@ public class AttackManager : ModuleManager
         return false;
     }
 
-    //Makes a unit fire
+
+
     private void UnitUpdate(int id, Vector3 target)
     {
-        levelManager.getUnitData(id).unitScript.GetComponent<UnitAttackModule>().UpdateAttackModule(target);
+        IAttackUpdate attackUpdate = levelManager.getUnitData(id).unitScript as IAttackUpdate;
+
+        attackUpdate.AttackVisualUpdate(target);
     }
 
     private void UnitFire(int id)
     {
+        IAttackUpdate attackUpdate = levelManager.getUnitData(id).unitScript as IAttackUpdate;
 
+        attackUpdate.AttackFireProjectile();
+        //will sort this in a bit 
     }
 }
 
@@ -235,16 +210,11 @@ public class AttackManager : ModuleManager
 //struct list which contains an array of all the components it has. 
 public class AttackData : ModuleData
 {
-    public override void SetValues(ModuleDataScriptable data)
+    public AttackData()
     {
-        base.SetValues(data);
-
-        AttackDataScriptable attackValues = data as AttackDataScriptable;
-
-        range = attackValues.range;
-        damage = attackValues.damage;
-        reloadTime = attackValues.reloadTime;
+        moduleType = ModuleType.AttackModule;
     }
+    
 
     //the current targets instance Id
     public int currentTargetId = 0;
@@ -252,6 +222,7 @@ public class AttackData : ModuleData
     public bool forcedTarget = false;
     public bool fireAtWill = true;
     public bool canFire;
+    public float reloadTimer = 0;
 
     public float range = 0;
     public float damage = 0;
@@ -260,17 +231,22 @@ public class AttackData : ModuleData
 
 
 [CreateAssetMenu(fileName = "AttackModuleData", menuName = "Scriptable Objects/ModuleData/AttackModuleData")]
-public class AttackDataScriptable : ModuleDataScriptable
+public class AttackDataConstructor : ModuleDataConstructor
 {
     public float range;
     public float damage;
     public float reloadTime;
+
+    public override ModuleData GetNewData()
+    {
+        base.GetNewData();
+
+        return new AttackData()
+        {
+            range = range,
+            damage = damage,
+            reloadTime = reloadTime
+        };
+    }
 }
 
-
-//This is the interface for units with the capability to attack.
-//sends attack data so unit can use it for 
-public interface ICanAttack
-{
-    void UpdateAttack(AttackData attackData);
-}

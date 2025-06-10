@@ -86,7 +86,7 @@ public class LevelManager : MonoBehaviour
             {
                 unitManagers[i].unitData[index].teamVisibility[(int)detectedBy] = true;
                 unitManagers[i].unitData[index].detectedTimers[(int)detectedBy] = detectionTime;
-                Debug.Log("Set unit as detected - detected by team " + detectedBy);
+                //Debug.Log("Set unit as detected - detected by team " + detectedBy);
                 return;
             }
         }

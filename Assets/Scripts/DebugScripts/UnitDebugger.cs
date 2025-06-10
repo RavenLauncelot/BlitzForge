@@ -43,7 +43,7 @@ public class UnitDebugger : MonoBehaviour
         observingPos = unitDataCopy.observingPos.position;
 
         //attack module debug
-        AttackData attackData = unitManager.getCompData(attachedUnit.instanceId, ModuleData.ModuleType.AttackModule) as AttackData;
+        AttackData attackData = unitManager.GetModuleData(attachedUnit.instanceId, ModuleData.ModuleType.AttackModule) as AttackData;
 
         range = attackData.range;
         damage = attackData.damage;
@@ -57,7 +57,7 @@ public class UnitDebugger : MonoBehaviour
 
     public void OnDrawGizmos()
     {
-        Gizmos.DrawWireSphere(attachedUnit.aimingPos.position, attachedUnit.detectionRange);
+        //Gizmos.DrawWireSphere(attachedUnit.aimingPos.position, attachedUnit.detectionRange);
     }
 }
 
