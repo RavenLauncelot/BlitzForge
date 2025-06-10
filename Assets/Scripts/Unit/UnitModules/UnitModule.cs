@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class UnitModule : MonoBehaviour
 {
-    public virtual ManagerData GetManagerData()
+    public virtual ModuleData GetManagerData()
     {
         Debug.LogWarning("Overide not defined in unitModule, return null manager data");
 
-        return new ManagerData();
+        return new ModuleData();
     }
 }

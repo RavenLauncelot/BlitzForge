@@ -16,7 +16,7 @@ public class AttackManager : ModuleManager
     //first lets get all instance Ids we need that have this component
     public void Start()
     {
-        unitIds = GetIds(ManagerData.ModuleType.AttackModule);
+        unitIds = GetIds(ModuleData.ModuleType.AttackModule);
 
         //StartCoroutine(TimedUpdate());
     }
@@ -88,7 +88,7 @@ public class AttackManager : ModuleManager
             currentUnitDataIndex = manager.unitDataIndexLookup[id];
 
             //getting the attack data object
-            if (manager.getCompData(id, ManagerData.ModuleType.AttackModule) is AttackData AttackData)
+            if (manager.getCompData(id, ModuleData.ModuleType.AttackModule) is AttackData AttackData)
             {
                 attackData = AttackData;
             }
@@ -230,17 +230,20 @@ public class AttackManager : ModuleManager
     }
 }
 
+
 //this will hold data for attacking. This will be stored in the unitmanager
 //struct list which contains an array of all the components it has. 
-public class AttackData : ManagerData
+public class AttackData : ModuleData
 {
-    public AttackData(AttackDataScriptable data)
+    public override void SetValues(ModuleDataScriptable data)
     {
-        compType = ModuleType.AttackModule;
+        base.SetValues(data);
 
-        range = data.range;
-        damage = data.damage;
-        reloadTime = data.reloadTime;
+        AttackDataScriptable attackValues = data as AttackDataScriptable;
+
+        range = attackValues.range;
+        damage = attackValues.damage;
+        reloadTime = attackValues.reloadTime;
     }
 
     //the current targets instance Id
@@ -256,18 +259,12 @@ public class AttackData : ManagerData
 }
 
 
-
 [CreateAssetMenu(fileName = "AttackModuleData", menuName = "Scriptable Objects/ModuleData/AttackModuleData")]
 public class AttackDataScriptable : ModuleDataScriptable
 {
     public float range;
     public float damage;
     public float reloadTime;
-
-    public override ManagerData GetModuleData()
-    {
-        return new AttackData(this);
-    }
 }
 
 

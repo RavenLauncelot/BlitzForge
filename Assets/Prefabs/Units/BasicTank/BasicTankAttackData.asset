@@ -10,9 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: BasicTankAttack
+  m_Name: BasicTankAttackData
   m_EditorClassIdentifier: Assembly-CSharp::AttackDataScriptable
-  moduleType: 2
-  range: 100
-  damage: 10
-  reloadTime: 10
+  range: 50
+  damage: 20
+  reloadTime: 20

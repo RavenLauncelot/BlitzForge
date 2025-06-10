@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ManagerData
+public class ModuleData
 {
     public enum ModuleType
     {
@@ -11,4 +11,9 @@ public class ManagerData
     }
 
     public ModuleType compType;
+
+    public virtual void SetValues(ModuleDataScriptable data)
+    {
+
+    }
 }

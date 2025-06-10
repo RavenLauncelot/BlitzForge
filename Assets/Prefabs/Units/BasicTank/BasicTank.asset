@@ -15,4 +15,4 @@ MonoBehaviour:
   unitName: BasicTank
   clientUnitPrefab: {fileID: 2092314433495813802, guid: 3084bd2814447ad419e67801b467b360, type: 3}
   moduleData:
-  - {fileID: 11400000, guid: ea3236e32f6442f48ad329c7f12488f6, type: 2}
+  - {fileID: 11400000, guid: f7168b9565d1c09498536b3052c532f6, type: 2}

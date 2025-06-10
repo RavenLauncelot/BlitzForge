@@ -1,0 +1,3 @@
+Specific unit behaviors are known as modules 
+They are managed by individual objects derived from ModuleManager and all data about them is stored inside there respective manager within a list of objects derived from ModuleData
+WIthin each module data a override method is required called SetValues(ModuleDataScriptable params) this is so any data that needs to be set can be set as new ModuleData needs to made at runtime. (Previous attempts setting this in scriptable objects did not work)

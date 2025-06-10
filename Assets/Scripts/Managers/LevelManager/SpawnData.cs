@@ -7,7 +7,7 @@ public class SpawnData : ScriptableObject
 {
     public UnitManager.TeamId teamId;
     [SerializeReference]
-    public List<UnitSpawn> unitSpawns;
+    public UnitSpawn[] unitSpawns;
 
     public class UnitSpawn
     {

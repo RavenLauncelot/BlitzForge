@@ -16,7 +16,7 @@ public class UnitManager : MonoBehaviour
     private LevelManager levelManager;
 
     [SerializeField] private Unit[] units;
-    [SerializeField] public UnitData[] unitData;
+    [SerializeReference] public UnitData[] unitData;
     [SerializeField] public Dictionary<int, int> unitDataIndexLookup;  //Thhis uses a units gameobject id to find the unitData struct associated wiht it 
 
     [SerializeField] private LayerMask unitLayermask;
@@ -55,12 +55,15 @@ public class UnitManager : MonoBehaviour
         unitDataIndexLookup = new Dictionary<int, int>();
         unitData = new UnitData[unitAmount];
 
+        //Spawning all the units
+
         int counter = 0;
         Unit tempUnit = null;
         UnitBlueprint unitBlueprint = null;
         List<ModuleDataScriptable> moduleData = new List<ModuleDataScriptable>();
         foreach(SpawnData.UnitSpawn unitSpawn in spawnData.unitSpawns)
         {
+            //getting the 
             unitBlueprint = unitSpawn.unitType;
             moduleData = unitBlueprint.moduleData;
 
@@ -70,12 +73,14 @@ public class UnitManager : MonoBehaviour
             tempUnit.gameObject.name = managedTeam.ToString() + " Tank " + counter;
             tempUnit.initUnit();
 
-            //TEMP TEMP 
-            List<ManagerData> theRealModuleData = new List<ManagerData>();
+            List<ModuleData> modulesData = new List<ModuleData>();
             foreach (ModuleDataScriptable moduleDataScriptable in moduleData)
             {
-                theRealModuleData.Add(moduleDataScriptable.GetModuleData());
-            }
+                ModuleData newModuleData = new ModuleData();
+                newModuleData.SetValues(moduleDataScriptable);
+
+                modulesData.Add(newModuleData);
+            }   
 
             unitData[counter] = new UnitData
             {
@@ -88,7 +93,7 @@ public class UnitManager : MonoBehaviour
                 teamId = tempUnit.TeamId,
                 instanceId = tempUnit.instanceId,
 
-                components = theRealModuleData
+                components = modulesData
             };
 
             unitDataIndexLookup.Add(tempUnit.instanceId, counter);
@@ -106,7 +111,6 @@ public class UnitManager : MonoBehaviour
         //per frame updates for:
         //detectionTimers
         //visibility bitmasks.
-        //targetting
 
         int dataIndex = 0;
         foreach (UnitData data in unitData)
@@ -131,7 +135,7 @@ public class UnitManager : MonoBehaviour
        
     }
 
-    public int[] findUnitsWithModule(ManagerData.ModuleType type)
+    public int[] findUnitsWithModule(ModuleData.ModuleType type)
     {
         List<int> idList = new List<int>();
 
@@ -139,7 +143,7 @@ public class UnitManager : MonoBehaviour
         foreach (UnitData data in unitData)
         {
             //checking through the component list of each unit
-            foreach (ManagerData component in data.components)
+            foreach (ModuleData component in data.components)
             {
                 if (component.compType == type)
                 {
@@ -151,11 +155,11 @@ public class UnitManager : MonoBehaviour
         return idList.ToArray();
     }
 
-    public ManagerData getCompData(int instanceId, ManagerData.ModuleType type)
+    public ModuleData getCompData(int instanceId, ModuleData.ModuleType type)
     {
         int index = unitDataIndexLookup[instanceId];
 
-        foreach (ManagerData comp in unitData[index].components)
+        foreach (ModuleData comp in unitData[index].components)
         {
             if (comp.compType == type)
             {
@@ -264,7 +268,7 @@ public class UnitManager : MonoBehaviour
 
         //These represent the capabilities of each unit 
         //e.g. if they can move shoot detect etc and any specific data
-        public List<ManagerData> components;
+        [SerializeReference] public List<ModuleData> components;
     }
 
     //finds all enemy units of that team. This will be removed at some point

@@ -21,7 +21,7 @@ public class ModuleManager : MonoBehaviour
         initialised = true;        
     }
 
-    public int[] GetIds(ManagerData.ModuleType type)
+    public int[] GetIds(ModuleData.ModuleType type)
     {
         return manager.findUnitsWithModule(type);
     }
@@ -30,11 +30,5 @@ public class ModuleManager : MonoBehaviour
 [CreateAssetMenu(fileName = "ModuleDataScriptable", menuName = "Scriptable Objects/ModuleData")]
 public class ModuleDataScriptable : ScriptableObject
 {
-    [SerializeField]
-    public ManagerData.ModuleType moduleType;
 
-    public virtual ManagerData GetModuleData()
-    {
-        return null;
-    }
 }
