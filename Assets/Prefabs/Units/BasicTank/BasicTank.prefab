@@ -302,7 +302,6 @@ Transform:
   - {fileID: 6692214722167892264}
   - {fileID: 3218741005084715790}
   - {fileID: 1194121532418535003}
-  - {fileID: 1979485481769985366}
   m_Father: {fileID: 5372307583605549810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5132545254944526630
@@ -319,7 +318,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layerMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 64
 --- !u!1 &1276861466919296906
 GameObject:
   m_ObjectHideFlags: 0
@@ -5403,6 +5402,7 @@ GameObject:
   - component: {fileID: 3627086040456233798}
   - component: {fileID: 7317231817644435290}
   - component: {fileID: 3831774632031728821}
+  - component: {fileID: 9159299711268615315}
   m_Layer: 7
   m_Name: Tank
   m_TagString: Untagged
@@ -5423,6 +5423,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1979485481769985366}
   - {fileID: 2124224468533239188}
   - {fileID: 5156521651891087734}
   - {fileID: 5021736223553902605}
@@ -5503,6 +5504,28 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 1973893103929547111, guid: 26bc314adf5a2cb439b424b4512ab307, type: 3}
+--- !u!64 &9159299711268615315
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4793931907298166309}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1899504947727282711, guid: 26bc314adf5a2cb439b424b4512ab307, type: 3}
 --- !u!1 &5741531975494624823
 GameObject:
   m_ObjectHideFlags: 0
@@ -5726,7 +5749,7 @@ Transform:
   m_GameObject: {fileID: 7288806773775847693}
   serializedVersion: 2
   m_LocalRotation: {x: 7.1054274e-15, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.000000096144056, y: 0.3156976, z: 1.0997599}
+  m_LocalPosition: {x: 0, y: 0.3156976, z: 1.0997599}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5881,10 +5904,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5372307583605549810}
-  - component: {fileID: 2121278715449754593}
-  - component: {fileID: 4980487847584376874}
-  - component: {fileID: 8270966421410673356}
   - component: {fileID: 4644742412608787664}
+  - component: {fileID: 2121278715449754593}
+  - component: {fileID: 8270966421410673356}
   m_Layer: 7
   m_Name: BasicTank
   m_TagString: Untagged
@@ -5909,6 +5931,28 @@ Transform:
   - {fileID: 6223204444409055667}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!195 &4644742412608787664
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8727416021569130910}
+  m_Enabled: 1
+  m_AgentTypeID: -1372625422
+  m_Radius: 2
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2.41
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!114 &2121278715449754593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5922,29 +5966,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teamId: 0
-  meshRend: {fileID: 0}
+  meshRend:
+  - {fileID: 4128067556488985756}
+  - {fileID: 6816551445989475603}
+  - {fileID: 8392070374183520831}
+  - {fileID: 4268562349719415575}
+  - {fileID: 943249056881139541}
+  - {fileID: 7317231817644435290}
+  - {fileID: 4731207329810460663}
+  - {fileID: 9218529440581060786}
+  - {fileID: 2966809039013881235}
   observingPos: {fileID: 2479150518429289625}
   aimingPos: {fileID: 2371224646621743961}
   rayTarget: {fileID: 4312223258647239888}
-  instanceId: 0
-  unitManager: {fileID: 0}
---- !u!114 &4980487847584376874
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8727416021569130910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1956a764e613c644fb81a738605dc2fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  componentType: 0
-  movementDone: 0
-  currentWaypoint: 0
-  debugTotalWaypoint: 0
-  speed: 0
 --- !u!114 &8270966421410673356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5959,28 +5993,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turretAiming: {fileID: 3784429889070989058}
   gunParticle: {fileID: 7457260142733956642}
---- !u!195 &4644742412608787664
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8727416021569130910}
-  m_Enabled: 1
-  m_AgentTypeID: -1372625422
-  m_Radius: 0.5
-  m_Speed: 3.5
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!1 &9206841930876184720
 GameObject:
   m_ObjectHideFlags: 0
@@ -5992,7 +6004,6 @@ GameObject:
   - component: {fileID: 1979485481769985366}
   - component: {fileID: 4523957453781902065}
   - component: {fileID: 4731207329810460663}
-  - component: {fileID: 3701173459359596147}
   m_Layer: 7
   m_Name: Treads
   m_TagString: Untagged
@@ -6008,12 +6019,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9206841930876184720}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000000081460335, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.024580002}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.047256473, z: -0.024579994}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7421936484878123072}
+  m_Father: {fileID: 6692214722167892264}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4523957453781902065
 MeshFilter:
@@ -6070,25 +6081,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &3701173459359596147
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9206841930876184720}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 1899504947727282711, guid: 26bc314adf5a2cb439b424b4512ab307, type: 3}

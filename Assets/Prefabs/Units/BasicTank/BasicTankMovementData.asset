@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: BasicTankAttackData
-  m_EditorClassIdentifier: Assembly-CSharp::AttackDataConstructor
-  range: 100
-  damage: 10
-  reloadTime: 5
+  m_Name: BasicTankMovementData
+  m_EditorClassIdentifier: Assembly-CSharp::MovementDataConstructor
+  maxSpeed: 30
+  acceleration: 10
+  stoppingDistance: 4

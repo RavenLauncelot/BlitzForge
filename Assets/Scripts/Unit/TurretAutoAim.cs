@@ -81,6 +81,13 @@ public class TurretAutoAim : MonoBehaviour
 
     public void SetTargetPos(Vector3 pos)
     {
-        targetPos = pos;
+        if (pos == null)
+        {
+            targetPos = Vector3.forward + transform.position;
+        }
+        else
+        { 
+            targetPos = pos;
+        }
     }
 }

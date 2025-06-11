@@ -5,16 +5,16 @@ using System.Collections;
 
 public class DetectionManager : ModuleManager
 {
-    public int[] unitIds;
     public LayerMask unitLayer;
 
     public void Start()
     {
-        unitIds = GetIds(ModuleData.ModuleType.DetectionModule);
+        moduleType = ModuleKind.DetectionModule;
+        unitIds = GetIds(ModuleManager.ModuleKind.DetectionModule);
 
         StartCoroutine(DetectionUpdate());
     }
-
+        
     private IEnumerator DetectionUpdate()
     {
         List<Unit> tempList = new List<Unit>();
@@ -24,14 +24,14 @@ public class DetectionManager : ModuleManager
             for (int i = 0; i < unitIds.Length; i++)
             {
                 int unitIndex = manager.unitDataIndexLookup[unitIds[i]];
-                DetectionData detectionData = manager.GetModuleData(unitIds[i], ModuleData.ModuleType.DetectionModule) as DetectionData;
+                DetectionData detectionData = manager.GetModuleData(unitIds[i], ModuleManager.ModuleKind.DetectionModule) as DetectionData;
 
                 tempList = DetectEnemies(manager.unitData[unitIndex].observingPos.position, detectionData);
 
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    levelManager.setDetected(detected.instanceId, manager.managedTeam, detectionData.detectionTime);
+                    levelManager.setDetected(detected.InstanceId, manager.managedTeam, detectionData.detectionTime);
                 }
 
                 yield return new WaitForEndOfFrame();
@@ -75,7 +75,7 @@ public class DetectionManager : ModuleManager
 
             if (Physics.Raycast(ray, out hit, detectionData.detectionRange))
             {
-                if (hit.collider.transform.root.GetComponentInParent<Unit>().instanceId == unitCode.instanceId)
+                if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unit) && unit.InstanceId == unitCode.InstanceId)
                 {
                     detectedUnits.Add(unitCode);
                 }
@@ -101,7 +101,7 @@ public class DetectionData : ModuleData
 {
     public DetectionData()
     {
-        moduleType = ModuleType.DetectionModule;
+        moduleType = ModuleManager.ModuleKind.DetectionModule;
     }
 
     public float detectionRange;

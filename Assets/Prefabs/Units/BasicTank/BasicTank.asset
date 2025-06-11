@@ -9,11 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f77443553ccae64085f8c4a0dd14008, type: 3}
+  m_Script: {fileID: 0}
   m_Name: BasicTank
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitBlueprint
   unitName: BasicTank
   clientUnitPrefab: {fileID: 8727416021569130910, guid: e587bb4c9b821c34fa4f4b1d2daad7d5, type: 3}
   moduleData:
   - {fileID: 11400000, guid: 08d4be77b57c4d54bb088ecb4023a5bb, type: 2}
   - {fileID: 11400000, guid: 7e6e9476602b933499118b3563d5a81b, type: 2}
+  - {fileID: 11400000, guid: e126d62b1da1e0e4399536f974dc4f1a, type: 2}

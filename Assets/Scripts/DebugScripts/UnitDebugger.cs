@@ -28,12 +28,12 @@ public class UnitDebugger : MonoBehaviour
     public void Start()
     {
         attachedUnit = GetComponent<Unit>();
-        unitManager = attachedUnit.unitManager;
+        unitManager = GetComponent<UnitManager>();
     }
 
     private void Update()
     {
-        UnitData unitDataCopy = unitManager.unitData[unitManager.unitDataIndexLookup[attachedUnit.instanceId]];
+        UnitData unitDataCopy = unitManager.unitData[unitManager.unitDataIndexLookup[attachedUnit.InstanceId]];
 
         teamId = (int)unitDataCopy.teamId;
         visibilityMask = unitDataCopy.teamVisibility;
@@ -43,7 +43,7 @@ public class UnitDebugger : MonoBehaviour
         observingPos = unitDataCopy.observingPos.position;
 
         //attack module debug
-        AttackData attackData = unitManager.GetModuleData(attachedUnit.instanceId, ModuleData.ModuleType.AttackModule) as AttackData;
+        AttackData attackData = unitManager.GetModuleData(attachedUnit.InstanceId, ModuleManager.ModuleKind.AttackModule) as AttackData;
 
         range = attackData.range;
         damage = attackData.damage;

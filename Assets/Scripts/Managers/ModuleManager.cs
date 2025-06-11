@@ -10,7 +10,19 @@ public class ModuleManager : MonoBehaviour
 
     private bool initialised = false;
 
-    public void initModule(UnitManager unitManager, LevelManager LevelManager)
+    [SerializeReference] protected int[] unitIds;
+
+    protected ModuleKind moduleType;
+    public ModuleKind ModuleType {  get { return moduleType; } }
+    public enum ModuleKind
+    {
+        None,
+        AttackModule,
+        DetectionModule,
+        MovementModule,
+    }
+
+    public void InitModule(UnitManager unitManager, LevelManager LevelManager)
     {
         if (initialised)
         {
@@ -22,13 +34,24 @@ public class ModuleManager : MonoBehaviour
         initialised = true;        
     }
 
-    public int[] GetIds(ModuleData.ModuleType type)
+    public int[] GetIds(ModuleManager.ModuleKind type)
     {
         return manager.GetIdsWithModule(type);
     }
+
+    public virtual void StopCommands(int instanceId)
+    {
+
+    }
 }
 
-[CreateAssetMenu(fileName = "ModuleDataScriptable", menuName = "Scriptable Objects/ModuleData")]
+
+public class ModuleData
+{
+    public ModuleManager.ModuleKind moduleType;
+}
+
+
 public class ModuleDataConstructor : ScriptableObject
 {
     public virtual ModuleData GetNewData()

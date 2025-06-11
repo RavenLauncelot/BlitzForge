@@ -2,17 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using Unity.AI.Navigation;
-using JetBrains.Annotations;
-using System.Runtime.CompilerServices;
+
 
 public class UnitManager : MonoBehaviour
 {
     [SerializeField] public TeamId managedTeam;
 
     private LevelManager levelManager;
+    private ModuleManager[] moduleManagers;
 
-    [SerializeField] private Unit[] units;
     [SerializeReference] public UnitData[] unitData;
     [SerializeField] public Dictionary<int, int> unitDataIndexLookup;  //Thhis uses a units gameobject id to find the unitData struct associated wiht it 
 
@@ -34,10 +32,10 @@ public class UnitManager : MonoBehaviour
         this.levelManager = levelManager;
         managedTeam = spawnData.teamId;
 
-        ModuleManager[] modules = GetComponents<ModuleManager>();
-        foreach (ModuleManager module in modules)
+        moduleManagers = GetComponents<ModuleManager>();
+        foreach (ModuleManager module in moduleManagers)
         {
-            module.initModule(this, levelManager);
+            module.InitModule(this, levelManager);
         }
 
         int unitAmount = 0;
@@ -65,9 +63,9 @@ public class UnitManager : MonoBehaviour
             {
                 tempUnit = Instantiate(unitBlueprint.clientUnitPrefab, transform.position, Quaternion.identity).GetComponent<Unit>();
                 tempUnit.TeamId = managedTeam;
-                tempUnit.unitManager = this;
+                //tempUnit.unitManager = this;
                 tempUnit.gameObject.name = managedTeam.ToString() + " Tank " + counter;
-                tempUnit.initUnit();
+                tempUnit.InitUnit();
 
                 List<ModuleData> modulesData = new List<ModuleData>();
                 foreach (ModuleDataConstructor moduleDataScriptable in moduleData)
@@ -84,12 +82,12 @@ public class UnitManager : MonoBehaviour
                     detectedTimers = new float[50],
                     teamVisibility = new bool[50],
                     teamId = tempUnit.TeamId,
-                    instanceId = tempUnit.instanceId,
+                    instanceId = tempUnit.InstanceId,
 
                     components = modulesData
                 };
 
-                unitDataIndexLookup.Add(tempUnit.instanceId, counter);
+                unitDataIndexLookup.Add(tempUnit.InstanceId, counter);
                 counter++;
             }
         }
@@ -129,7 +127,7 @@ public class UnitManager : MonoBehaviour
        
     }
 
-    public int[] GetIdsWithModule(ModuleData.ModuleType type)
+    public int[] GetIdsWithModule(ModuleManager.ModuleKind type)
     {
         List<int> idList = new List<int>();
 
@@ -149,7 +147,7 @@ public class UnitManager : MonoBehaviour
         return idList.ToArray();
     }
 
-    public ModuleData GetModuleData(int instanceId, ModuleData.ModuleType type)
+    public ModuleData GetModuleData(int instanceId, ModuleManager.ModuleKind type)
     {
         int index = unitDataIndexLookup[instanceId];
 
@@ -252,6 +250,8 @@ public class UnitManager : MonoBehaviour
 
         public int instanceId;
 
+        public float health;
+
         //These are positions for raycasts to hit 
         //observing pos is above the tank itself which sends rays to detect tanks
         //aimingpos is the position where shots are fire at the pivot. this sends rays too
@@ -286,35 +286,43 @@ public class UnitManager : MonoBehaviour
 
     public void SetMovementCommand(int id, Vector3 position)
     {
-        int unitDataIndex = unitDataIndexLookup[id];
+        MovementManager movementManager = FindModuleManager(ModuleManager.ModuleKind.MovementModule) as MovementManager;
 
-        if (unitData[unitDataIndex].unitScript is IMoveable)
-        {
-            IMoveable move = unitData[unitDataIndex].unitScript as IMoveable;
-            move.MoveCommand(position);
-        }
+        movementManager.SetMovementCommand(id, position);
     }
 
-    
+    private ModuleManager FindModuleManager(ModuleManager.ModuleKind type)
+    {
+        foreach(ModuleManager manager in moduleManagers)
+        {
+            if (manager.ModuleType == type)
+            {
+                return manager;
+            }       
+        }
+
+        Debug.Log("Module Type, " + type + " is not attached");
+        return null;
+    }
 
     //Debug functions
     public int getDebugTeam(Unit unit)
     {
-        return (int)unitData[unitDataIndexLookup[unit.instanceId]].teamId;
+        return (int)unitData[unitDataIndexLookup[unit.InstanceId]].teamId;
     }
 
     public bool[] getDebugVisMask(Unit unit)
     {
-        return unitData[unitDataIndexLookup[unit.instanceId]].teamVisibility;
+        return unitData[unitDataIndexLookup[unit.InstanceId]].teamVisibility;
     }
 
     public float[] getDebugTime(Unit unit)
     {
-        return unitData[unitDataIndexLookup[unit.instanceId]].detectedTimers;
+        return unitData[unitDataIndexLookup[unit.InstanceId]].detectedTimers;
     }
 
     public string getDebugUnit(Unit unit)
     {
-        return unitData[unitDataIndexLookup[unit.instanceId]].unitScript.gameObject.name;
+        return unitData[unitDataIndexLookup[unit.InstanceId]].unitScript.gameObject.name;
     }
 }

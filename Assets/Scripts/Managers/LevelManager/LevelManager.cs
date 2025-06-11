@@ -53,7 +53,7 @@ public class LevelManager : MonoBehaviour
         return enemyUnits;
     }
 
-    public UnitData getUnitData(int instanceId)
+    public UnitData GetUnitData(int instanceId)
     {
         if (instanceId == 0)
         {

@@ -18,11 +18,11 @@ public class MeshRendManager : MonoBehaviour
         {
             if (unit.teamVisibility[(int)managedTeam] == true)
             {
-                unit.unitScript.GetComponentInChildren<MeshRenderer>().enabled = true;
+                unit.unitScript.MeshRendEnabled(true); 
             }
             else
             {
-                unit.unitScript.GetComponentInChildren<MeshRenderer>().enabled = false;
+                unit.unitScript.MeshRendEnabled(false);
             }
         }
     }

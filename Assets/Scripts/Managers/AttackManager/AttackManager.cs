@@ -9,14 +9,13 @@ public class AttackManager : ModuleManager
 
     public LayerMask unitLayer;
 
-    public int[] unitIds;
-
     public int updatePerSec = 1;
 
     //first lets get all instance Ids we need that have this component
     public void Start()
     {
-        unitIds = GetIds(ModuleData.ModuleType.AttackModule);
+        moduleType = ModuleKind.AttackModule;
+        unitIds = GetIds(ModuleManager.ModuleKind.AttackModule);
 
         //StartCoroutine(TimedUpdate());
     }
@@ -32,7 +31,7 @@ public class AttackManager : ModuleManager
             currentUnitDataIndex = manager.unitDataIndexLookup[id];
 
             //getting the attack data object
-            if (manager.GetModuleData(id, ModuleData.ModuleType.AttackModule) is AttackData AttackData)
+            if (manager.GetModuleData(id, ModuleManager.ModuleKind.AttackModule) is AttackData AttackData)
             {
                 attackData = AttackData;
             }
@@ -45,7 +44,7 @@ public class AttackManager : ModuleManager
 
 
 
-            if (attackData.currentTargetId != 0 & CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)) & attackData.fireAtWill)
+            if (attackData.currentTargetId != 0 & CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.GetUnitData(attackData.currentTargetId)) & attackData.fireAtWill)
             {
                 attackData.canFire = true;
             }
@@ -60,7 +59,7 @@ public class AttackManager : ModuleManager
                     attackData.currentTargetId = FindTarget(manager.unitData[currentUnitDataIndex], attackData);
                 }
 
-                else if (!attackData.forcedTarget & !CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.getUnitData(attackData.currentTargetId)))
+                else if (!attackData.forcedTarget & !CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.GetUnitData(attackData.currentTargetId)))
                 {
                     attackData.currentTargetId = FindTarget(manager.unitData[currentUnitDataIndex], attackData);
                 }
@@ -73,11 +72,11 @@ public class AttackManager : ModuleManager
 
             if (attackData.currentTargetId == 0)
             {
-                UnitUpdate(id, manager.unitData[currentUnitDataIndex].rayTarget.forward);
+                UnitUpdate(id, new Vector3());
             }
             else
             {
-                UnitUpdate(id, levelManager.getUnitData(attackData.currentTargetId).rayTarget.position);
+                UnitUpdate(id, levelManager.GetUnitData(attackData.currentTargetId).rayTarget.position);
             }           
 
             //firing logic 
@@ -137,7 +136,7 @@ public class AttackManager : ModuleManager
                 {
                     //raycast has hit enemy within range. enemy selection successful
                     Debug.Log("Team: " + unitData.teamId + "Found target " + gameObject.name);
-                    return selectedUnit.instanceId;
+                    return selectedUnit.InstanceId;
                 }
             }
         }
@@ -191,14 +190,14 @@ public class AttackManager : ModuleManager
 
     private void UnitUpdate(int id, Vector3 target)
     {
-        IAttackUpdate attackUpdate = levelManager.getUnitData(id).unitScript as IAttackUpdate;
+        IAttackUpdate attackUpdate = levelManager.GetUnitData(id).unitScript as IAttackUpdate;
 
         attackUpdate.AttackVisualUpdate(target);
     }
 
     private void UnitFire(int id)
     {
-        IAttackUpdate attackUpdate = levelManager.getUnitData(id).unitScript as IAttackUpdate;
+        IAttackUpdate attackUpdate = levelManager.GetUnitData(id).unitScript as IAttackUpdate;
 
         attackUpdate.AttackFireProjectile();
         //will sort this in a bit 
@@ -212,7 +211,7 @@ public class AttackData : ModuleData
 {
     public AttackData()
     {
-        moduleType = ModuleType.AttackModule;
+        moduleType = ModuleManager.ModuleKind.AttackModule;
     }
     
 

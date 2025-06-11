@@ -14,25 +14,32 @@ public class Unit : MonoBehaviour
         set { teamId = value; }
     }
 
-    [SerializeField] private MeshRenderer meshRend;
+    private int instanceId;
+    public int InstanceId
+    {
+        get { return instanceId; }
+    }
 
-    [Header("Observing pos is the positon it will send raycasts to detect enemies \n aimingPos is the position it will fire from \n ray target is where other units will send rays to")]
+    [SerializeField] private MeshRenderer[] meshRend;
+
+    [Header("Observing pos is the positon it will send raycasts to detect enemies")]
     public Transform observingPos;
+    [Header("aimingPos is the position it will fire from")]
     public Transform aimingPos;
+    [Header("ray target is where other units will send rays to")]
     public Transform rayTarget;
-
-    public int instanceId;
-
-    public UnitManager unitManager;
  
     public void MeshRendEnabled(bool enabled)
     {
-        meshRend.enabled = enabled;
+        foreach(MeshRenderer rend in meshRend)
+        {
+            rend.enabled = enabled;
+        }
     }
 
-    public void initUnit()
+    public void InitUnit()
     {
-        meshRend = GetComponentInChildren<MeshRenderer>();
+        //meshRend = GetComponentsInChildren<MeshRenderer>();
 
         instanceId = gameObject.GetInstanceID();
 

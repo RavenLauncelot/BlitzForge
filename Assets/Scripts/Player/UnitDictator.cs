@@ -18,6 +18,8 @@ public class UnitDictator : MonoBehaviour
 
     [SerializeField] private UnitManager.TeamId teamId;
 
+    public UnitManager playerUnitManager;
+
     //ignore for now
     public float positionMod;
 
@@ -136,10 +138,7 @@ public class UnitDictator : MonoBehaviour
             int unitCounter = 0;
             foreach (Unit unit in selectedUnits)
             {
-                if (unit.TryGetComponent<IMoveable>(out IMoveable moveable) == true)
-                {
-                    moveable.MoveCommand(screenRay.point + unitPositions[unitCounter]);
-                }
+                playerUnitManager.SetMovementCommand(unit.InstanceId, screenRay.point + unitPositions[unitCounter]);
 
                 unitCounter++;
             }
