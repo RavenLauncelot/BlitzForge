@@ -1044,40 +1044,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 527524059}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1826971273 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2804132965514855823, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-  m_PrefabInstance: {fileID: 2099692022}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1840950916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4bf0dc22529d9e449cfb69a0a5c3df3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &1840950916 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 857367991821567149, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-  m_PrefabInstance: {fileID: 2099692022}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1840950920
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1840950916}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 820e75c9304f8964296a785eb66b29e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectedUnits: []
-  unitSelector: {fileID: 1826971273}
-  currentlySetCommand: 1
-  teamId: 0
-  playerUnitManager: {fileID: 0}
-  positionMod: 5
 --- !u!1 &1986594320
 GameObject:
   m_ObjectHideFlags: 0
@@ -1217,82 +1183,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2002763427}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1001 &2099692022
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 857367991821567149, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_Name
-      value: PlayerUnitSelector
-      objectReference: {fileID: 0}
-    - target: {fileID: 857367991821567149, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2731126244949537595, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2804132965514855823, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: camYaw
-      value: 
-      objectReference: {fileID: 72810713}
-    - target: {fileID: 2804132965514855823, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: teamId
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2804132965514855823, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      propertyPath: selectedUnits.Array.size
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 857367991821567149, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
-      insertIndex: 1
-      addedObject: {fileID: 1840950920}
-  m_SourcePrefab: {fileID: 100100000, guid: f677d53cbc133c54d9829bdd0e6d5eb2, type: 3}
 --- !u!1 &2125377412
 GameObject:
   m_ObjectHideFlags: 0
@@ -1439,7 +1329,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 527524059}
   - {fileID: 3709920297183007647}
-  - {fileID: 2099692022}
   - {fileID: 902192247}
   - {fileID: 604352447}
   - {fileID: 697590439}
