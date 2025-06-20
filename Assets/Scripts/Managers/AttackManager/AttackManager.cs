@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
+using static UnityEngine.GraphicsBuffer;
+
 
 public class AttackManager : ModuleManager
 {
@@ -11,241 +12,290 @@ public class AttackManager : ModuleManager
 
     public int updatePerSec = 1;
 
+    //These are temporary values
+    private AttackData attackData;
+    private int currentUnitId;
+    private int currentTargetId;
+    private UnitManager.UnitData currentUnitData;
+    private UnitManager.UnitData targetUnitData;
+
     //first lets get all instance Ids we need that have this component
     public void Start()
     {
-        moduleType = ModuleKind.AttackModule;
-        unitIds = GetIds(ModuleManager.ModuleKind.AttackModule);
+        managerType = "AttackManager";
+        unitIds = GetIds();
 
-        //StartCoroutine(TimedUpdate());
+        foreach(int unitId in unitIds)
+        {
+            AttackData attackData = manager.GetModuleData(unitId, managerType) as AttackData;
+
+            //This works cus they are ref types even though they come from a struct
+            attackData.attackComponent = manager.GetUnitDataReadOnly(unitId).unitScript.GetComponent<AttackComponent>();
+            attackData.unitScript = attackData.attackComponent.GetComponent<Unit>();
+        }
     }
 
     //this will get changed to slower update later
     public void Update()
     {
-        int currentUnitDataIndex;
-        AttackData attackData = null;
+        attackData = null;
 
         foreach (int id in unitIds)
         {
-            currentUnitDataIndex = manager.unitDataIndexLookup[id];
+            currentUnitId = id;
 
-            //getting the attack data object
-            if (manager.GetModuleData(id, ModuleManager.ModuleKind.AttackModule) is AttackData AttackData)
+            if (manager.TryGetModuleData(id, managerType, out ModuleData moduleData))
             {
-                attackData = AttackData;
-            }
-            else
-            {
-                attackData = null;
-                Debug.Log("AttackManager skipping couldn't get unit data");
-                continue;
-            }
+                //UnitData variables cannot be updated. as they are value types
+                //Module data can thuogh cus they are reference types. We love ref types but they slow, stinky. 
+
+                attackData = moduleData as AttackData;
+                currentTargetId = attackData.currentTargetId;
+                currentUnitData = manager.GetUnitDataReadOnly(currentUnitId);
+                targetUnitData = levelManager.GetUnitData(currentTargetId);
 
 
+                UpdateReloadTimer();
 
-            if (attackData.currentTargetId != 0 & CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.GetUnitData(attackData.currentTargetId)) & attackData.fireAtWill)
-            {
-                attackData.canFire = true;
-            }
 
-            else
-            {
-                attackData.canFire = false;
-
-                if (attackData.currentTargetId == 0)
+                if (attackData.forcedTarget)
                 {
-                    attackData.forcedTarget = false;
-                    attackData.currentTargetId = FindTarget(manager.unitData[currentUnitDataIndex], attackData);
-                }
-
-                else if (!attackData.forcedTarget & !CanHitTarget(manager.unitData[currentUnitDataIndex], attackData, levelManager.GetUnitData(attackData.currentTargetId)))
-                {
-                    attackData.currentTargetId = FindTarget(manager.unitData[currentUnitDataIndex], attackData);
+                    ForcedTargetMode();
                 }
 
                 else
                 {
-                    //do nothing fireatwill was most likely set to false
+                    AutoTargetMode();
                 }
-            }
 
-            if (attackData.currentTargetId == 0)
-            {
-                UnitUpdate(id, new Vector3());
-            }
-            else
-            {
-                UnitUpdate(id, levelManager.GetUnitData(attackData.currentTargetId).rayTarget.position);
-            }           
-
-            //firing logic 
-
-            if (attackData.reloadTimer < Time.deltaTime)
-            {
-                attackData.reloadTimer = 0;
+                UpdateCanFire();
+                UpdateAttackComp();
 
                 if (attackData.canFire)
                 {
-                    //fire weapon
-                    UnitFire(id);
-                    attackData.reloadTimer = attackData.reloadTime;
+                    UnitFire(currentUnitId, attackData);
                 }
             }
+
             else
             {
-                attackData.reloadTimer -= Time.deltaTime;
-            }
+                RemoveId(id);
+                continue;
+            }       
         }
     }
 
-    private int FindTarget(UnitManager.UnitData unitData, AttackData attackData)
+    public void ForcedTargetMode()
+    {
+        if (!levelManager.IsValidTarget(attackData.currentTargetId, managedTeam))
+        {
+            attackData.forcedTarget = false;
+            attackData.currentTargetId = 0;
+
+            return;
+        }
+
+        //Do normal targetting
+        targetUnitData = levelManager.GetUnitData(attackData.currentTargetId);
+        currentUnitData = manager.GetUnitDataReadOnly(currentUnitId);
+
+        //Movement logic here later 
+        //Will move within range of enemy if line of sight is still impacted move closer. 
+    }
+
+    public void AutoTargetMode()
+    {
+        if (!CanAimAt(currentUnitId, levelManager.GetUnitData(attackData.currentTargetId).unitScript))
+        {
+            if (FindTarget(currentUnitData, attackData, out int newTarget))
+            {
+                attackData.currentTargetId = newTarget;
+                attackData.targetUnitScript = levelManager.GetUnitData(newTarget).unitScript;
+            }
+
+            else
+            {
+                Debug.Log("Failed to find targets");
+                //failed to find any targets
+
+                attackData.currentTargetId = 0;
+                attackData.targetUnitScript = null;
+            }
+        }
+
+        else
+        {
+            //do nothing you're good mate
+        }
+    }
+
+    public void UpdateReloadTimer()
+    {
+        if (attackData.reloadTimer < Time.deltaTime)
+        {
+            attackData.reloadTimer = 0;
+        }
+        else
+        {
+            attackData.reloadTimer -= Time.deltaTime;
+        }
+    }
+
+    public void UpdateCanFire()
+    {
+        attackData.canFire = currentTargetId != 0 &&
+            IsAimingAt() &&
+            attackData.reloadTimer <= 0;
+    }
+
+    public void UpdateAttackComp()
+    {
+        if (attackData.currentTargetId == 0)
+        {
+            AttackComponent attackComp = attackData.attackComponent;
+            attackComp.UpdateTurretRotation(Vector3.down);
+        }
+        else
+        {
+            AttackComponent attackComp = attackData.attackComponent;
+            attackComp.UpdateTurretRotation(attackData.targetUnitScript.rayTarget.position);
+        }
+    }
+
+    private bool FindTarget(UnitManager.UnitData unitData, AttackData attackData, out int targetId)
     {
         //Important notice 
         //REMEMBER that unitdata is a copy.
         
         Vector3 aimingPos = unitData.aimingPos.position;
-        Collider[] inRange = Physics.OverlapSphere(unitData.unitScript.transform.position, attackData.range, unitLayer);
 
-        foreach (Collider collider in inRange)
+        Collider[] unitsInRange = new Collider[100];
+        int unitCount = Physics.OverlapSphereNonAlloc(unitData.unitScript.transform.position, attackData.range, unitsInRange, unitLayer);
+
+        for (int i = 0; i < unitCount; i++)
         {
-            Unit unitCode;
-
-            if (collider.transform.root.TryGetComponent<Unit>(out Unit UnitCode))
+            if (unitsInRange[i].transform.root.TryGetComponent<Unit>(out Unit targetCode))
             {
-                if (UnitCode.TeamId == unitData.teamId)
+                if (targetCode.TeamId != managedTeam && levelManager.IsValidTarget(targetCode.InstanceId, managedTeam))
                 {
-                    //Debug.Log("Stop hitting yourself");
-                    continue;
+                    if (CanAimAt(currentUnitId, targetCode))
+                    {
+                        targetId = targetCode.InstanceId;
+                        return true;
+                    }
+
+                    Debug.Log("Not within line of sight");
                 }
 
-                unitCode = UnitCode;
-                
+                Debug.Log(i + " IsValidTarget" + levelManager.IsValidTarget(targetCode.InstanceId, managedTeam));
             }
+
             else
             {
+                Debug.Log("Not unit");
                 continue;
-            }
-
-            Ray ray = new Ray(aimingPos, unitCode.rayTarget.position - aimingPos);
-            Debug.DrawRay(aimingPos, unitCode.rayTarget.position - aimingPos, Color.yellow, 4f);
-
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                if (hit.transform.root.TryGetComponent<Unit>(out Unit selectedUnit) && selectedUnit == unitCode)
-                {
-                    //raycast has hit enemy within range. enemy selection successful
-                    Debug.Log("Team: " + unitData.teamId + "Found target " + gameObject.name);
-                    return selectedUnit.InstanceId;
-                }
             }
         }
 
-        Debug.Log("No valid targets" + gameObject.name);
-        return 0;
+        targetId = 0;
+        return false;
     }
 
-    private bool CanHitTarget(UnitManager.UnitData currentUnit, AttackData attackData, UnitManager.UnitData target)
+    //This checks if it will be able to fire at the enemy tank once it has aimed towards the enemy. 
+    private bool CanAimAt(int currentUnitId, Unit potentialTarget)
     {
-        //Important notice 
-        //REMEMBER that unitdata is a copy. 
-
-        if (attackData.currentTargetId == 0)
+        if (potentialTarget == null)
         {
             return false;
         }
+        
+        Ray ray = new Ray(currentUnitData.aimingPos.position, potentialTarget.rayTarget.position - currentUnitData.aimingPos.position);
 
-        Vector3 aimingRayPos = currentUnit.aimingPos.position;
-        Vector3 targetPos = target.rayTarget.position;
-
-
-        Ray ray = new Ray(aimingRayPos, targetPos - aimingRayPos);
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
-            if (hit.distance > attackData.range)
+            if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unitOut))
             {
-                Debug.Log("Target out of range" + gameObject.name);
-                return false;
+                if (unitOut == potentialTarget && hit.distance < attackData.range)
+                {
+                    return true;
+                }
             }
-            else if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unitTarg) == false)
+
+            Debug.DrawRay(currentUnitData.aimingPos.position, potentialTarget.rayTarget.position - currentUnitData.aimingPos.position);
+        }
+
+
+        return false;
+    }
+
+    //This checks if it can fire at the enemy tank and hit it
+    private bool IsAimingAt()
+    {
+        Ray ray = new Ray(currentUnitData.aimingPos.position, currentUnitData.aimingPos.forward);
+        if (Physics.Raycast(ray,out RaycastHit hit))
+        {
+            if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unitCode))
             {
-                Debug.Log("Target blocked" + gameObject.name);
-                return false;
-            }
-            else if (hit.collider.transform.root.TryGetComponent(out Unit unitTarg2) == true && unitTarg2.TeamId == currentUnit.teamId)
-            {
-                Debug.Log("Friendly is within line of fire" + gameObject.name);
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+                if (unitCode.InstanceId == currentTargetId)
+                {
+                    return true;
+                }
+            }           
         }
 
         return false;
     }
 
-
-
-    private void UnitUpdate(int id, Vector3 target)
+    private void UnitFire(int unitToUpdate, AttackData attackData)
     {
-        IAttackUpdate attackUpdate = levelManager.GetUnitData(id).unitScript as IAttackUpdate;
+        AttackComponent attackComp = attackData.attackComponent;
+        attackComp.FireGun();
+        attackData.reloadTimer =+ attackData.reloadTime;
+        //Later on it will wait till the shot has fired to damage the enemy. 
 
-        attackUpdate.AttackVisualUpdate(target);
-    }
-
-    private void UnitFire(int id)
-    {
-        IAttackUpdate attackUpdate = levelManager.GetUnitData(id).unitScript as IAttackUpdate;
-
-        attackUpdate.AttackFireProjectile();
-        //will sort this in a bit 
+        levelManager.DamageUnit(attackData.currentTargetId, attackData.damage);
     }
 }
 
 
 //this will hold data for attacking. This will be stored in the unitmanager
 //struct list which contains an array of all the components it has. 
+[System.Serializable]
 public class AttackData : ModuleData
 {
     public AttackData()
     {
-        moduleType = ModuleManager.ModuleKind.AttackModule;
+        moduleType = "AttackManager";
     }
-    
+
+    public override ModuleData Clone()
+    {
+        return new AttackData()
+        {
+            moduleType = moduleType,
+            range = range,
+            damage = damage,
+            reloadTime = reloadTime,
+        };
+    }
 
     //the current targets instance Id
     public int currentTargetId = 0;
+    public Unit targetUnitScript;
 
+    //state booleans and counters
     public bool forcedTarget = false;
     public bool fireAtWill = true;
     public bool canFire;
     public float reloadTimer = 0;
 
+    //weapon stats
     public float range = 0;
     public float damage = 0;
     public float reloadTime = 0;
-}
 
-
-[CreateAssetMenu(fileName = "AttackModuleData", menuName = "Scriptable Objects/ModuleData/AttackModuleData")]
-public class AttackDataConstructor : ModuleDataConstructor
-{
-    public float range;
-    public float damage;
-    public float reloadTime;
-
-    public override ModuleData GetNewData()
-    {
-        base.GetNewData();
-
-        return new AttackData()
-        {
-            range = range,
-            damage = damage,
-            reloadTime = reloadTime
-        };
-    }
+    //things connected to the unit
+    public AttackComponent attackComponent;
+    public Unit unitScript;
 }
 

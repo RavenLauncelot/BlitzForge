@@ -9,12 +9,48 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 7f77443553ccae64085f8c4a0dd14008, type: 3}
   m_Name: BasicTank
-  m_EditorClassIdentifier: Assembly-CSharp::UnitBlueprint
+  m_EditorClassIdentifier: 
   unitName: BasicTank
-  clientUnitPrefab: {fileID: 8727416021569130910, guid: e587bb4c9b821c34fa4f4b1d2daad7d5, type: 3}
+  unitPrefab: {fileID: 8727416021569130910, guid: e587bb4c9b821c34fa4f4b1d2daad7d5, type: 3}
+  unitData: {fileID: 11400000, guid: 208041057d735d7439ecfccd044f727e, type: 2}
   moduleData:
-  - {fileID: 11400000, guid: 08d4be77b57c4d54bb088ecb4023a5bb, type: 2}
-  - {fileID: 11400000, guid: 7e6e9476602b933499118b3563d5a81b, type: 2}
-  - {fileID: 11400000, guid: e126d62b1da1e0e4399536f974dc4f1a, type: 2}
+  - rid: 7872989576898543673
+  - rid: 7872989576898543674
+  - rid: 7872989576958312505
+  references:
+    version: 2
+    RefIds:
+    - rid: 7872989576898543673
+      type: {class: AttackData, ns: , asm: Assembly-CSharp}
+      data:
+        moduleType: AttackManager
+        currentTargetId: 0
+        targetUnitScript: {fileID: 0}
+        forcedTarget: 0
+        fireAtWill: 1
+        canFire: 0
+        reloadTimer: 1
+        range: 100
+        damage: 10
+        reloadTime: 10
+        attackComponent: {fileID: 0}
+        unitScript: {fileID: 0}
+    - rid: 7872989576898543674
+      type: {class: MovementData, ns: , asm: Assembly-CSharp}
+      data:
+        moduleType: MovementManager
+        maxSpeed: 10
+        acceleration: 10
+        stoppingDistance: 1
+        currentTarget: {x: 0, y: 0, z: 0}
+        reachedTarget: 0
+        agent: {fileID: 0}
+    - rid: 7872989576958312505
+      type: {class: DetectionData, ns: , asm: Assembly-CSharp}
+      data:
+        moduleType: DetectionManager
+        detectionRange: 200
+        detectionTime: 5
+        detectedTimers: []

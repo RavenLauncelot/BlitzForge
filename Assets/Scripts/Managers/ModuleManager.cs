@@ -1,4 +1,6 @@
 using Sirenix.OdinInspector.Editor.Modules;
+using System;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -7,22 +9,19 @@ public class ModuleManager : MonoBehaviour
 {
     protected UnitManager manager;
     protected LevelManager levelManager;
+    protected UnitManager.TeamId managedTeam;
 
     private bool initialised = false;
 
     [SerializeReference] protected int[] unitIds;
 
-    protected ModuleKind moduleType;
-    public ModuleKind ModuleType {  get { return moduleType; } }
-    public enum ModuleKind
+    protected string managerType;
+    public string ModuleType
     {
-        None,
-        AttackModule,
-        DetectionModule,
-        MovementModule,
+        get { return managerType; }
     }
 
-    public void InitModule(UnitManager unitManager, LevelManager LevelManager)
+    public void InitModule(UnitManager unitManager, LevelManager LevelManager, UnitManager.TeamId teamid)
     {
         if (initialised)
         {
@@ -31,30 +30,38 @@ public class ModuleManager : MonoBehaviour
 
         manager = unitManager;
         levelManager = LevelManager;
-        initialised = true;        
+        initialised = true;
+        managedTeam = teamid;
+
     }
 
-    public int[] GetIds(ModuleManager.ModuleKind type)
+    public int[] GetIds()
     {
-        return manager.GetIdsWithModule(type);
+        return manager.GetIdsWithModule(managerType);
     }
 
-    public virtual void StopCommands(int instanceId)
+    public void RemoveId(int instanceId)
+    {
+        unitIds = unitIds.Where(val => val != instanceId).ToArray();
+    }
+
+    public virtual void SetCommand(CommandData command)
+    {
+
+    }
+
+    public virtual void StopCommands(int[] ids)
     {
 
     }
 }
 
-
+[System.Serializable]
 public class ModuleData
 {
-    public ModuleManager.ModuleKind moduleType;
-}
+    public string moduleType;
 
-
-public class ModuleDataConstructor : ScriptableObject
-{
-    public virtual ModuleData GetNewData()
+    public virtual ModuleData Clone()
     {
         return new ModuleData();
     }

@@ -1,28 +1,42 @@
 using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Rendering;
 
 public class MeshRendManager : MonoBehaviour
 {
     [SerializeField] public UnitManager.TeamId managedTeam;
-    public UnitManager unitManager;
+    public LevelManager levelManager;
+    UnitManager[] unitManagers;
 
-    List<UnitManager.UnitData> detectedUnits;
+    int[] detectedUnits = new int[0];
+
+    private void Start()
+    {
+        unitManagers = levelManager.unitManagers;
+    }
 
     // Update is called once per frame
     void Update()
     {
-        detectedUnits = unitManager.GetEnemyUnits(managedTeam);
-
-        foreach (UnitManager.UnitData unit in detectedUnits)
+        foreach(var manager in unitManagers)
         {
-            if (unit.teamVisibility[(int)managedTeam] == true)
+            if (manager.managedTeam == managedTeam)
             {
-                unit.unitScript.MeshRendEnabled(true); 
+                continue;
             }
-            else
+
+            foreach(UnitManager.UnitData unit in manager.unitData)
             {
-                unit.unitScript.MeshRendEnabled(false);
+                if (unit.teamVisibility[(int)managedTeam] == true)
+                {
+                    unit.unitScript.MeshRendEnabled(true);
+                }
+
+                else
+                {
+                    unit.unitScript.MeshRendEnabled(false);
+                }
             }
         }
     }

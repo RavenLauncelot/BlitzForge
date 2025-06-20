@@ -2,11 +2,13 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 using static UnitManager;
+using UnityEngine.Rendering;
+using System.Linq;
+using System.Security.Cryptography;
 
 public class LevelManager : MonoBehaviour
 {
     //This loads the entire level. Can set the amount of teams and certain Data 
-    //this is only used once upon loading 
 
     [SerializeReference]
     public List<SpawnData> spawnData;
@@ -16,6 +18,7 @@ public class LevelManager : MonoBehaviour
     public UnitBlueprint[] unitTypes;
 
     public UnitManager[] unitManagers;
+    public Dictionary<int,UnitManager> unitManDictionary;
 
     //this will spawn teams and unit managers
     public void Awake()
@@ -31,26 +34,8 @@ public class LevelManager : MonoBehaviour
 
             //Adding unitManager to unitManager array 
             unitManagers[i] = unitMan.GetComponent<UnitManager>();
+
         }
-    }
-
-    //this will loop through all unitManagers and find enemy units of the team inputed
-    public List<UnitData> getEnemyUnits(UnitManager.TeamId team)
-    {
-        List<UnitData> enemyUnits = new List<UnitData>();
-
-        for (int i = 0; i <= unitManagers.Length; i++)
-        {   
-            for (int u = 0; u < unitManagers[i].unitData.Length; u++)
-            {
-                if (unitManagers[i].unitData[u].teamId != team)
-                {
-                    enemyUnits.Add(unitManagers[i].unitData[u]);
-                }
-            }     
-        }
-
-        return enemyUnits;
     }
 
     public UnitData GetUnitData(int instanceId)
@@ -78,17 +63,111 @@ public class LevelManager : MonoBehaviour
         };
     }
 
-    public void setDetected(int instanceId, UnitManager.TeamId detectedBy, float detectionTime)
+    public bool TryGetUnitData(int instanceId, out UnitData unitData)
     {
-        for (int i = 0; i <= spawnData.Count; i++)
+        if (instanceId == 0)
         {
-            if (unitManagers[i].unitDataIndexLookup.TryGetValue(instanceId, out int index))
+            unitData = new UnitData();
+            return false;           
+        }
+
+        foreach (UnitManager unitManager in unitManagers)
+        {
+            if (unitManager.unitDataIndexLookup.TryGetValue(instanceId, out var unitDataIndex))
             {
-                unitManagers[i].unitData[index].teamVisibility[(int)detectedBy] = true;
-                unitManagers[i].unitData[index].detectedTimers[(int)detectedBy] = detectionTime;
-                //Debug.Log("Set unit as detected - detected by team " + detectedBy);
+                unitData = unitManager.unitData[unitDataIndex];
+                return true;
+            }
+        }
+
+        unitData = new UnitData();
+        return false;
+    }
+
+    public bool IsUnitDetected(int instanceId, UnitManager.TeamId detectedBy)
+    {
+        if (GetUnitData(instanceId).teamVisibility[(int)detectedBy] == true)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool IsValidTarget(int targetId, UnitManager.TeamId attackingTeam)
+    {
+        if (TryGetUnitData(targetId , out var unitData))
+        {
+            if (unitData.teamVisibility[(int)attackingTeam] == true && unitData.isAlive == true)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void SetDetected(int instanceId, UnitManager.TeamId detectedBy, float detectionTime)
+    {
+        foreach (UnitManager unitManager in unitManagers)
+        {
+            if (unitManager.unitDataIndexLookup.TryGetValue(instanceId, out int index))
+            {
+                unitManager.unitData[index].teamVisibility[(int)detectedBy] = true;
+
+                DetectionData data = unitManager.GetModuleData(instanceId, "DetectionManager") as DetectionData;
+                data.detectedTimers[(int)detectedBy] = detectionTime;
+
                 return;
             }
         }
+
+        return;
+    }
+
+    public int[] GetDetectedEnemies(UnitManager.TeamId detectedBy)
+    {
+        int[] detectedEnemies = new int[0];
+
+        foreach (UnitManager unitManager in unitManagers)
+        {
+            int[] detectedTeamUnits = unitManager.GetDetectedUnitsIds(detectedBy);
+
+            if (detectedTeamUnits == null)
+            {
+                continue;
+            }
+
+            detectedEnemies.Concat(detectedTeamUnits);
+
+            Debug.Log(detectedEnemies[0]);
+        }
+
+        return detectedEnemies;
+    }
+
+    public void DamageUnit(int instanceId, float damage)
+    {
+        foreach (UnitManager unitManager in unitManagers)
+        {
+            if (unitManager.unitDataIndexLookup.TryGetValue(instanceId, out int index)) 
+            {
+                unitManager.unitData[index].health -= damage;
+
+                Debug.Log("Damage dealt - " + damage);
+
+                if (unitManager.unitData[index].health <= 0)
+                {
+                    unitManager.DestroyUnit(instanceId);
+                }
+
+                return;
+            }
+        }
+    }
+
+    private ModuleManager GetManager(int instanceId)
+    {
+        return null;
     }
 }

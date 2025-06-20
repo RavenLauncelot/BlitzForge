@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections;
+using static UnitManager;
 
 public class DetectionManager : ModuleManager
 {
@@ -9,12 +10,49 @@ public class DetectionManager : ModuleManager
 
     public void Start()
     {
-        moduleType = ModuleKind.DetectionModule;
-        unitIds = GetIds(ModuleManager.ModuleKind.DetectionModule);
+        managerType = "DetectionManager";
+        unitIds = GetIds();
 
         StartCoroutine(DetectionUpdate());
     }
-        
+
+    private void Update()
+    {
+        //per frame updates for:
+        //detectionTimers
+        //visibility bitmasks.
+
+        foreach (int id in unitIds)
+        {
+            DetectionData data = manager.GetModuleData(id, managerType) as DetectionData;
+
+            if (id == 0)
+            {
+                continue;
+            }
+
+            if (!manager.unitDataIndexLookup.TryGetValue(id, out int unitDataIndex))
+            {
+                continue;
+            }
+
+            //this updates all the visibility timers for this team specifically 
+            //once a timer reaches zero it will no longer be detected by that team (team enum is represented as a int/index)
+            for (int i = 0; i < data.detectedTimers.Length; i++)
+            {
+                if (data.detectedTimers[i] < Time.deltaTime)
+                {
+                    data.detectedTimers[i] = 0;
+                    manager.unitData[unitDataIndex].teamVisibility[i] = false;
+                }
+                else
+                {
+                    data.detectedTimers[i] -= Time.deltaTime;
+                }
+            }
+        }
+    }
+
     private IEnumerator DetectionUpdate()
     {
         List<Unit> tempList = new List<Unit>();
@@ -23,15 +61,19 @@ public class DetectionManager : ModuleManager
         {
             for (int i = 0; i < unitIds.Length; i++)
             {
-                int unitIndex = manager.unitDataIndexLookup[unitIds[i]];
-                DetectionData detectionData = manager.GetModuleData(unitIds[i], ModuleManager.ModuleKind.DetectionModule) as DetectionData;
+                if (!manager.unitDataIndexLookup.TryGetValue(unitIds[i], out int unitIndex))
+                {
+                    continue;
+                }
+
+                DetectionData detectionData = manager.GetModuleData(unitIds[i], managerType) as DetectionData;
 
                 tempList = DetectEnemies(manager.unitData[unitIndex].observingPos.position, detectionData);
 
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    levelManager.setDetected(detected.InstanceId, manager.managedTeam, detectionData.detectionTime);
+                    levelManager.SetDetected(detected.InstanceId, manager.managedTeam, detectionData.detectionTime);
                 }
 
                 yield return new WaitForEndOfFrame();
@@ -46,7 +88,7 @@ public class DetectionManager : ModuleManager
     {
         List<Unit> detectedUnits = new List<Unit>();
 
-        Collider[] detected = new Collider[20];
+        Collider[] detected = new Collider[100];
 
         int collisions = Physics.OverlapSphereNonAlloc(observPos, detectionData.detectionRange, detected, unitLayer);
         for (int i = 0; i < collisions; i++)
@@ -97,35 +139,26 @@ public class DetectionManager : ModuleManager
 
 //Since detection will most likely be used a lot it is directly stored in the UnitData array
 //this includes the DetectedTimers array and teamVisibility
+[System.Serializable]
 public class DetectionData : ModuleData
 {
     public DetectionData()
     {
-        moduleType = ModuleManager.ModuleKind.DetectionModule;
+        moduleType = "DetectionManager";
     }
 
-    public float detectionRange;
-    public float detectionTime;
-    public Transform detectionFrom;
-
-    public float detectionTimer;
-}
-
-[CreateAssetMenu(fileName = "DetectionModuleData", menuName = "Scriptable Objects/ModuleData/DetectionModuleData")]
-public class DetectionDataConstructor : ModuleDataConstructor
-{
-    public float detectionRange;
-    
-    public float detectionTime;
-
-    public override ModuleData GetNewData()
+    public override ModuleData Clone()
     {
-        base.GetNewData();
-
         return new DetectionData()
         {
+            moduleType = moduleType,
+            detectionTime = detectionTime,
             detectionRange = detectionRange,
-            detectionTime = detectionTime
         };
     }
+
+    public float detectionRange;
+    public float detectionTime;
+
+    public float[] detectedTimers = new float[8];
 }

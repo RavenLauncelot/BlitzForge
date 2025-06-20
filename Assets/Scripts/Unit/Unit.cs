@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using UnityEditor.ShaderGraph.Internal;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 
 public class Unit : MonoBehaviour
 {
@@ -15,10 +16,19 @@ public class Unit : MonoBehaviour
     }
 
     private int instanceId;
+    [SerializeField]
     public int InstanceId
     {
         get { return instanceId; }
     }
+
+    private bool isAlive;
+    public bool IsAlive
+    {
+        get { return isAlive; }
+    }
+
+    [SerializeField] private SpriteRenderer selectedUnitSprite;
 
     [SerializeField] private MeshRenderer[] meshRend;
 
@@ -39,8 +49,6 @@ public class Unit : MonoBehaviour
 
     public void InitUnit()
     {
-        //meshRend = GetComponentsInChildren<MeshRenderer>();
-
         instanceId = gameObject.GetInstanceID();
 
         if (observingPos == null)
@@ -52,6 +60,34 @@ public class Unit : MonoBehaviour
         {
             aimingPos = this.transform;
         }
+
+        isAlive = true;
+    }
+
+    public void UnitSelected(bool isSelected)
+    {
+        selectedUnitSprite.enabled = isSelected;
+    }
+
+    public void DestroyUnit()
+    {
+        if (isAlive)
+        {
+            return;
+        }
+
+        //Do unit death logic here or in new class
+        isAlive = false;
+        instanceId = 0;
+
+        Debug.Log(this.gameObject.name + " was destroyed");
+
+        DestroyUnitAnim();
+    }
+
+    protected virtual void DestroyUnitAnim()
+    {
+        //Specific code can be written here for specific animations or effects
     }
 }
 

@@ -10,13 +10,13 @@ public class MovementManager : ModuleManager
 
     public void Start()
     {
-        moduleType = ModuleKind.MovementModule;
-        unitIds = GetIds(ModuleManager.ModuleKind.MovementModule);
+        managerType = "MovementManager";
+        unitIds = GetIds();
 
         foreach(int unit in unitIds)
         {
             int unitDataIndex = manager.unitDataIndexLookup[unit];
-            MovementData movementData = manager.GetModuleData(unit, ModuleManager.ModuleKind.MovementModule) as MovementData;
+            MovementData movementData = manager.GetModuleData(unit, managerType) as MovementData;
 
             movementData.agent = manager.unitData[unitDataIndex].unitScript.GetComponent<NavMeshAgent>();
             movementData.agent.stoppingDistance = movementData.stoppingDistance;
@@ -25,40 +25,51 @@ public class MovementManager : ModuleManager
         }
     }
 
-    public void SetMovementCommand(int instanceId, Vector3 target)
+    public void BasicMovementCommand(int[] instanceIds, Vector3 target)
     {
-        MovementData movementData = null;
-
-        if (unitIds.Contains(instanceId))
+        for (int i = 0; i < instanceIds.Length; i++)
         {
-            movementData = manager.GetModuleData(instanceId, ModuleManager.ModuleKind.MovementModule) as MovementData;
-        }
+            MovementData movementData = null;
 
-        movementData.agent.isStopped = false;
-        movementData.reachedTarget = false;
-        movementData.currentTarget = target;
-        movementData.agent.SetDestination(target);
+            if (unitIds.Contains(instanceIds[i]))
+            {
+                movementData = manager.GetModuleData(instanceIds[i], managerType) as MovementData;
+
+                movementData.agent.isStopped = false;
+                movementData.reachedTarget = false;
+                movementData.currentTarget = target;
+                movementData.agent.SetDestination(target);
+            }              
+        }
     }
 
-    public override void StopCommands(int instanceId)
+    public override void StopCommands(int[] ids)
     {
-        MovementData movementData = null;
+            MovementData movementData = null;
 
-        if (unitIds.Contains(instanceId))
+        for (int i = 0; i < ids.Length; i++)
         {
-            movementData = manager.GetModuleData(instanceId, ModuleManager.ModuleKind.MovementModule) as MovementData;
-        }
+            if (unitIds.Contains(ids[i]))
+            {
+                movementData = manager.GetModuleData(ids[i], managerType) as MovementData;
+            }
 
-        movementData.reachedTarget = true;
-        movementData.currentTarget = movementData.agent.transform.position;
-        movementData.agent.path = null;
+            movementData.reachedTarget = true;
+            movementData.currentTarget = movementData.agent.transform.position;
+            movementData.agent.isStopped = true;
+        }
     }
 
     public void Update()
     {
         foreach(int id in unitIds)
         {
-            MovementData movementData = manager.GetModuleData(id , ModuleManager.ModuleKind.MovementModule) as MovementData;
+            if (id == 0)
+            {
+                continue;
+            }
+
+            MovementData movementData = manager.GetModuleData(id , managerType) as MovementData;
 
             if (movementData.reachedTarget == true)
             {
@@ -72,31 +83,29 @@ public class MovementManager : ModuleManager
             }
         }
     }
+
+    public override void SetCommand(CommandData command)
+    {
+        if (command.commandType == "BasicMovementCommand")
+        {
+            BasicMovementCommand(command.selectedUnits, command.targettedArea[0]);
+        }
+    }
 }
 
+[System.Serializable]
 public class MovementData : ModuleData
 {
     public MovementData()
     {
-        moduleType = ModuleManager.ModuleKind.MovementModule;
+        moduleType = "MovementManager";
     }
 
-    public float maxSpeed;
-    public float acceleration;
-    public float stoppingDistance;
-
-    public Vector3 currentTarget;
-    public bool reachedTarget;
-    public NavMeshAgent agent;
-}
-
-[CreateAssetMenu(fileName = "MovementModuleData", menuName = "Scriptable Objects/ModuleData/MovementModuleData")]
-public class MovementDataConstructor : ModuleDataConstructor
-{
-    public override ModuleData GetNewData()
-    { 
-        return new MovementData()
+    public override ModuleData Clone()
+    {
+        return new MovementData
         {
+            moduleType = moduleType,
             maxSpeed = maxSpeed,
             acceleration = acceleration,
             stoppingDistance = stoppingDistance,
@@ -106,4 +115,8 @@ public class MovementDataConstructor : ModuleDataConstructor
     public float maxSpeed;
     public float acceleration;
     public float stoppingDistance;
+
+    public Vector3 currentTarget;
+    public bool reachedTarget;
+    public NavMeshAgent agent;
 }

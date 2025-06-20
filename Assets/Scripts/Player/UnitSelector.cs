@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEditor.SceneManagement;
+using UnityEditorInternal;
 
 public class UnitSelector : MonoBehaviour
 {
@@ -51,7 +52,7 @@ public class UnitSelector : MonoBehaviour
 
     private void StartSelection(InputAction.CallbackContext context)  //player press the leftbutton 
     {
-        selectedUnits.Clear();
+        ResetSelection();
 
         Vector2 mousePosition = mousePos.ReadValue<Vector2>();
         Vector3 screenPos = new (mousePosition.x, mousePosition.y, cam.nearClipPlane);
@@ -76,6 +77,19 @@ public class UnitSelector : MonoBehaviour
         isSelecting = false;
 
         selectionTrigger.enabled = false;
+    }
+
+    private void ResetSelection()
+    {
+        if (selectedUnits != null)
+        {
+            foreach (var unit in selectedUnits)
+            {
+                unit.UnitSelected(false);
+            }
+        }
+
+        selectedUnits.Clear();
     }
 
     private void Update()
@@ -141,6 +155,7 @@ public class UnitSelector : MonoBehaviour
                 {
                     //Debug.Log("Inside selected area");
                     selectedUnits.Add(UnitScript);
+                    UnitScript.UnitSelected(true);
                 }               
             }
         }
@@ -155,6 +170,7 @@ public class UnitSelector : MonoBehaviour
 
                 //Debug.Log("Outside selected area");
                 selectedUnits.Remove(UnitScript);
+                UnitScript.UnitSelected(false);
             }
         }
     }

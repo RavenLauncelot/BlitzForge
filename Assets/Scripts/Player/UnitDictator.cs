@@ -138,7 +138,7 @@ public class UnitDictator : MonoBehaviour
             int unitCounter = 0;
             foreach (Unit unit in selectedUnits)
             {
-                playerUnitManager.SetMovementCommand(unit.InstanceId, screenRay.point + unitPositions[unitCounter]);
+                //playerUnitManager.SetMovementCommand(unit.InstanceId, screenRay.point + unitPositions[unitCounter]);
 
                 unitCounter++;
             }

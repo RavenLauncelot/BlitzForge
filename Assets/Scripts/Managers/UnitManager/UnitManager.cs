@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Unity.Collections;
+using Unity.VisualScripting;
 
 
 public class UnitManager : MonoBehaviour
@@ -35,7 +37,7 @@ public class UnitManager : MonoBehaviour
         moduleManagers = GetComponents<ModuleManager>();
         foreach (ModuleManager module in moduleManagers)
         {
-            module.InitModule(this, levelManager);
+            module.InitModule(this, levelManager, managedTeam);
         }
 
         int unitAmount = 0;
@@ -53,7 +55,7 @@ public class UnitManager : MonoBehaviour
         int counter = 0;
         Unit tempUnit = null;
         UnitBlueprint unitBlueprint = null;
-        List<ModuleDataConstructor> moduleData = new List<ModuleDataConstructor>();
+        List<ModuleData> moduleData = new List<ModuleData>();
         for(int ub = 0; ub < spawnData.unitBlueprint.Length; ub++)
         {
             unitBlueprint = spawnData.unitBlueprint[ub];
@@ -61,16 +63,16 @@ public class UnitManager : MonoBehaviour
 
             for (int i = 0; i < spawnData.unitAmount[ub]; i++)
             {
-                tempUnit = Instantiate(unitBlueprint.clientUnitPrefab, transform.position, Quaternion.identity).GetComponent<Unit>();
+                tempUnit = Instantiate(unitBlueprint.unitPrefab, transform.position, Quaternion.identity).GetComponent<Unit>();
                 tempUnit.TeamId = managedTeam;
                 //tempUnit.unitManager = this;
                 tempUnit.gameObject.name = managedTeam.ToString() + " Tank " + counter;
                 tempUnit.InitUnit();
 
                 List<ModuleData> modulesData = new List<ModuleData>();
-                foreach (ModuleDataConstructor moduleDataScriptable in moduleData)
+                foreach (ModuleData moduleDataScriptable in moduleData)
                 {
-                    modulesData.Add(moduleDataScriptable.GetNewData());
+                    modulesData.Add(moduleDataScriptable.Clone());
                 }
 
                 unitData[counter] = new UnitData
@@ -79,10 +81,12 @@ public class UnitManager : MonoBehaviour
                     observingPos = tempUnit.observingPos,
                     aimingPos = tempUnit.aimingPos,
                     rayTarget = tempUnit.rayTarget,
-                    detectedTimers = new float[50],
-                    teamVisibility = new bool[50],
+                    teamVisibility = new bool[8],
                     teamId = tempUnit.TeamId,
                     instanceId = tempUnit.InstanceId,
+
+                    health = unitBlueprint.unitData.health,
+                    isAlive = true,
 
                     components = modulesData
                 };
@@ -98,36 +102,7 @@ public class UnitManager : MonoBehaviour
         
     }
 
-    private void Update()
-    {
-        //per frame updates for:
-        //detectionTimers
-        //visibility bitmasks.
-
-        int dataIndex = 0;
-        foreach (UnitData data in unitData)
-        {
-            //this updates all the visibility timers for this team specifically 
-            //once a timer reaches zero it will no longer be detected by that team (team enum is represented as a int/index)
-            for (int i = 0; i < data.detectedTimers.Count(); i++)
-            {
-                if (data.detectedTimers[i] < Time.deltaTime)
-                {
-                    data.detectedTimers[i] = 0;
-                    unitData[dataIndex].teamVisibility[i] = false;
-                }
-                else
-                {
-                    data.detectedTimers[i] -= Time.deltaTime;
-                }
-            }
-
-            dataIndex++;
-        }
-       
-    }
-
-    public int[] GetIdsWithModule(ModuleManager.ModuleKind type)
+    public int[] GetIdsWithModule(string moduleType)
     {
         List<int> idList = new List<int>();
 
@@ -137,7 +112,7 @@ public class UnitManager : MonoBehaviour
             //checking through the component list of each unit
             foreach (ModuleData component in data.components)
             {
-                if (component.moduleType == type)
+                if (component.moduleType == moduleType)
                 {
                     idList.Add(data.instanceId);
                 }
@@ -147,19 +122,38 @@ public class UnitManager : MonoBehaviour
         return idList.ToArray();
     }
 
-    public ModuleData GetModuleData(int instanceId, ModuleManager.ModuleKind type)
+    public ModuleData GetModuleData(int instanceId, string type)
     {
-        int index = unitDataIndexLookup[instanceId];
-
-        foreach (ModuleData comp in unitData[index].components)
+        if (unitDataIndexLookup.TryGetValue(instanceId, out int index))
         {
-            if (comp.moduleType == type)
+            foreach (ModuleData comp in unitData[index].components)
             {
-                return comp;
+                if (comp.moduleType == type)
+                {
+                    return comp;
+                }
             }
         }
 
         return null;
+    }
+
+    public bool TryGetModuleData(int instanceId, string moduleType, out ModuleData result)
+    {
+        if (unitDataIndexLookup.TryGetValue(instanceId, out int index))
+        {
+            foreach (ModuleData comp in unitData[index].components)
+            {
+                if (comp.moduleType == moduleType)
+                {
+                    result = comp;
+                    return true;
+                }
+            }
+        }
+
+        result = null; 
+        return false;
     }
 
     //private IEnumerator DetectionUpdate()
@@ -240,15 +234,16 @@ public class UnitManager : MonoBehaviour
     //}
 
     //struct that holds important data about all units in that team
+    
     public struct UnitData
     {
+        public int instanceId;
+        public bool isAlive;
+
         public Unit unitScript;
 
         public TeamId teamId;
         public bool[] teamVisibility;
-        public float[] detectedTimers;
-
-        public int instanceId;
 
         public float health;
 
@@ -264,34 +259,70 @@ public class UnitManager : MonoBehaviour
         //e.g. if they can move shoot detect etc and any specific data
         [SerializeReference] public List<ModuleData> components;
     }
-
-    //finds all enemy units of that team. This will be removed at some point
-    public List<UnitData> GetEnemyUnits(TeamId team)
+    
+    public int[] GetDetectedUnitsIds(TeamId detectedBy)
     {
-        List<UnitData> enemyUnits = new List<UnitData>();
+        List<int> enemyUnits = new List<int>();
 
-        for (int u = 0; u < unitData.Count(); u++)
+        foreach(UnitData unit in unitData)
         {
-            if (unitData[u].teamId != team)
+            if (unit.teamVisibility[(int)detectedBy] == true)
             {
-                enemyUnits.Add(unitData[u]);
-            }         
+                enemyUnits.Add(unit.instanceId);
+            }
         }
 
-        return enemyUnits;
+        if (enemyUnits.Count == 0)
+        {
+            return null;
+        }
+        else
+        {
+            return enemyUnits.ToArray();
+        }
     }
-    
 
-    //Commands --------------------- commands
-
-    public void SetMovementCommand(int id, Vector3 position)
+    public void DestroyUnit(int instanceId)
     {
-        MovementManager movementManager = FindModuleManager(ModuleManager.ModuleKind.MovementModule) as MovementManager;
+        if (unitDataIndexLookup.TryGetValue(instanceId, out int index))
+        {
+            Debug.Log("Unit destroyed: " + unitData[index].unitScript.gameObject.name);
 
-        movementManager.SetMovementCommand(id, position);
+            //unitData[index].unitScript  do destroy animation or remove object etc.
+            //unitData[index].alive = false;
+            //unitData[index].instanceId = 0;
+            unitDataIndexLookup.Remove(instanceId);
+
+            unitData = unitData.Where(val => val.instanceId != instanceId).ToArray();
+
+            foreach(ModuleManager moduleManager in moduleManagers)
+            {
+                moduleManager.RemoveId(instanceId);
+            }
+        }
     }
 
-    private ModuleManager FindModuleManager(ModuleManager.ModuleKind type)
+    //This takes a generic command and depending on the enum type of module it will send it to that module
+    public void SendCommand(CommandData command)
+    {
+        foreach(ModuleManager moduleManager in moduleManagers)
+        {
+            if (command.targetModule == moduleManager.ModuleType)
+            {
+                moduleManager.StopCommands(command.selectedUnits);
+                moduleManager.SetCommand(command);
+            }
+        }
+    }
+
+    public UnitData GetUnitDataReadOnly(int instanceId)
+    {
+        int unitDataIndex = unitDataIndexLookup[instanceId];
+
+        return unitData[unitDataIndex];
+    }
+
+    private ModuleManager GetModuleManager(string type)
     {
         foreach(ModuleManager manager in moduleManagers)
         {
@@ -305,24 +336,4 @@ public class UnitManager : MonoBehaviour
         return null;
     }
 
-    //Debug functions
-    public int getDebugTeam(Unit unit)
-    {
-        return (int)unitData[unitDataIndexLookup[unit.InstanceId]].teamId;
-    }
-
-    public bool[] getDebugVisMask(Unit unit)
-    {
-        return unitData[unitDataIndexLookup[unit.InstanceId]].teamVisibility;
-    }
-
-    public float[] getDebugTime(Unit unit)
-    {
-        return unitData[unitDataIndexLookup[unit.InstanceId]].detectedTimers;
-    }
-
-    public string getDebugUnit(Unit unit)
-    {
-        return unitData[unitDataIndexLookup[unit.InstanceId]].unitScript.gameObject.name;
-    }
 }
