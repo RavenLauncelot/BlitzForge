@@ -48,7 +48,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managedTeam: 0
-  units: []
   unitLayermask:
     serializedVersion: 2
     m_Bits: 128
@@ -70,6 +69,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   updatePerSec: 1
+  targetSearchCooldown: 5
 --- !u!114 &8381392937698650365
 MonoBehaviour:
   m_ObjectHideFlags: 0

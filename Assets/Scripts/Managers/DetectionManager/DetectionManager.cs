@@ -8,12 +8,24 @@ public class DetectionManager : ModuleManager
 {
     public LayerMask unitLayer;
 
+    private Coroutine updateLoop;
+
     public void Start()
     {
         managerType = "DetectionManager";
         unitIds = GetIds();
 
-        StartCoroutine(DetectionUpdate());
+        StartCoroutine(UpdateLoop());
+    }
+
+    private void OnEnable()
+    {
+        updateLoop = StartCoroutine(UpdateLoop());
+    }
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
     }
 
     private void Update()
@@ -53,7 +65,7 @@ public class DetectionManager : ModuleManager
         }
     }
 
-    private IEnumerator DetectionUpdate()
+    private IEnumerator UpdateLoop()
     {
         List<Unit> tempList = new List<Unit>();
 

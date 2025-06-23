@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Linq;
+using System.Xml;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
@@ -8,9 +10,10 @@ public class AttackManager : ModuleManager
     //This script will do all the processing of the unitsusing the attack data
     //object stored in each struct
 
-    public LayerMask unitLayer;
+    [SerializeField] private LayerMask unitLayer;
 
-    public int updatePerSec = 1;
+    [SerializeField] private int targetSkipSearchCooldown;
+    Coroutine updateLoop;
 
     //These are temporary values
     private AttackData attackData;
@@ -18,6 +21,7 @@ public class AttackManager : ModuleManager
     private int currentTargetId;
     private UnitManager.UnitData currentUnitData;
     private UnitManager.UnitData targetUnitData;
+    
 
     //first lets get all instance Ids we need that have this component
     public void Start()
@@ -35,53 +39,72 @@ public class AttackManager : ModuleManager
         }
     }
 
-    //this will get changed to slower update later
-    public void Update()
+    private void OnEnable()
     {
-        attackData = null;
+        updateLoop = StartCoroutine(UpdateLoop());
+    }
 
-        foreach (int id in unitIds)
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
+
+    //this will get changed to slower update later
+    private IEnumerator UpdateLoop()
+    {
+        while (true)
         {
-            currentUnitId = id;
+            attackData = null;
 
-            if (manager.TryGetModuleData(id, managerType, out ModuleData moduleData))
+            foreach (int id in unitIds)
             {
-                //UnitData variables cannot be updated. as they are value types
-                //Module data can thuogh cus they are reference types. We love ref types but they slow, stinky. 
+                currentUnitId = id;
 
-                attackData = moduleData as AttackData;
-                currentTargetId = attackData.currentTargetId;
-                currentUnitData = manager.GetUnitDataReadOnly(currentUnitId);
-                targetUnitData = levelManager.GetUnitData(currentTargetId);
-
-
-                UpdateReloadTimer();
-
-
-                if (attackData.forcedTarget)
+                if (manager.TryGetModuleData(id, managerType, out ModuleData moduleData))
                 {
-                    ForcedTargetMode();
+                    //UnitData variables cannot be updated. as they are value types
+                    //Module data can thuogh cus they are reference types. We love ref types but they slow, stinky. 
+
+                    attackData = moduleData as AttackData;
+                    currentTargetId = attackData.currentTargetId;
+                    currentUnitData = manager.GetUnitDataReadOnly(currentUnitId);
+                    targetUnitData = levelManager.GetUnitData(currentTargetId);
+
+
+                    UpdateReloadTimer();
+
+
+                    if (attackData.forcedTarget)
+                    {
+                        ForcedTargetMode();
+                    }
+
+                    else
+                    {
+                        AutoTargetMode();
+                    }
+
+                    UpdateCanFire();
+                    UpdateAttackComp();
+
+                    if (attackData.canFire)
+                    {
+                        UnitFire(currentUnitId, attackData);
+                    }
                 }
 
                 else
                 {
-                    AutoTargetMode();
+                    RemoveId(id);
+                    continue;
                 }
 
-                UpdateCanFire();
-                UpdateAttackComp();
-
-                if (attackData.canFire)
-                {
-                    UnitFire(currentUnitId, attackData);
-                }
+                //Might add the ability to adjust this delay with doing it in batches e.g.
+                //Doing 10 units then waiting a frame and being able to adjust this. 
+                yield return new WaitForEndOfFrame();
             }
 
-            else
-            {
-                RemoveId(id);
-                continue;
-            }       
+            yield return new WaitForEndOfFrame();
         }
     }
 
@@ -105,7 +128,22 @@ public class AttackManager : ModuleManager
 
     public void AutoTargetMode()
     {
-        if (!CanAimAt(currentUnitId, levelManager.GetUnitData(attackData.currentTargetId).unitScript))
+        if (attackData.targetSkipSearchCooldown > 0)
+        {
+            if (attackData.targetSkipSearchCooldown - 1 < 0)
+            {   
+                attackData.targetSkipSearchCooldown = 0;
+            }
+
+            else
+            {
+                attackData.targetSkipSearchCooldown -= 1;
+            }
+
+            return;
+        }
+
+        if (!CanAimAt(currentUnitId, targetUnitData.unitScript))
         {
             if (FindTarget(currentUnitData, attackData, out int newTarget))
             {
@@ -118,6 +156,7 @@ public class AttackManager : ModuleManager
                 Debug.Log("Failed to find targets");
                 //failed to find any targets
 
+                attackData.targetSkipSearchCooldown = targetSkipSearchCooldown;  //if it fails to find a target it will wait till it can again.
                 attackData.currentTargetId = 0;
                 attackData.targetUnitScript = null;
             }
@@ -288,6 +327,7 @@ public class AttackData : ModuleData
     public bool fireAtWill = true;
     public bool canFire;
     public float reloadTimer = 0;
+    public int targetSkipSearchCooldown;
 
     //weapon stats
     public float range = 0;

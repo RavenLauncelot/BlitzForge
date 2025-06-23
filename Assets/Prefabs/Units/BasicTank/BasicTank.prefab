@@ -318,6 +318,7 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 64
+  smoothing: 10
 --- !u!1 &1276861466919296906
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,8 +1106,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 931ac92951552524bbc7e4592c914453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turretYawSpeed: 10
-  turretPitchSpeed: 10
+  turretYawSpeed: 50
+  turretPitchSpeed: 50
   turretYawer: {fileID: 3218741005084715790}
   turretPitcher: {fileID: 6422597796950257059}
   turretPosReference: {fileID: 1194121532418535003}
