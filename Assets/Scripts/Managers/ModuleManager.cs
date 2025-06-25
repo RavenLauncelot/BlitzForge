@@ -1,4 +1,3 @@
-using Sirenix.OdinInspector.Editor.Modules;
 using System;
 using System.Linq;
 using Unity.VisualScripting;
@@ -23,6 +22,7 @@ public class ModuleManager : MonoBehaviour
 
     public void InitModule(UnitManager unitManager, LevelManager LevelManager, UnitManager.TeamId teamid)
     {
+        this.transform.position = Vector3.zero;
         if (initialised)
         {
             return;

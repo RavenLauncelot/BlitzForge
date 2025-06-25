@@ -223,15 +223,11 @@ public class AttackManager : ModuleManager
                         return true;
                     }
 
-                    Debug.Log("Not within line of sight");
                 }
-
-                Debug.Log(i + " IsValidTarget" + levelManager.IsValidTarget(targetCode.InstanceId, managedTeam));
             }
 
             else
             {
-                Debug.Log("Not unit");
                 continue;
             }
         }

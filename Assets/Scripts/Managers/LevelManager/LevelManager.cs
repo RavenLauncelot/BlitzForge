@@ -165,9 +165,4 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
-
-    private ModuleManager GetManager(int instanceId)
-    {
-        return null;
-    }
 }

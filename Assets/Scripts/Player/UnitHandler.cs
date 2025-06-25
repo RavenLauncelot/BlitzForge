@@ -1,8 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-using static UnitManager;
-using Unity.Android.Gradle.Manifest;
 using UnityEditor;
 using UnityEngine.Rendering;
 using System.Linq;

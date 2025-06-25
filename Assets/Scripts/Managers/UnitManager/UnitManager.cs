@@ -307,9 +307,9 @@ public class UnitManager : MonoBehaviour
     {
         foreach(ModuleManager moduleManager in moduleManagers)
         {
+            moduleManager.StopCommands(command.selectedUnits);
             if (command.targetModule == moduleManager.ModuleType)
             {
-                moduleManager.StopCommands(command.selectedUnits);
                 moduleManager.SetCommand(command);
             }
         }
