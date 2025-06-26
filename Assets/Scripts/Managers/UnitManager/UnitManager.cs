@@ -18,8 +18,6 @@ public class UnitManager : MonoBehaviour
 
     [SerializeField] private LayerMask unitLayermask;
 
-    public float detectionTime;
-
     public enum TeamId
     {
         None,
@@ -29,9 +27,9 @@ public class UnitManager : MonoBehaviour
         TeamC
     }
 
-    public void InitManager(SpawnData spawnData, LevelManager levelManager)
+    public void InitManager(SpawnData spawnData, LevelManager levelManagerIn)
     {
-        this.levelManager = levelManager;
+        levelManager = levelManagerIn;
         managedTeam = spawnData.teamId;
 
         moduleManagers = GetComponents<ModuleManager>();
@@ -97,11 +95,6 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        
-    }
-
     public int[] GetIdsWithModule(string moduleType)
     {
         List<int> idList = new List<int>();
@@ -155,83 +148,6 @@ public class UnitManager : MonoBehaviour
         result = null; 
         return false;
     }
-
-    //private IEnumerator DetectionUpdate()
-    //{
-    //    List<Unit> tempList = new List<Unit>();
-
-    //    while (true)
-    //    {
-    //        for(int u = 0; u < unitData.Count(); u++)             
-    //        {
-    //            tempList = DetectEnemies(unitData[u]);
-                
-    //            //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
-    //            foreach (Unit detected in tempList)
-    //            {
-    //                levelManager.setDetected(detected.instanceId, managedTeam, detectionTime);                            
-    //            }
-
-    //            yield return new WaitForEndOfFrame();
-    //        }
-            
-    //        //this is so unity doesn't crash when there are zero units lmoa
-    //        yield return new WaitForEndOfFrame();
-    //    }
-    //}
-
-    //private List<Unit> DetectEnemies(UnitData unitData)
-    //{      
-    //    List<Unit> detectedUnits = new List<Unit>();
-
-    //    Vector3 observPos = unitData.observingPos.position;
-    //    Collider[] detected = new Collider[20];
-
-    //    int collisions = Physics.OverlapSphereNonAlloc(observPos, unitData.unitScript.detectionRange, detected, unitLayermask);
-    //    for (int i = 0; i < collisions; i++)
-    //    {
-    //        //checking if there is a unit script inside the dectected collider
-    //        if (detected[i].TryGetComponent<Unit>(out Unit unitCode))
-    //        {
-    //            //if the team id is the same as the detecting unit it will skip
-    //            if (unitCode.TeamId == unitData.teamId)
-    //            {
-    //                continue;
-    //            }
-    //        }
-    //        //no unit script skip
-    //        else
-    //        {
-    //            continue;
-    //        }
-
-
-
-    //        //checking unit is within line of sight 
-    //        Ray ray = new Ray(observPos, unitCode.rayTarget.position - observPos);
-    //        RaycastHit hit;
-    //        Debug.DrawRay(observPos, unitCode.rayTarget.position - observPos, Color.blue, 4f);
-
-    //        if (Physics.Raycast(ray, out hit, unitData.unitScript.detectionRange))
-    //        {
-    //            if (hit.collider.GetComponentInParent<Unit>().instanceId == unitCode.instanceId)
-    //            {
-    //                detectedUnits.Add(unitCode);
-    //            }
-
-    //            else
-    //            {
-    //                //try again
-    //            }
-    //        }
-    //        else
-    //        {
-    //             Debug.Log("Raycast blocked or didn't reach" + gameObject.name);
-    //        }            
-    //    }       
-
-    //    return detectedUnits;
-    //}
 
     //struct that holds important data about all units in that team
     
@@ -336,4 +252,13 @@ public class UnitManager : MonoBehaviour
         return null;
     }
 
+    private void Start()
+    {
+        Debug.Log("Start position" + transform.position);
+    }
+
+    private void Awake()
+    {
+        Debug.Log("Awake position" + transform.position);
+    }
 }

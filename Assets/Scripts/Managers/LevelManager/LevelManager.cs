@@ -28,13 +28,16 @@ public class LevelManager : MonoBehaviour
         for(int i  = 0; i < spawnData.Count; i++)
         {
             //spawning unitManager
+            Debug.Log("Position" + spawnLocations[i].position);
             GameObject unitMan = Instantiate(unitManagerPrefab, spawnLocations[i].position, Quaternion.identity);
             unitMan.GetComponent<UnitManager>().InitManager(spawnData[i], this);
+            Debug.Log("Actual position on spawn " + unitMan.transform.position);
             unitMan.gameObject.name = spawnData[i].teamId.ToString() + " Manager";
 
             //Adding unitManager to unitManager array 
             unitManagers[i] = unitMan.GetComponent<UnitManager>();
 
+            
         }
     }
 
