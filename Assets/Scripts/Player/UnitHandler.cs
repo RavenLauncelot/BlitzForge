@@ -9,6 +9,7 @@ using Unity.VisualScripting;
 
 public class UnitHandler : MonoBehaviour
 {
+    [SerializeField] private LayerMask groundLayer;
     [SerializeField] private UnitManager manager;
 
     PlayerControls UnitControls;
@@ -23,12 +24,16 @@ public class UnitHandler : MonoBehaviour
 
     public List<Unit> selectedUnits;
     public List<Unit> targetedUnits;
-    Vector3[] targettedRange = new Vector3[2];
+    Vector3[] targettedBounds = new Vector3[4];
 
-    bool isTargeting;
-    bool isSelecting;
+    private bool isTargeting;
+    public bool IsTargeting { get { return isTargeting; } }
+    
+    private bool isSelecting;
+    public bool IsSelecting { get { return isSelecting; } }
 
     Vector3 initialPoint;
+    Vector3 currentPoint;
 
     [SerializeField] private List<CommandData> commandList;
     [SerializeField] private CommandData currentlySetCommand;
@@ -52,7 +57,7 @@ public class UnitHandler : MonoBehaviour
         mousePos.Enable();
 
 
-        unitTrigger = GetComponentInChildren<BoxCollider>();
+        unitTrigger = GetComponent<BoxCollider>();
         cam = Camera.main;
     }
 
@@ -71,7 +76,7 @@ public class UnitHandler : MonoBehaviour
         Vector2 mousePosition = mousePos.ReadValue<Vector2>();
         Vector3 screenPos = new(mousePosition.x, mousePosition.y, cam.nearClipPlane);
 
-        if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
+        if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay, Mathf.Infinity, groundLayer))
         {
             isSelecting = true;
             initialPoint = screenRay.point;
@@ -103,11 +108,11 @@ public class UnitHandler : MonoBehaviour
         Vector2 mousePosition = mousePos.ReadValue<Vector2>();
         Vector3 screenPos = new(mousePosition.x, mousePosition.y, cam.nearClipPlane);
 
-        if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
+        if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay, Mathf.Infinity, groundLayer))
         {
             isTargeting = true;
-            targettedRange[0] = screenRay.point;
             initialPoint = screenRay.point;
+            targettedBounds[0] = screenRay.point;
 
             unitTrigger.enabled = true;
         }
@@ -125,16 +130,7 @@ public class UnitHandler : MonoBehaviour
         Vector2 mousePosition = mousePos.ReadValue<Vector2>();
         Vector3 screenPos = new(mousePosition.x, mousePosition.y, cam.nearClipPlane);
 
-        if (Physics.Raycast(cam.ScreenPointToRay(screenPos, Camera.MonoOrStereoscopicEye.Mono), out RaycastHit screenRay))
-        {
-            targettedRange[1] = screenRay.point;
-        }
-
-        else
-        {
-            //wasn't able to select final point 
-            return;
-        }
+        targettedBounds = GetLowerBounds();
 
         //It should now send the command to the UnitManager
         if (selectedUnits != null)
@@ -147,7 +143,7 @@ public class UnitHandler : MonoBehaviour
                 selectedUnits = GetIds(selectedUnits),
                 targettedUnits = GetIds(targetedUnits),
 
-                targettedArea = targettedRange
+                targettedArea = targettedBounds
             };
 
             manager.SendCommand(newCommand);
@@ -213,6 +209,8 @@ public class UnitHandler : MonoBehaviour
 
                 unitTrigger.size = pointAtoBLocal;
                 transform.position = centre;
+
+                currentPoint = screenRay.point;
             }
 
             else
@@ -231,6 +229,50 @@ public class UnitHandler : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Will return lower bounds of boxCollider order will differ but always connecting points indexes 1 and 3 are aproximated.
+    /// </summary>
+    public Vector3[] GetLowerBounds()
+    {
+        //Not going to use the collider for it we're gonna use the screen ray position and make a square in local space then converting it to world for the linerenderer.
+        //We need to use local space as the box collider is alligned with it and finding a square in world space would only give the AABB (axis alligned bounding box) new word so cool
+        Vector3 initialPointLocal = transform.InverseTransformPoint(initialPoint);
+
+        //This just finds it's postion in relation to the initialPoint which can then be added on later to find the localPos
+        Vector3 currentPointOffset = transform.InverseTransformPoint(currentPoint) - initialPointLocal;
+
+        //find approximated y between the inital and current point
+        float yValue = initialPointLocal.y + (currentPointOffset.y / 2);
+
+        //Sometimes the postion of values can differ and hence the order 
+
+        //FL FR BR BL
+        //initial   C
+        //D         current
+
+        //BR BL FR FL
+        //otherwise will be 
+        //D         current
+        //inital    C
+
+        Vector3[] selectedArea = new Vector3[4]
+        {
+            initialPointLocal,
+            new Vector3(initialPointLocal.x + currentPointOffset.x, yValue, initialPointLocal.z),
+            initialPointLocal + currentPointOffset,
+            new Vector3(initialPointLocal.x, yValue, initialPointLocal.z + currentPointOffset.z)
+        };
+
+        //converting the positions back to world space
+        for (int i = 0; i < 4; i++)
+        {
+            selectedArea[i] = transform.TransformPoint(selectedArea[i]);
+        }
+
+        return selectedArea;
+    }
+
+    //I hate this the bit the most
     private void OnTriggerEnter(Collider other)
     {
         if (isSelecting)

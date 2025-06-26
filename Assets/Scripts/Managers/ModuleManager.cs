@@ -22,7 +22,6 @@ public class ModuleManager : MonoBehaviour
 
     public void InitModule(UnitManager unitManager, LevelManager LevelManager, UnitManager.TeamId teamid)
     {
-        this.transform.position = Vector3.zero;
         if (initialised)
         {
             return;
