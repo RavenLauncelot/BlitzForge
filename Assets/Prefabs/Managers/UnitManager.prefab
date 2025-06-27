@@ -51,7 +51,6 @@ MonoBehaviour:
   unitLayermask:
     serializedVersion: 2
     m_Bits: 128
-  detectionTime: 10
 --- !u!114 &-8515516161953769519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,6 +84,7 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
+  frameSkip: 2
 --- !u!114 &-2530838446215479751
 MonoBehaviour:
   m_ObjectHideFlags: 0

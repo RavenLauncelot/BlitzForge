@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil;
 using Unity;
+using Unity.VisualScripting;
 using UnityEngine;
 
 class NormalTurretComp : AttackComponent
@@ -9,7 +10,8 @@ class NormalTurretComp : AttackComponent
     [SerializeField] float turretYawSpeed;
     [SerializeField] float turretPitchSpeed;
 
-    Vector3 targetPos;
+    Transform targetTrans;
+    Vector3 pos;
 
     [SerializeField] Transform turretYawer;
     [SerializeField] Transform turretPitcher;
@@ -18,30 +20,33 @@ class NormalTurretComp : AttackComponent
 
     [SerializeField] private ParticleSystem particleSys;
 
-    public override void UpdateTurretRotation(Vector3 targetLocation)
+    public override void UpdateTurretRotation(Transform targetTransIn)
     {
-        targetPos = targetLocation;
+        targetTrans = targetTransIn;
     }
 
     private void Update()
     {
         Debug.DrawRay(turretPitcher.position, turretPitcher.forward * 100);
 
-        if (targetPos != null)
+        if (targetTrans == null)
         {
-            if (targetPos == Vector3.down)
-            {
-                targetPos = gunPosReference.position + gunPosReference.forward;
-            }
-            //rotating the y axis first (yaw)
-
-            Quaternion turretAngleY = getTargetDirection("y", targetPos);
-            Quaternion turretAngleX = getTargetDirection("x", targetPos);
-
-            turretYawer.localRotation = Quaternion.RotateTowards(turretYawer.localRotation, turretAngleY, turretYawSpeed * Time.deltaTime);
-
-            turretPitcher.localRotation = Quaternion.RotateTowards(turretPitcher.localRotation, turretAngleX, turretPitchSpeed * Time.deltaTime);
+            pos = transform.position + (turretPosReference.forward * 10);
+            pos.y = gunPosReference.position.y;
         }
+        else
+        {
+            pos = targetTrans.position;
+        }
+       
+        //rotating the y axis first (yaw)
+
+        Quaternion turretAngleY = getTargetDirection("y", pos);
+        Quaternion turretAngleX = getTargetDirection("x", pos);
+
+        turretYawer.localRotation = Quaternion.RotateTowards(turretYawer.localRotation, turretAngleY, turretYawSpeed * Time.deltaTime);
+
+        turretPitcher.localRotation = Quaternion.RotateTowards(turretPitcher.localRotation, turretAngleX, turretPitchSpeed * Time.deltaTime);
     }
 
     private Quaternion getTargetDirection(string axis, Vector3 position)
@@ -82,16 +87,9 @@ class NormalTurretComp : AttackComponent
         }
     }
 
-    public void SetTargetPos(Vector3 pos)
+    public void SetTargetPos(Transform targetPos)
     {
-        if (pos == null)
-        {
-            targetPos = Vector3.forward + transform.position;
-        }
-        else
-        {
-            targetPos = pos;
-        }
+        targetTrans = targetPos;
     }
 
     public override void FireGun()

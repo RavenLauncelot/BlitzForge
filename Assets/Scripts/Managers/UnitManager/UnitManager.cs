@@ -77,7 +77,6 @@ public class UnitManager : MonoBehaviour
                 {
                     unitScript = tempUnit,
                     observingPos = tempUnit.observingPos,
-                    aimingPos = tempUnit.aimingPos,
                     rayTarget = tempUnit.rayTarget,
                     teamVisibility = new bool[8],
                     teamId = tempUnit.TeamId,
@@ -168,7 +167,6 @@ public class UnitManager : MonoBehaviour
         //aimingpos is the position where shots are fire at the pivot. this sends rays too
         //ray target is where other tanks will send raycasts to 
         public Transform observingPos;
-        public Transform aimingPos;
         public Transform rayTarget;
 
         //These represent the capabilities of each unit 
@@ -231,34 +229,10 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    public UnitData GetUnitDataReadOnly(int instanceId)
+    public UnitData GetUnitData(int instanceId)
     {
         int unitDataIndex = unitDataIndexLookup[instanceId];
 
         return unitData[unitDataIndex];
-    }
-
-    private ModuleManager GetModuleManager(string type)
-    {
-        foreach(ModuleManager manager in moduleManagers)
-        {
-            if (manager.ModuleType == type)
-            {
-                return manager;
-            }       
-        }
-
-        Debug.Log("Module Type, " + type + " is not attached");
-        return null;
-    }
-
-    private void Start()
-    {
-        Debug.Log("Start position" + transform.position);
-    }
-
-    private void Awake()
-    {
-        Debug.Log("Awake position" + transform.position);
     }
 }

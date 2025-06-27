@@ -10,6 +10,8 @@ public class DetectionManager : ModuleManager
 
     private Coroutine updateLoop;
 
+    [SerializeField] private int frameSkip;
+
     public void Start()
     {
         managerType = "DetectionManager";
@@ -88,7 +90,10 @@ public class DetectionManager : ModuleManager
                     levelManager.SetDetected(detected.InstanceId, manager.managedTeam, detectionData.detectionTime);
                 }
 
-                yield return new WaitForEndOfFrame();
+                for (int frame = 0; frame < frameSkip; frame++)
+                {
+                    yield return new WaitForEndOfFrame();
+                }             
             }
 
             //this is so unity doesn't crash when there are zero units lmoa

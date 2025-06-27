@@ -278,6 +278,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7421936484878123072}
   - component: {fileID: 5132545254944526630}
+  - component: {fileID: 2685156976589556369}
   m_Layer: 7
   m_Name: Model
   m_TagString: Untagged
@@ -319,6 +320,27 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   smoothing: 10
+--- !u!65 &2685156976589556369
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1256566177381792086}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.5987368, y: 2.156681, z: 6.733804}
+  m_Center: {x: 0, y: 1.1783404, z: 0}
 --- !u!1 &1276861466919296906
 GameObject:
   m_ObjectHideFlags: 0
@@ -375,7 +397,7 @@ Transform:
   m_GameObject: {fileID: 2413479967610730176}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.5927048, z: 0.6054497}
+  m_LocalPosition: {x: 0, y: 1.5454484, z: 0.60544944}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -609,7 +631,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
@@ -631,7 +653,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
@@ -653,7 +675,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 1
   m_CookingOptions: 30
@@ -1064,7 +1086,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2.41
-  m_BaseOffset: 0
+  m_BaseOffset: -0.2
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &2121278715449754593
@@ -1106,6 +1128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 931ac92951552524bbc7e4592c914453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  aimingPos: {fileID: 2371224646621743961}
   turretYawSpeed: 50
   turretPitchSpeed: 50
   turretYawer: {fileID: 3218741005084715790}
@@ -1224,6 +1247,10 @@ PrefabInstance:
     - target: {fileID: 424806197635685539, guid: 17059700dec0e1a469d85c0f3f7afc54, type: 3}
       propertyPath: InitialModule.gravityModifier.scalar
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 424806197635685539, guid: 17059700dec0e1a469d85c0f3f7afc54, type: 3}
+      propertyPath: SubModule.subEmitters.Array.data[0].type
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 424806197635685539, guid: 17059700dec0e1a469d85c0f3f7afc54, type: 3}
       propertyPath: SubModule.subEmitters.Array.data[1].type
