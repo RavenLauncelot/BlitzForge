@@ -1,6 +1,7 @@
 using Sirenix.OdinInspector;
 using System.Linq;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Point : MonoBehaviour
 {
@@ -9,6 +10,10 @@ public class Point : MonoBehaviour
     [SerializeField] private LayerMask unitLayer;
 
     [ShowInInspector] private UnitManager.TeamId capturingTeam;
+
+    private SpriteRenderer spriteRend;
+    [SerializeField] private List<Color> teamColours;
+
     public UnitManager.TeamId CapturingTeam
     {
         get { return capturingTeam; }
@@ -41,6 +46,12 @@ public class Point : MonoBehaviour
         capturingTeam = UnitManager.TeamId.None;
 
         colliders = new Collider[100];
+
+        spriteRend = GetComponentInChildren<SpriteRenderer>();
+
+        Debug.Log("Capture point bounds: " + spriteRend.bounds.size);
+        spriteRend.size = new Vector2(captureRadius * 2, captureRadius * 2);
+        Debug.Log("Capture point bounds: " + spriteRend.bounds.size);
     }
 
     public void Update()
@@ -59,7 +70,6 @@ public class Point : MonoBehaviour
                 {
                     Debug.Log("Contested capture point " + gameObject.name);
                     isCaptured = false;
-                    capturedBy = UnitManager.TeamId.None;
                     capturingTeam = UnitManager.TeamId.None;
                     captureProgress = 0;    
                     return;
@@ -71,7 +81,6 @@ public class Point : MonoBehaviour
             {
                 captureProgress = 0f;
                 isCaptured = false;
-                capturedBy = UnitManager.TeamId.None;
                 capturingTeam = firstUnitTeam;
             }
 
@@ -91,6 +100,8 @@ public class Point : MonoBehaviour
                     captureProgress += Time.deltaTime;
                 }
             }
+
+            spriteRend.color = Color.Lerp(teamColours[(int)capturedBy], teamColours[(int)capturingTeam], captureProgress / captureTime);
         }
 
         else if (!isCaptured)
