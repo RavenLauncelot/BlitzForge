@@ -25,7 +25,7 @@ class NormalTurretComp : AttackComponent
         targetTrans = targetTransIn;
     }
 
-    private void Update()
+    public void Update()
     {
         Debug.DrawRay(turretPitcher.position, turretPitcher.forward * 100);
 

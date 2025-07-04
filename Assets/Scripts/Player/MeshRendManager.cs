@@ -17,7 +17,7 @@ public class MeshRendManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
         foreach(var manager in unitManagers)
         {

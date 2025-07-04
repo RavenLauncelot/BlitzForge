@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -560,6 +561,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1728445474}
   - component: {fileID: 1728445473}
+  - component: {fileID: 1728445475}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -605,6 +607,18 @@ Transform:
   - {fileID: 1969937888}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1728445475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1728445472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 364604b00cfaaa54eb873701511464bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1794756574
 GameObject:
   m_ObjectHideFlags: 0
@@ -786,11 +800,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7218866750117331005, guid: 1315ffdc49b7a2b4c95b58d8902e9060, type: 3}
       propertyPath: m_Size.x
-      value: 20.72
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7218866750117331005, guid: 1315ffdc49b7a2b4c95b58d8902e9060, type: 3}
       propertyPath: m_Size.y
-      value: 25.65
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7218866750117331005, guid: 1315ffdc49b7a2b4c95b58d8902e9060, type: 3}
       propertyPath: m_DrawMode

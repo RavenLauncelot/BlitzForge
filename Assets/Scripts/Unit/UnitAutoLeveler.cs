@@ -15,7 +15,7 @@ public class UnitAutoLeveler : MonoBehaviour
         transformRoot = gameObject.transform.root;
     }
 
-    void Update()
+    public void Update()
     {
         Ray ray = new Ray(transformRoot.position, -transformRoot.up);
 

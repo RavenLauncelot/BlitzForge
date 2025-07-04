@@ -20,6 +20,8 @@ public class LevelManager : MonoBehaviour
     public UnitManager[] unitManagers;
     public Dictionary<int,UnitManager> unitManDictionary;
 
+    
+
     //this will spawn teams and unit managers
     public void Awake()
     {
@@ -39,6 +41,10 @@ public class LevelManager : MonoBehaviour
 
             
         }
+
+
+        //Initialising the unitUpdater
+        GetComponent<UnitUpdate>().InitUnitUpdate();
     }
 
     public UnitData GetUnitData(int instanceId)
