@@ -7,8 +7,6 @@ using System.Runtime.CompilerServices;
 
 public class UnitUpdate : MonoBehaviour
 {
-    private bool initilised = false;
-
     IUnitUpdate[] updateList;
     private int length;
 

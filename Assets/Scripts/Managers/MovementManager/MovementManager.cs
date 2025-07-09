@@ -7,21 +7,15 @@ using UnityEngine.AI;
 
 public class MovementManager : ModuleManager
 {
-
     public void Start()
     {
-        managerType = "MovementManager";
-        unitIds = GetIds();
-
-        foreach(int unit in unitIds)
+        foreach (UnitModule unit in managedModules)
         {
-            int unitDataIndex = manager.unitDataIndexLookup[unit];
-            MovementData movementData = manager.GetModuleData(unit, managerType) as MovementData;
+            MovementModule movementModule = unit as MovementModule;
 
-            movementData.agent = manager.unitData[unitDataIndex].unitScript.GetComponent<NavMeshAgent>();
-            movementData.agent.stoppingDistance = movementData.stoppingDistance;
-            movementData.agent.acceleration = movementData.acceleration;
-            movementData.agent.speed = movementData.maxSpeed;
+            movementModule.Agent.stoppingDistance = movementModule.StoppingDistance;
+            movementModule.Agent.acceleration = movementModule.Acceleration;
+            movementModule.Agent.speed = movementModule.MaxSpeed;
         }
     }
 
@@ -29,57 +23,53 @@ public class MovementManager : ModuleManager
     {
         for (int i = 0; i < instanceIds.Length; i++)
         {
-            MovementData movementData = null;
+            MovementModule movementModule = null;
 
-            if (unitIds.Contains(instanceIds[i]))
+            if (moduleIdLookup.TryGetValue(instanceIds[i], out UnitModule unitModule))
             {
-                movementData = manager.GetModuleData(instanceIds[i], managerType) as MovementData;
+                movementModule = unitModule as MovementModule;
 
-                movementData.agent.isStopped = false;
-                movementData.reachedTarget = false;
-                movementData.currentTarget = target;
-                movementData.agent.SetDestination(target);
+                movementModule.Agent.isStopped = false;
+                movementModule.ReachedTarget = false;
+                movementModule.CurrentTarget = target;
+                movementModule.Agent.SetDestination(target);
             }              
         }
     }
 
-    public override void StopCommands(int[] ids)
+    public override void StopCommands(int[] instanceIds)
     {
-            MovementData movementData = null;
+        MovementModule movementModule = null;
 
-        for (int i = 0; i < ids.Length; i++)
+        for (int i = 0; i < instanceIds.Length; i++)
         {
-            if (unitIds.Contains(ids[i]))
+            if (moduleIdLookup.TryGetValue(instanceIds[i], out UnitModule unitModule))
             {
-                movementData = manager.GetModuleData(ids[i], managerType) as MovementData;
-            }
+                movementModule = unitModule as MovementModule;
 
-            movementData.reachedTarget = true;
-            movementData.currentTarget = movementData.agent.transform.position;
-            movementData.agent.isStopped = true;
+                movementModule.ReachedTarget = true;
+                movementModule.CurrentTarget = movementModule.Agent.transform.position;
+                movementModule.Agent.isStopped = true;
+            }
         }
     }
 
     public void Update()
     {
-        foreach(int id in unitIds)
+        foreach(UnitModule module in managedModules)
         {
-            if (id == 0)
+            MovementModule movementModule = module as MovementModule;
+
+            if (movementModule.ReachedTarget == true)
             {
-                continue;
+                movementModule.ReachedTarget = true;
+                movementModule.Agent.isStopped = true;
             }
 
-            MovementData movementData = manager.GetModuleData(id , managerType) as MovementData;
-
-            if (movementData.reachedTarget == true)
-            {
-
-            }
-
-            else if(movementData.agent.remainingDistance < movementData.stoppingDistance)
+            else if(movementModule.Agent.remainingDistance < movementModule.StoppingDistance)
             {     
-                movementData.reachedTarget = true;
-                movementData.agent.isStopped = true;           
+                movementModule.ReachedTarget = true;
+                movementModule.Agent.isStopped = true;           
             }
         }
     }
@@ -91,32 +81,4 @@ public class MovementManager : ModuleManager
             BasicMovementCommand(command.selectedUnits, command.targettedArea[0]);
         }
     }
-}
-
-[System.Serializable]
-public class MovementData : ModuleData
-{
-    public MovementData()
-    {
-        moduleType = "MovementManager";
-    }
-
-    public override ModuleData Clone()
-    {
-        return new MovementData
-        {
-            moduleType = moduleType,
-            maxSpeed = maxSpeed,
-            acceleration = acceleration,
-            stoppingDistance = stoppingDistance,
-        };
-    }
-
-    public float maxSpeed;
-    public float acceleration;
-    public float stoppingDistance;
-
-    public Vector3 currentTarget;
-    public bool reachedTarget;
-    public NavMeshAgent agent;
 }

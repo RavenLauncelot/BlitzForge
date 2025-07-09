@@ -73,6 +73,15 @@ public class UnitManager : MonoBehaviour
                     modulesData.Add(moduleDataScriptable.Clone());
                 }
 
+                //This is the new version
+                UnitModule[] unitModules = tempUnit.GetModules();
+                foreach(UnitModule module in unitModules)
+                {
+                    module.InitModule(tempUnit.InstanceId); //Assigning the instance id to the module so it can be found later
+                    RegisterModule(module); 
+                }
+                //End of new version
+
                 unitData[counter] = new UnitData
                 {
                     unitScript = tempUnit,
@@ -90,6 +99,23 @@ public class UnitManager : MonoBehaviour
 
                 unitDataIndexLookup.Add(tempUnit.InstanceId, counter);
                 counter++;
+            }
+        }
+
+        //new version
+        foreach (ModuleManager module in moduleManagers)
+        {
+            module.StartModuleManager();
+        }
+    }
+
+    private void RegisterModule(UnitModule unitModule)
+    {
+        foreach (ModuleManager man in moduleManagers)
+        {
+            if (unitModule.TargetModuleManager.Contains(man.ManagerType))
+            {
+                man.RegisterModule(unitModule);
             }
         }
     }
@@ -222,7 +248,7 @@ public class UnitManager : MonoBehaviour
         foreach(ModuleManager moduleManager in moduleManagers)
         {
             moduleManager.StopCommands(command.selectedUnits);
-            if (command.targetModule == moduleManager.ModuleType)
+            if (command.targetModule == moduleManager.ManagerType)
             {
                 moduleManager.SetCommand(command);
             }

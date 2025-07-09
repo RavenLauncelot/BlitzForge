@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AttackComponent : MonoBehaviour
+public class AttackModule : UnitModule
 {
     //this is the base class for attack componennts 
     //This exists so that different types of attack components can be added
@@ -23,4 +23,20 @@ public class AttackComponent : MonoBehaviour
     {
 
     }
+
+    //the current targets instance Id
+    public int currentTargetId = -1;
+    public Transform rayTarget;
+
+    //state booleans and counters
+    public bool forcedTarget = false;
+    public bool fireAtWill = true;
+    public bool inLOS;
+    public float reloadTimer = 0;
+    public int targetSkipSearchCooldown;
+
+    //weapon stats
+    public float range = 0;
+    public float damage = 0;
+    public float reloadTime = 0;
 }

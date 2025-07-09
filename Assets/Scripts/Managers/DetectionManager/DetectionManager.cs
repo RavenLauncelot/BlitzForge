@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections;
 using static UnitManager;
+using Unity.VisualScripting;
 
 public class DetectionManager : ModuleManager
 {
@@ -14,9 +15,6 @@ public class DetectionManager : ModuleManager
 
     public void Start()
     {
-        managerType = "DetectionManager";
-        unitIds = GetIds();
-
         StartCoroutine(UpdateLoop());
     }
 
@@ -36,32 +34,23 @@ public class DetectionManager : ModuleManager
         //detectionTimers
         //visibility bitmasks.
 
-        foreach (int id in unitIds)
+        foreach (UnitModule unitModule in managedModules)
         {
-            DetectionData data = manager.GetModuleData(id, managerType) as DetectionData;
-
-            if (id == 0)
-            {
-                continue;
-            }
-
-            if (!manager.unitDataIndexLookup.TryGetValue(id, out int unitDataIndex))
-            {
-                continue;
-            }
+            DetectionModule detectionModule = unitModule as DetectionModule;
+            int unitDataIndex = manager.unitDataIndexLookup[unitModule.InstanceId];
 
             //this updates all the visibility timers for this team specifically 
             //once a timer reaches zero it will no longer be detected by that team (team enum is represented as a int/index)
-            for (int i = 0; i < data.detectedTimers.Length; i++)
+            for (int i = 0; i < detectionModule.DetectedTimers.Length; i++)
             {
-                if (data.detectedTimers[i] < Time.deltaTime)
+                if (detectionModule.DetectedTimers[i] < Time.deltaTime)
                 {
-                    data.detectedTimers[i] = 0;
+                    detectionModule.DetectedTimers[i] = 0;
                     manager.unitData[unitDataIndex].teamVisibility[i] = false;
                 }
                 else
                 {
-                    data.detectedTimers[i] -= Time.deltaTime;
+                    detectionModule.DetectedTimers[i] -= Time.deltaTime;
                 }
             }
         }
@@ -73,41 +62,36 @@ public class DetectionManager : ModuleManager
 
         while (true)
         {
-            for (int i = 0; i < unitIds.Length; i++)
+            foreach (UnitModule unitModule in managedModules)
             {
-                if (!manager.unitDataIndexLookup.TryGetValue(unitIds[i], out int unitIndex))
-                {
-                    continue;
-                }
+                DetectionModule detectionData = unitModule as DetectionModule;
 
-                DetectionData detectionData = manager.GetModuleData(unitIds[i], managerType) as DetectionData;
-
-                tempList = DetectEnemies(manager.unitData[unitIndex].observingPos.position, detectionData);
+                tempList = DetectEnemies(detectionData.ObservPos.position, detectionData);
 
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    levelManager.SetDetected(detected.InstanceId, manager.managedTeam, detectionData.detectionTime);
+                    levelManager.SetDetected(detected.InstanceId, manager.managedTeam, detectionData.DetectionTime);
                 }
 
                 for (int frame = 0; frame < frameSkip; frame++)
                 {
-                    yield return new WaitForEndOfFrame();
+                    yield return null;
                 }             
             }
 
             //this is so unity doesn't crash when there are zero units lmoa
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
 
-    private List<Unit> DetectEnemies(Vector3 observPos, DetectionData detectionData)
+    private List<Unit> DetectEnemies(Vector3 observPos, DetectionModule detectionModule)
     {
         List<Unit> detectedUnits = new List<Unit>();
 
         Collider[] detected = new Collider[100];
 
-        int collisions = Physics.OverlapSphereNonAlloc(observPos, detectionData.detectionRange, detected, unitLayer);
+        int collisions = Physics.OverlapSphereNonAlloc(observPos, detectionModule.DetectionRange, detected, unitLayer);
         for (int i = 0; i < collisions; i++)
         {
             //checking if there is a unit script inside the dectected collider
@@ -132,7 +116,7 @@ public class DetectionManager : ModuleManager
             RaycastHit hit;
             Debug.DrawRay(observPos, unitCode.rayTarget.position - observPos, Color.blue, 4f);
 
-            if (Physics.Raycast(ray, out hit, detectionData.detectionRange))
+            if (Physics.Raycast(ray, out hit, detectionModule.DetectionRange))
             {
                 if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unit) && unit.InstanceId == unitCode.InstanceId)
                 {

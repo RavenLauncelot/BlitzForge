@@ -3,7 +3,7 @@ using Unity;
 using Unity.VisualScripting;
 using UnityEngine;
 
-class NormalTurretComp : AttackComponent
+class NormalTurretComp : AttackModule
 {
     //This compoennt is for normal tanks with a normal moving turret as a oppose to a artillery tank.
 

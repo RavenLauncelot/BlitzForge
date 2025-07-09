@@ -64,6 +64,11 @@ public class Unit : MonoBehaviour
         isAlive = true;
     }
 
+    public UnitModule[] GetModules()
+    {
+        return GetComponents<UnitModule>();
+    }
+
     public void UnitSelected(bool isSelected)
     {
         selectedUnitSprite.enabled = isSelected;
@@ -71,7 +76,7 @@ public class Unit : MonoBehaviour
 
     public void DestroyUnit()
     {
-        if (isAlive)
+        if (!isAlive)
         {
             return;
         }

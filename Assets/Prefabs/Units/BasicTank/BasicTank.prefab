@@ -1043,6 +1043,8 @@ GameObject:
   - component: {fileID: 4644742412608787664}
   - component: {fileID: 2121278715449754593}
   - component: {fileID: 8270966421410673356}
+  - component: {fileID: 1679171193168915209}
+  - component: {fileID: -6867326789130607143}
   m_Layer: 7
   m_Name: BasicTank
   m_TagString: Untagged
@@ -1128,7 +1130,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 931ac92951552524bbc7e4592c914453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetModuleManager:
+  - AttackManager
   aimingPos: {fileID: 2371224646621743961}
+  currentTargetId: -1
+  rayTarget: {fileID: 0}
+  forcedTarget: 0
+  fireAtWill: 1
+  inLOS: 0
+  reloadTimer: 0
+  targetSkipSearchCooldown: 0
+  range: 0
+  damage: 0
+  reloadTime: 0
   turretYawSpeed: 50
   turretPitchSpeed: 50
   turretYawer: {fileID: 3218741005084715790}
@@ -1136,6 +1150,38 @@ MonoBehaviour:
   turretPosReference: {fileID: 1194121532418535003}
   gunPosReference: {fileID: 4857640851182870074}
   particleSys: {fileID: 5319186201038033122}
+--- !u!114 &1679171193168915209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8727416021569130910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbdd6aa78f35ba742bbf516e0b4b142b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetModuleManager:
+  - MovementManager
+  maxSpeed: 50
+  acceleration: 10
+  stoppingDistance: 10
+  agent: {fileID: 4644742412608787664}
+--- !u!114 &-6867326789130607143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8727416021569130910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16c525d721db2da4e9c137a71d459998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetModuleManager:
+  - DetectionManager
 --- !u!1 &9206841930876184720
 GameObject:
   m_ObjectHideFlags: 0

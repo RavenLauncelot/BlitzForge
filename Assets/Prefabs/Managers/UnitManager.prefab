@@ -64,6 +64,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitIds: 
+  managedModules: []
+  managerType: AttackManager
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -81,6 +83,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitIds: 
+  managedModules: []
+  managerType: DetectionManger
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -98,3 +102,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitIds: 
+  managedModules: []
+  managerType: MovementManager

@@ -3,9 +3,13 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
+using System.Collections.Generic;
+using Sirenix.OdinInspector;
 
 public class ModuleManager : MonoBehaviour
 {
+    private List<UnitModule> tempUnitModules;
+
     protected UnitManager manager;
     protected LevelManager levelManager;
     protected UnitManager.TeamId managedTeam;
@@ -13,9 +17,11 @@ public class ModuleManager : MonoBehaviour
     private bool initialised = false;
 
     [SerializeReference] protected int[] unitIds;
+    [SerializeReference] protected UnitModule[] managedModules;
+    protected Dictionary<int, UnitModule> moduleIdLookup;
 
-    protected string managerType;
-    public string ModuleType
+    [SerializeField] protected string managerType;
+    public string ManagerType
     {
         get { return managerType; }
     }
@@ -32,11 +38,24 @@ public class ModuleManager : MonoBehaviour
         initialised = true;
         managedTeam = teamid;
 
+        tempUnitModules = new List<UnitModule>();
+        moduleIdLookup = new Dictionary<int, UnitModule>();
+    }
+
+    public void StartModuleManager()
+    {
+        managedModules = tempUnitModules.ToArray();
     }
 
     public int[] GetIds()
     {
         return manager.GetIdsWithModule(managerType);
+    }
+
+    public void RegisterModule(UnitModule unitModule)
+    {
+        tempUnitModules.Add(unitModule);
+        moduleIdLookup.Add(unitModule.InstanceId, unitModule);
     }
 
     public void RemoveId(int instanceId)
