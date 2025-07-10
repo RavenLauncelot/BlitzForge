@@ -11,6 +11,7 @@ public class UnitHandler : MonoBehaviour
 {
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private UnitManager manager;
+    [SerializeField] private UnitManager.TeamId controlledTeam;
 
     PlayerControls UnitControls;
 
@@ -279,7 +280,7 @@ public class UnitHandler : MonoBehaviour
         {
             if (other.gameObject.transform.root.TryGetComponent<Unit>(out Unit UnitScript))
             {
-                if (UnitScript.TeamId == manager.managedTeam)
+                if (UnitScript.TeamId == controlledTeam)
                 {
                     if (!selectedUnits.Contains(UnitScript))
                     {
@@ -294,7 +295,7 @@ public class UnitHandler : MonoBehaviour
         {
             if (other.gameObject.transform.root.TryGetComponent<Unit>(out Unit UnitScript))
             {
-                if (UnitScript.TeamId != manager.managedTeam)
+                if (UnitScript.TeamId != controlledTeam)
                 {
                     if (!targetedUnits.Contains(UnitScript))
                     {
@@ -312,7 +313,7 @@ public class UnitHandler : MonoBehaviour
         {
             if (other.gameObject.transform.root.TryGetComponent<Unit>(out Unit UnitScript))
             {
-                if (UnitScript.TeamId == manager.managedTeam)
+                if (UnitScript.TeamId == controlledTeam)
                 {
                     //Debug.Log("Outside selected area");
                     selectedUnits.Remove(UnitScript);
@@ -325,7 +326,7 @@ public class UnitHandler : MonoBehaviour
         {
             if (other.gameObject.transform.root.TryGetComponent<Unit>(out Unit UnitScript))
             {
-                if (UnitScript.TeamId != manager.managedTeam)
+                if (UnitScript.TeamId != controlledTeam)
                 {
                     //Debug.Log("Outside selected area");
                     targetedUnits.Remove(UnitScript);

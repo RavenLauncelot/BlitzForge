@@ -25,8 +25,8 @@ public class AttackModule : UnitModule
     }
 
     //the current targets instance Id
-    public int currentTargetId = -1;
-    public Transform rayTarget;
+     public Unit currentTarget;
+     public Transform TargetRayCheck;
 
     //state booleans and counters
     public bool forcedTarget = false;
@@ -39,4 +39,5 @@ public class AttackModule : UnitModule
     public float range = 0;
     public float damage = 0;
     public float reloadTime = 0;
+
 }

@@ -92,7 +92,6 @@ public class Point : MonoBehaviour
                     captureProgress = captureTime;
                     isCaptured = true;
                     capturedBy = capturingTeam;
-                    Debug.Log("Capture point " + gameObject.name + " captured by team " + capturingTeam);
                 }
 
                 else
@@ -108,14 +107,8 @@ public class Point : MonoBehaviour
         {
             captureProgress = 0f;
             capturingTeam = UnitManager.TeamId.None;
-            Debug.Log("Not captured");
         }
 
-        else
-        {
-            //do nothing this point is captured already
-            Debug.Log("Bruh");
-        }
     }
 
     private void OnDrawGizmos()

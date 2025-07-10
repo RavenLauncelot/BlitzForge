@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using Sirenix.OdinInspector.Editor.Modules;
 
 public class ModuleManager : MonoBehaviour
 {
@@ -12,11 +13,7 @@ public class ModuleManager : MonoBehaviour
 
     protected UnitManager manager;
     protected LevelManager levelManager;
-    protected UnitManager.TeamId managedTeam;
 
-    private bool initialised = false;
-
-    [SerializeReference] protected int[] unitIds;
     [SerializeReference] protected UnitModule[] managedModules;
     protected Dictionary<int, UnitModule> moduleIdLookup;
 
@@ -26,17 +23,10 @@ public class ModuleManager : MonoBehaviour
         get { return managerType; }
     }
 
-    public void InitModule(UnitManager unitManager, LevelManager LevelManager, UnitManager.TeamId teamid)
+    public void InitModule(UnitManager unitManager, LevelManager LevelManager)
     {
-        if (initialised)
-        {
-            return;
-        }
-
         manager = unitManager;
         levelManager = LevelManager;
-        initialised = true;
-        managedTeam = teamid;
 
         tempUnitModules = new List<UnitModule>();
         moduleIdLookup = new Dictionary<int, UnitModule>();
@@ -47,20 +37,10 @@ public class ModuleManager : MonoBehaviour
         managedModules = tempUnitModules.ToArray();
     }
 
-    public int[] GetIds()
-    {
-        return manager.GetIdsWithModule(managerType);
-    }
-
-    public void RegisterModule(UnitModule unitModule)
+    public void RegisterUnit(UnitModule unitModule)
     {
         tempUnitModules.Add(unitModule);
         moduleIdLookup.Add(unitModule.InstanceId, unitModule);
-    }
-
-    public void RemoveId(int instanceId)
-    {
-        unitIds = unitIds.Where(val => val != instanceId).ToArray();
     }
 
     public virtual void SetCommand(CommandData command)
@@ -72,15 +52,18 @@ public class ModuleManager : MonoBehaviour
     {
 
     }
-}
 
-[System.Serializable]
-public class ModuleData
-{
-    public string moduleType;
-
-    public virtual ModuleData Clone()
+    public UnitModule GetModuleData(int unitId)
     {
-        return new ModuleData();
+        if (moduleIdLookup.TryGetValue(unitId, out var moduleData))
+        {
+            return moduleData;
+        }
+
+        else
+        {
+            Debug.LogWarning("Unit id not registered with module: " + this.name);
+            return null;
+        }
     }
 }

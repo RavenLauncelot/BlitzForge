@@ -4,14 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-[CreateAssetMenu(fileName = "SpawnData", menuName = "Scriptable Objects/SpawnData")]
-public class SpawnData : ScriptableObject
+[System.Serializable]
+public class SpawnData
 {
+    [SerializeField]
+    public Spawn[] spawns;
     public UnitManager.TeamId teamId;
-    [SerializeReference]
-    public int[] unitAmount;
-    [SerializeReference]
-    public UnitBlueprint[] unitBlueprint;
+}
+
+[System.Serializable]
+public class Spawn
+{
+    public GameObject objectToBeSpawned;
+    public int amountOf;
+    public Transform spawnPoint;
 }
 
 

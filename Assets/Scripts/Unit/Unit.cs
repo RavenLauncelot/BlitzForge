@@ -12,7 +12,6 @@ public class Unit : MonoBehaviour
     public UnitManager.TeamId TeamId
     {
         get { return teamId; }
-        set { teamId = value; }
     }
 
     private int instanceId;
@@ -47,9 +46,10 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public void InitUnit()
+    public void InitUnit(UnitManager.TeamId team)
     {
         instanceId = gameObject.GetInstanceID();
+        teamId = team;
 
         if (observingPos == null)
         {

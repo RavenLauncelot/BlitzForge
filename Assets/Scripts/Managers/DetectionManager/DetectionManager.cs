@@ -13,8 +13,16 @@ public class DetectionManager : ModuleManager
 
     [SerializeField] private int frameSkip;
 
+    [SerializeField] private VisibilityManager visibilityManager;
+
     public void Start()
     {
+        if (!TryGetComponent<VisibilityManager>(out visibilityManager))
+        {
+            Debug.LogWarning("DetectionManager requires visibiltiyManger to function - disabling");
+            this.enabled = false;
+        }
+
         StartCoroutine(UpdateLoop());
     }
 
@@ -28,34 +36,6 @@ public class DetectionManager : ModuleManager
         StopAllCoroutines();
     }
 
-    private void Update()
-    {
-        //per frame updates for:
-        //detectionTimers
-        //visibility bitmasks.
-
-        foreach (UnitModule unitModule in managedModules)
-        {
-            DetectionModule detectionModule = unitModule as DetectionModule;
-            int unitDataIndex = manager.unitDataIndexLookup[unitModule.InstanceId];
-
-            //this updates all the visibility timers for this team specifically 
-            //once a timer reaches zero it will no longer be detected by that team (team enum is represented as a int/index)
-            for (int i = 0; i < detectionModule.DetectedTimers.Length; i++)
-            {
-                if (detectionModule.DetectedTimers[i] < Time.deltaTime)
-                {
-                    detectionModule.DetectedTimers[i] = 0;
-                    manager.unitData[unitDataIndex].teamVisibility[i] = false;
-                }
-                else
-                {
-                    detectionModule.DetectedTimers[i] -= Time.deltaTime;
-                }
-            }
-        }
-    }
-
     private IEnumerator UpdateLoop()
     {
         List<Unit> tempList = new List<Unit>();
@@ -64,14 +44,14 @@ public class DetectionManager : ModuleManager
         {
             foreach (UnitModule unitModule in managedModules)
             {
-                DetectionModule detectionData = unitModule as DetectionModule;
+                DetectionModule detectionModule = unitModule as DetectionModule;
 
-                tempList = DetectEnemies(detectionData.ObservPos.position, detectionData);
+                tempList = DetectEnemies(detectionModule.ObservPos.position, detectionModule);
 
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    levelManager.SetDetected(detected.InstanceId, manager.managedTeam, detectionData.DetectionTime);
+                    visibilityManager.SetDetected(detected.InstanceId, detectionModule.DetectionTime, detectionModule.TeamId);
                 }
 
                 for (int frame = 0; frame < frameSkip; frame++)
@@ -98,7 +78,7 @@ public class DetectionManager : ModuleManager
             if (detected[i].transform.root.TryGetComponent<Unit>(out Unit unitCode))
             {
                 //if the team id is the same as the detecting unit it will skip
-                if (unitCode.TeamId == manager.managedTeam)
+                if (unitCode.TeamId == detectionModule.TeamId)
                 {
                     continue;
                 }
@@ -108,7 +88,6 @@ public class DetectionManager : ModuleManager
             {
                 continue;
             }
-
 
 
             //checking unit is within line of sight 
@@ -122,44 +101,9 @@ public class DetectionManager : ModuleManager
                 {
                     detectedUnits.Add(unitCode);
                 }
-
-                else
-                {
-                    //try again
-                }
-            }
-            else
-            {
-                Debug.Log("Raycast blocked or didn't reach" + gameObject.name);
             }
         }
 
         return detectedUnits;
     }
-}
-
-//Since detection will most likely be used a lot it is directly stored in the UnitData array
-//this includes the DetectedTimers array and teamVisibility
-[System.Serializable]
-public class DetectionData : ModuleData
-{
-    public DetectionData()
-    {
-        moduleType = "DetectionManager";
-    }
-
-    public override ModuleData Clone()
-    {
-        return new DetectionData()
-        {
-            moduleType = moduleType,
-            detectionTime = detectionTime,
-            detectionRange = detectionRange,
-        };
-    }
-
-    public float detectionRange;
-    public float detectionTime;
-
-    public float[] detectedTimers = new float[8];
 }

@@ -1,20 +1,13 @@
-using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using System.Linq;
-using Unity.Collections;
-using Unity.VisualScripting;
-
 
 public class UnitManager : MonoBehaviour
 {
-    [SerializeField] public TeamId managedTeam;
+    //[SerializeField] public TeamId managedTeam;
 
     private LevelManager levelManager;
-    private ModuleManager[] moduleManagers;
-
-    [SerializeReference] public UnitData[] unitData;
-    [SerializeField] public Dictionary<int, int> unitDataIndexLookup;  //Thhis uses a units gameobject id to find the unitData struct associated wiht it 
+    private Dictionary<string, ModuleManager> moduleManagers;
 
     [SerializeField] private LayerMask unitLayermask;
 
@@ -24,228 +17,121 @@ public class UnitManager : MonoBehaviour
         PlayerTeam,
         TeamA,
         TeamB,
-        TeamC
+        TeamC,
+        TeamD,
+        TeamE,
+        TeamF
     }
 
-    public void InitManager(SpawnData spawnData, LevelManager levelManagerIn)
+    public void InitManager(List<SpawnData> spawnData, LevelManager levelManagerIn)
     {
         levelManager = levelManagerIn;
-        managedTeam = spawnData.teamId;
+        moduleManagers = new Dictionary<string, ModuleManager>();
 
-        moduleManagers = GetComponents<ModuleManager>();
-        foreach (ModuleManager module in moduleManagers)
+        //Finding all the unitModules and adding them to a dictionary and initiliasing them
+        ModuleManager[] modules = GetComponents<ModuleManager>();
+        foreach (ModuleManager module in modules)
         {
-            module.InitModule(this, levelManager, managedTeam);
+            moduleManagers.Add(module.ManagerType, module);
+            module.InitModule(this, levelManager);
         }
 
-        int unitAmount = 0;
-        foreach(int spawnAmount in spawnData.unitAmount)
+        //spawning all units for all teams 
+        foreach(SpawnData data in spawnData)
         {
-            unitAmount += spawnAmount;
-        }
-
-        //finding units on map
-        unitDataIndexLookup = new Dictionary<int, int>();
-        unitData = new UnitData[unitAmount];
-
-        //Spawning all the units
-
-        int counter = 0;
-        Unit tempUnit = null;
-        UnitBlueprint unitBlueprint = null;
-        List<ModuleData> moduleData = new List<ModuleData>();
-        for(int ub = 0; ub < spawnData.unitBlueprint.Length; ub++)
-        {
-            unitBlueprint = spawnData.unitBlueprint[ub];
-            moduleData = unitBlueprint.moduleData;
-
-            for (int i = 0; i < spawnData.unitAmount[ub]; i++)
-            {
-                tempUnit = Instantiate(unitBlueprint.unitPrefab, transform.position, Quaternion.identity).GetComponent<Unit>();
-                tempUnit.TeamId = managedTeam;
-                //tempUnit.unitManager = this;
-                tempUnit.gameObject.name = managedTeam.ToString() + " Tank " + counter;
-                tempUnit.InitUnit();
-
-                List<ModuleData> modulesData = new List<ModuleData>();
-                foreach (ModuleData moduleDataScriptable in moduleData)
-                {
-                    modulesData.Add(moduleDataScriptable.Clone());
-                }
-
-                //This is the new version
-                UnitModule[] unitModules = tempUnit.GetModules();
-                foreach(UnitModule module in unitModules)
-                {
-                    module.InitModule(tempUnit.InstanceId); //Assigning the instance id to the module so it can be found later
-                    RegisterModule(module); 
-                }
-                //End of new version
-
-                unitData[counter] = new UnitData
-                {
-                    unitScript = tempUnit,
-                    observingPos = tempUnit.observingPos,
-                    rayTarget = tempUnit.rayTarget,
-                    teamVisibility = new bool[8],
-                    teamId = tempUnit.TeamId,
-                    instanceId = tempUnit.InstanceId,
-
-                    health = unitBlueprint.unitData.health,
-                    isAlive = true,
-
-                    components = modulesData
-                };
-
-                unitDataIndexLookup.Add(tempUnit.InstanceId, counter);
-                counter++;
-            }
+            SpawnTeam(data);
         }
 
         //new version
-        foreach (ModuleManager module in moduleManagers)
+        foreach (ModuleManager module in moduleManagers.Values)
         {
             module.StartModuleManager();
         }
     }
 
+    private void SpawnTeam(SpawnData spawnData)
+    {
+        //Spawning all the units for this team
+        int counter = 0;
+        Unit tempUnit = null;
+        TeamId team = spawnData.teamId;
+        //Loop for the amount of spawns - A spawn contains the unit to be spawned, location and the amount to be spawned.
+        foreach (Spawn spawn in spawnData.spawns)
+        {
+            //Spawning the individual units
+            for (int i = 0; i < spawn.amountOf; i++)
+            {
+                tempUnit = Instantiate(spawn.objectToBeSpawned, spawn.spawnPoint.position, Quaternion.identity).GetComponent<Unit>();
+                tempUnit.InitUnit(team);
+                tempUnit.name = spawnData.teamId.ToString() + " Tank " + counter;
+
+                //Getting the modules connected to the unit and registering them with the respective manager.
+                UnitModule[] unitModules = tempUnit.GetModules();
+                foreach (UnitModule module in unitModules)
+                {
+                    module.InitModule(tempUnit.InstanceId, spawnData.teamId); //Assigning the instance id to the module so it can be found later
+                    module.CustomInit();
+                    RegisterModule(module);
+                }
+
+                counter++;
+            }
+        }
+    }
+
     private void RegisterModule(UnitModule unitModule)
     {
-        foreach (ModuleManager man in moduleManagers)
+        foreach (string targetManager in unitModule.TargetModuleManager)
         {
-            if (unitModule.TargetModuleManager.Contains(man.ManagerType))
+            if (moduleManagers.TryGetValue(targetManager, out var module))
             {
-                man.RegisterModule(unitModule);
+                module.RegisterUnit(unitModule);
             }
         }
     }
 
-    public int[] GetIdsWithModule(string moduleType)
+    //This needs to be done 
+    public void DestroyUnit(int instanceId)
     {
-        List<int> idList = new List<int>();
-
-        //checking through eachs units data
-        foreach (UnitData data in unitData)
-        {
-            //checking through the component list of each unit
-            foreach (ModuleData component in data.components)
-            {
-                if (component.moduleType == moduleType)
-                {
-                    idList.Add(data.instanceId);
-                }
-            }
-        }
-
-        return idList.ToArray();
+        
     }
 
-    public ModuleData GetModuleData(int instanceId, string type)
+    public void DamageUnit(int instanceId, float damage)
     {
-        if (unitDataIndexLookup.TryGetValue(instanceId, out int index))
+
+    }
+
+    public bool IsTargetDetected(int targetId, TeamId attackingTeam)
+    {
+        VisibilityModule visibilityModule = GetUnitModule<VisibilityManager>(targetId) as VisibilityModule;
+
+        if (visibilityModule.visibilityMask[(int)attackingTeam] == true)
         {
-            foreach (ModuleData comp in unitData[index].components)
+            return true;
+        }
+
+        return false;
+    }
+
+    public UnitModule GetUnitModule<TManager>(int instanceId)
+        where TManager : ModuleManager
+    {
+        foreach(var moduleManager in moduleManagers.Values)
+        {
+            if (moduleManager is TManager typedManager)
             {
-                if (comp.moduleType == type)
-                {
-                    return comp;
-                }
+                UnitModule unitModule = moduleManager.GetModuleData(instanceId);
+                return unitModule;
             }
         }
 
         return null;
     }
 
-    public bool TryGetModuleData(int instanceId, string moduleType, out ModuleData result)
-    {
-        if (unitDataIndexLookup.TryGetValue(instanceId, out int index))
-        {
-            foreach (ModuleData comp in unitData[index].components)
-            {
-                if (comp.moduleType == moduleType)
-                {
-                    result = comp;
-                    return true;
-                }
-            }
-        }
-
-        result = null; 
-        return false;
-    }
-
-    //struct that holds important data about all units in that team
-    
-    public struct UnitData
-    {
-        public int instanceId;
-        public bool isAlive;
-
-        public Unit unitScript;
-
-        public TeamId teamId;
-        public bool[] teamVisibility;
-
-        public float health;
-
-        //These are positions for raycasts to hit 
-        //observing pos is above the tank itself which sends rays to detect tanks
-        //aimingpos is the position where shots are fire at the pivot. this sends rays too
-        //ray target is where other tanks will send raycasts to 
-        public Transform observingPos;
-        public Transform rayTarget;
-
-        //These represent the capabilities of each unit 
-        //e.g. if they can move shoot detect etc and any specific data
-        [SerializeReference] public List<ModuleData> components;
-    }
-    
-    public int[] GetDetectedUnitsIds(TeamId detectedBy)
-    {
-        List<int> enemyUnits = new List<int>();
-
-        foreach(UnitData unit in unitData)
-        {
-            if (unit.teamVisibility[(int)detectedBy] == true)
-            {
-                enemyUnits.Add(unit.instanceId);
-            }
-        }
-
-        if (enemyUnits.Count == 0)
-        {
-            return null;
-        }
-        else
-        {
-            return enemyUnits.ToArray();
-        }
-    }
-
-    public void DestroyUnit(int instanceId)
-    {
-        if (unitDataIndexLookup.TryGetValue(instanceId, out int index))
-        {
-            Debug.Log("Unit destroyed: " + unitData[index].unitScript.gameObject.name);
-
-            //unitData[index].unitScript  do destroy animation or remove object etc.
-            //unitData[index].alive = false;
-            //unitData[index].instanceId = 0;
-            unitDataIndexLookup.Remove(instanceId);
-
-            unitData = unitData.Where(val => val.instanceId != instanceId).ToArray();
-
-            foreach(ModuleManager moduleManager in moduleManagers)
-            {
-                moduleManager.RemoveId(instanceId);
-            }
-        }
-    }
-
     //This takes a generic command and depending on the enum type of module it will send it to that module
     public void SendCommand(CommandData command)
     {
-        foreach(ModuleManager moduleManager in moduleManagers)
+        foreach(ModuleManager moduleManager in moduleManagers.Values)
         {
             moduleManager.StopCommands(command.selectedUnits);
             if (command.targetModule == moduleManager.ManagerType)
@@ -253,12 +139,5 @@ public class UnitManager : MonoBehaviour
                 moduleManager.SetCommand(command);
             }
         }
-    }
-
-    public UnitData GetUnitData(int instanceId)
-    {
-        int unitDataIndex = unitDataIndexLookup[instanceId];
-
-        return unitData[unitDataIndex];
     }
 }

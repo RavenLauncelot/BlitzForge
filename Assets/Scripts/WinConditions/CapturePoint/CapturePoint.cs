@@ -20,8 +20,6 @@ public class CapturePoint : WinConditions
 
         if (points.All(val => val.CapturedBy == firstTeam))
         {
-            Debug.Log("All points captured by " + firstTeam);
-
             winStates = firstTeam;
         }
         else

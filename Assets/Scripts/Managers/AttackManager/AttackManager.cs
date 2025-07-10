@@ -2,6 +2,7 @@ using Mono.Cecil.Cil;
 using System;
 using System.Collections;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -43,33 +44,48 @@ public class AttackManager : ModuleManager
             {
                 AttackModule attackModule = unitModule as AttackModule;
 
-                    if (!levelManager.IsValidTarget(attackModule.currentTargetId, managedTeam))
+                //if (attackModule.currentTarget == null && attackModule.fireAtWill == true)
+                //{
+                //    //Skip past other checks 
+                //    AutoTargetMode(attackModule);
+                //}
+
+                if (!attackModule.fireAtWill)
+                {
+                    if (attackModule.currentTarget != null)
                     {
-                        attackModule.forcedTarget = false;
                         ResetTarget(attackModule);
                     }
 
-                    if (attackModule.fireAtWill == false)
-                    {
-                        Debug.Log("Fire at will false");
-                        continue;
-                    }
+                    UpdateReloadTimer(attackModule);
+                    continue;
+                }
 
-                    else if (attackModule.forcedTarget)
+                if (attackModule.forcedTarget)
+                {
+                    if (IsTargetValid(attackModule.currentTarget, attackModule))
                     {
-                        Debug.Log("Forced mode");
                         ForcedTargetMode(attackModule);
                     }
 
                     else
                     {
+                        ResetTarget(attackModule);
+                        attackModule.forcedTarget = false;
                         AutoTargetMode(attackModule);
                     }
+                }
 
-                    if (attackModule.inLOS && UpdateReloadTimer(attackModule))
-                    {
-                        UnitFire(attackModule);
-                    }
+                else
+                {
+                    AutoTargetMode(attackModule);
+                }             
+
+                if (attackModule.inLOS && UpdateReloadTimer(attackModule))
+                {
+                    UnitFire(attackModule);
+                }
+
 
                 yield return null;
             }
@@ -85,7 +101,7 @@ public class AttackManager : ModuleManager
 
     private void AutoTargetMode(AttackModule attackModule)
     {
-        if (attackModule.currentTargetId == -1)
+        if (attackModule.currentTarget == null)
         {
             attackModule.inLOS = false;
 
@@ -94,9 +110,9 @@ public class AttackManager : ModuleManager
                 attackModule.targetSkipSearchCooldown -= 1;
             }
 
-            else if (FindNewTarget(attackModule, out int targetId))
+            else if (FindNewTarget(attackModule, out Unit target))
             {
-                SetNewTarget(targetId, attackModule);
+                SetNewTarget(target, attackModule);
             }
 
             else
@@ -138,25 +154,44 @@ public class AttackManager : ModuleManager
         }
     }         
     
+    private bool IsTargetValid(Unit targetUnit, AttackModule attackModule)
+    {
+        if (targetUnit == null)
+        {
+            return false;
+        }
+
+        if (!targetUnit.IsAlive)
+        {
+            return false;
+        }
+
+        if (manager.IsTargetDetected(targetUnit.InstanceId, attackModule.TeamId))
+        {
+            return true;
+        }
+
+        return false;      
+    }
 
     private void ResetTarget(AttackModule attackModule)
     {
         attackModule.forcedTarget = false;
-        attackModule.currentTargetId = -1;
+        attackModule.currentTarget = null;
 
         attackModule.UpdateTurretRotation(null);
     }
 
-    private void SetNewTarget(int targetId, AttackModule attackModule)
+    private void SetNewTarget(Unit target, AttackModule attackModule)
     {
-        attackModule.rayTarget = levelManager.GetUnitData(targetId).rayTarget;
-        attackModule.UpdateTurretRotation(attackModule.rayTarget);
-        attackModule.currentTargetId = targetId;
+        attackModule.TargetRayCheck = target.aimingPos;
+        attackModule.UpdateTurretRotation(attackModule.TargetRayCheck);
+        attackModule.currentTarget = target;
     }
 
     public bool InRangeCheck(AttackModule attackModule)
     {
-        return Vector3.Distance(attackModule.AimingPos.position, attackModule.rayTarget.position) < attackModule.range;
+        return Vector3.Distance(attackModule.AimingPos.position, attackModule.TargetRayCheck.position) < attackModule.range;
     }
 
     public bool UpdateReloadTimer(AttackModule attackData)
@@ -174,37 +209,35 @@ public class AttackManager : ModuleManager
     }
 
     private int cols;
-    private bool FindNewTarget(AttackModule attackModule, out int targetId)
+    private bool FindNewTarget(AttackModule attackModule, out Unit target)
     {
-        //Collider[] colliders = new Collider[200];
+        Collider[] colliders = new Collider[200];
 
         cols = Physics.OverlapSphereNonAlloc(attackModule.AimingPos.position, attackModule.range, colliders, unitLayer);
 
         for (int i = 0; i < cols; i++)
         {
-            if (colliders[i].transform.TryGetComponent<Unit>(out Unit unit))
+            if (colliders[i].transform.root.TryGetComponent<Unit>(out Unit unit))
             {
-                if (!levelManager.IsValidTarget(unit.InstanceId, managedTeam))
+                if (!IsTargetValid(unit, attackModule))
                 {
                     continue;
                 }
 
-                else if (unit.TeamId != managedTeam)
+                else if (unit.TeamId != attackModule.TeamId)
                 {
-                    if (CheckLOS(attackModule, unit))
-                    { 
-                        targetId = unit.InstanceId;
-                        return true;
-                    }
-                    else
+                    if (!CheckLOS(attackModule, unit))
                     {
                         continue;                    
                     }
+
+                    target = unit;
+                    return true;                          
                 }
             }
         }
 
-        targetId = -1;
+        target = null;
         return false;
     }
 
@@ -212,15 +245,13 @@ public class AttackManager : ModuleManager
     private bool IsAimingAt(AttackModule attackModule)
     {
         //check dotProduct first
-        Vector3 vector = (attackModule.rayTarget.transform.position - attackModule.AimingPos.position).normalized;
+        Vector3 vector = (attackModule.TargetRayCheck.transform.position - attackModule.AimingPos.position).normalized;
         Vector3 currentVector = attackModule.AimingPos.forward;
         if (Vector3.Dot(vector, currentVector) < 0.9999)
         {
-            Debug.Log("Not facing target current DOT: " + Vector3.Dot(vector, currentVector));
             return false;
         }
 
-        Debug.Log("facing target current DOT: " + Vector3.Dot(vector, currentVector));
         return true;
     }
 
@@ -232,7 +263,7 @@ public class AttackManager : ModuleManager
         {
             if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unitCode))
             {
-                if (unitCode.InstanceId == attackModule.currentTargetId)
+                if (unitCode.InstanceId == attackModule.currentTarget.InstanceId)
                 {
                     return true;
                 }
@@ -249,6 +280,7 @@ public class AttackManager : ModuleManager
         Debug.DrawRay(attackModule.AimingPos.position, direction, Color.red, 10f);
 
         Ray ray = new Ray(attackModule.AimingPos.position, direction);
+        Debug.DrawRay(attackModule.AimingPos.position, direction.normalized * attackModule.range, Color.yellow, 1f);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
             if (hit.collider.transform.root.TryGetComponent<Unit>(out Unit unitCode))
@@ -260,6 +292,8 @@ public class AttackManager : ModuleManager
             }
         }
 
+
+
         return false;
     }
 
@@ -269,12 +303,7 @@ public class AttackManager : ModuleManager
         attackModule.reloadTimer =+ attackModule.reloadTime;
         //Later on it will wait till the shot has fired to damage the enemy. 
 
-        levelManager.DamageUnit(attackModule.currentTargetId, attackModule.damage);
-    }
-
-    private void IsTargetValid(Unit unit)
-    {
-
+        manager.DamageUnit(attackModule.currentTarget.InstanceId, attackModule.damage);
     }
 }
 

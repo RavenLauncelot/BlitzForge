@@ -13,11 +13,12 @@ public class UnitAutoLeveler : MonoBehaviour
     private void Start()
     {
         transformRoot = gameObject.transform.root;
+
     }
 
     public void Update()
     {
-        Ray ray = new Ray(transformRoot.position, -transformRoot.up);
+        Ray ray = new Ray(transformRoot.position + transformRoot.up, -transformRoot.up);
 
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layerMask))
         {

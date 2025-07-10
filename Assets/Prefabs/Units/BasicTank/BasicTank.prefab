@@ -1042,9 +1042,10 @@ GameObject:
   - component: {fileID: 5372307583605549810}
   - component: {fileID: 4644742412608787664}
   - component: {fileID: 2121278715449754593}
-  - component: {fileID: 8270966421410673356}
   - component: {fileID: 1679171193168915209}
   - component: {fileID: -6867326789130607143}
+  - component: {fileID: 1182206926724357065}
+  - component: {fileID: 5248252670745286496}
   m_Layer: 7
   m_Name: BasicTank
   m_TagString: Untagged
@@ -1118,38 +1119,6 @@ MonoBehaviour:
   observingPos: {fileID: 2479150518429289625}
   aimingPos: {fileID: 2371224646621743961}
   rayTarget: {fileID: 4312223258647239888}
---- !u!114 &8270966421410673356
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8727416021569130910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 931ac92951552524bbc7e4592c914453, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetModuleManager:
-  - AttackManager
-  aimingPos: {fileID: 2371224646621743961}
-  currentTargetId: -1
-  rayTarget: {fileID: 0}
-  forcedTarget: 0
-  fireAtWill: 1
-  inLOS: 0
-  reloadTimer: 0
-  targetSkipSearchCooldown: 0
-  range: 0
-  damage: 0
-  reloadTime: 0
-  turretYawSpeed: 50
-  turretPitchSpeed: 50
-  turretYawer: {fileID: 3218741005084715790}
-  turretPitcher: {fileID: 6422597796950257059}
-  turretPosReference: {fileID: 1194121532418535003}
-  gunPosReference: {fileID: 4857640851182870074}
-  particleSys: {fileID: 5319186201038033122}
 --- !u!114 &1679171193168915209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1182,6 +1151,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetModuleManager:
   - DetectionManager
+  detectionRange: 200
+  detectionTime: 10
+  observPos: {fileID: 2479150518429289625}
+--- !u!114 &1182206926724357065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8727416021569130910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 931ac92951552524bbc7e4592c914453, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetModuleManager:
+  - AttackManager
+  aimingPos: {fileID: 2371224646621743961}
+  currentTarget: {fileID: 0}
+  TargetRayCheck: {fileID: 0}
+  forcedTarget: 0
+  fireAtWill: 1
+  inLOS: 0
+  reloadTimer: 0
+  targetSkipSearchCooldown: 0
+  range: 200
+  damage: 100
+  reloadTime: 2
+  turretYawSpeed: 20
+  turretPitchSpeed: 20
+  turretYawer: {fileID: 3218741005084715790}
+  turretPitcher: {fileID: 6422597796950257059}
+  turretPosReference: {fileID: 1194121532418535003}
+  gunPosReference: {fileID: 4857640851182870074}
+  particleSys: {fileID: 5319186201038033122}
+--- !u!114 &5248252670745286496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8727416021569130910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78e1bb305a3cd1c458a78a123eec16aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetModuleManager:
+  - VisibilityManager
+  visibilityTimers: []
+  visibilityMask: 
 --- !u!1 &9206841930876184720
 GameObject:
   m_ObjectHideFlags: 0
@@ -1279,6 +1299,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 6422597796950257059}
     m_Modifications:
     - target: {fileID: 424806197635685539, guid: 17059700dec0e1a469d85c0f3f7afc54, type: 3}
+      propertyPath: CollisionModule.enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 424806197635685539, guid: 17059700dec0e1a469d85c0f3f7afc54, type: 3}
       propertyPath: TrailModule.lifetime.scalar
       value: 0.5
       objectReference: {fileID: 0}
@@ -1320,7 +1344,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1388716079425742016, guid: 17059700dec0e1a469d85c0f3f7afc54, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.497
       objectReference: {fileID: 0}
     - target: {fileID: 1388716079425742016, guid: 17059700dec0e1a469d85c0f3f7afc54, type: 3}
       propertyPath: m_LocalRotation.w

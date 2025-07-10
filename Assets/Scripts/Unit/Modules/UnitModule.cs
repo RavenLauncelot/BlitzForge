@@ -17,8 +17,20 @@ public class UnitModule : MonoBehaviour
         get { return targetModuleManager; }
     }
 
-    public void InitModule(int instanceID)
+    public void InitModule(int instanceID, UnitManager.TeamId team)
     {
         instanceId = instanceID;
+        teamId = team;
+    }
+
+    public virtual void CustomInit()
+    {
+
+    }
+
+    protected UnitManager.TeamId teamId;
+    public UnitManager.TeamId TeamId
+    {
+        get { return teamId; }
     }
 }

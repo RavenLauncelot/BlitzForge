@@ -52,6 +52,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   manager: {fileID: 0}
+  controlledTeam: 1
   camYaw: {fileID: 0}
   selectedUnits: []
   targetedUnits: []
@@ -64,9 +65,10 @@ MonoBehaviour:
   currentlySetCommand:
     targetModule: MovementManager
     commandType: BasicMovementCommand
-    selectedUnits: 
-    targettedArea: []
-    targettedUnits: 
+    selectedUnits: 00000000
+    targettedArea:
+    - {x: 0, y: 0, z: 0}
+    targettedUnits: 00000000
 --- !u!54 &2892272871645252375
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -136,7 +138,7 @@ LineRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3881425068430790859}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
