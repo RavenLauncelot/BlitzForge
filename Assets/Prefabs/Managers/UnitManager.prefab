@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8381392937698650365}
   - component: {fileID: -2530838446215479751}
   - component: {fileID: -3329357671778217599}
+  - component: {fileID: 6337418114579704609}
   m_Layer: 0
   m_Name: UnitManager
   m_TagString: Untagged
@@ -86,9 +87,6 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
-  noUnitLayer:
-    serializedVersion: 2
-    m_Bits: 247
   frameSkip: 2
   visibilityManager: {fileID: 0}
 --- !u!114 &-2530838446215479751
@@ -119,3 +117,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   managedModules: []
   managerType: VisibilityManager
+--- !u!114 &6337418114579704609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7525592530265170038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc87125c0c66f0a44b727ceed3784bc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visibilityManager: {fileID: -3329357671778217599}
+  levelManager: {fileID: 0}
+  playerTeam: 0

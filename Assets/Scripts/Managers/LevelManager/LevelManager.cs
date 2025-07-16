@@ -17,6 +17,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject unitManagerPrefab;
     [SerializeField] private GameObject unitHandler;
 
+    [SerializeField] private GameObject playerController;
+    [SerializeField] private GameObject AiController;
+
     private Dictionary<int, Unit> idUnitDictionary;
 
     //this will spawn teams and unit managers

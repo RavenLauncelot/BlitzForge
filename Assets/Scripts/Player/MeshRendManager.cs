@@ -11,6 +11,6 @@ public class MeshRendManager : MonoBehaviour
 
     [SerializeField] UnitManager.TeamId playerTeam;
 
-    List<int> visibleUnits = new List<int>();
-    
+    //List<int> visibleUnits = new List<int>();
 }
+

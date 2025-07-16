@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ public class UnitManager : MonoBehaviour
     private Dictionary<string, ModuleManager> moduleManagers;
 
     [SerializeField] private LayerMask unitLayermask;
+
+    Unit[] allUnits;
 
     public enum TeamId
     {
@@ -25,6 +28,8 @@ public class UnitManager : MonoBehaviour
 
     public void InitManager(List<SpawnData> spawnData, LevelManager levelManagerIn)
     {
+        List<Unit> tempAllUnits = new List<Unit>();
+
         levelManager = levelManagerIn;
         moduleManagers = new Dictionary<string, ModuleManager>();
 
@@ -37,10 +42,16 @@ public class UnitManager : MonoBehaviour
         }
 
         //spawning all units for all teams 
-        foreach(SpawnData data in spawnData)
+        foreach (SpawnData data in spawnData)
         {
-            SpawnTeam(data);
+            List<Unit> teamUnits = SpawnTeam(data);
+            //player controller.Init(teamUnits)
+
+            tempAllUnits.AddRange(teamUnits);
+            teamUnits.Clear();
         }
+
+        allUnits = tempAllUnits.ToArray();
 
         //new version
         foreach (ModuleManager module in moduleManagers.Values)
@@ -49,8 +60,10 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    private void SpawnTeam(SpawnData spawnData)
+    private List<Unit> SpawnTeam(SpawnData spawnData)
     {
+        List<Unit> teamUnits = new List<Unit>();
+
         //Spawning all the units for this team
         int counter = 0;
         Unit tempUnit = null;
@@ -65,6 +78,8 @@ public class UnitManager : MonoBehaviour
                 tempUnit.InitUnit(team);
                 tempUnit.name = spawnData.teamId.ToString() + " Tank " + counter;
 
+                teamUnits.Add(tempUnit);
+
                 //Getting the modules connected to the unit and registering them with the respective manager.
                 UnitModule[] unitModules = tempUnit.GetModules();
                 foreach (UnitModule module in unitModules)
@@ -77,6 +92,8 @@ public class UnitManager : MonoBehaviour
                 counter++;
             }
         }
+
+        return teamUnits;
     }
 
     private void RegisterModule(UnitModule unitModule)
@@ -93,7 +110,7 @@ public class UnitManager : MonoBehaviour
     //This needs to be done 
     public void DestroyUnit(int instanceId)
     {
-        
+
     }
 
     public void DamageUnit(int instanceId, float damage)
@@ -116,7 +133,7 @@ public class UnitManager : MonoBehaviour
     public UnitModule GetUnitModule<TManager>(int instanceId)
         where TManager : ModuleManager
     {
-        foreach(var moduleManager in moduleManagers.Values)
+        foreach (var moduleManager in moduleManagers.Values)
         {
             if (moduleManager is TManager typedManager)
             {
@@ -131,7 +148,7 @@ public class UnitManager : MonoBehaviour
     //This takes a generic command and depending on the enum type of module it will send it to that module
     public void SendCommand(CommandData command)
     {
-        foreach(ModuleManager moduleManager in moduleManagers.Values)
+        foreach (ModuleManager moduleManager in moduleManagers.Values)
         {
             moduleManager.StopCommands(command.selectedUnits);
             if (command.targetModule == moduleManager.ManagerType)

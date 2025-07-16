@@ -12,6 +12,8 @@ public class VisibilityManager : ModuleManager
 
     Coroutine updateLoop;
 
+    public UnitManager.TeamId playerTeam; 
+
     private void Update()
     {        
         elapsedTime = Time.deltaTime;
@@ -19,11 +21,13 @@ public class VisibilityManager : ModuleManager
         //updating detection timers
         foreach (UnitModule module in managedModules)
         {
+            //updating visibility timers and mesh renderers 
+
             VisibilityModule visModule = module as VisibilityModule;
 
             for (int team = 0; team < visModule.visibilityTimers.Length; team++)
             {
-                //Version1 
+                //updating vistimers
                 if (visModule.visibilityTimers[team] - elapsedTime < 0)
                 {
                     visModule.visibilityTimers[team] = 0;
@@ -33,7 +37,28 @@ public class VisibilityManager : ModuleManager
                 {
                     visModule.visibilityTimers[team] -= elapsedTime;
                 }
+
+                //This so we dont update the mesh renderer if they are on the player team
+                if (visModule.TeamId == playerTeam)
+                {
+                    continue;
+                }
+
+                //updating mesh renderers if detected by player team
+                if (team == (int)UnitManager.TeamId.PlayerTeam)
+                {
+                    if (visModule.visibilityTimers[team] > 0)
+                    {
+                        visModule.IsVisibleToPlayer(true);
+                    }
+                    else
+                    {
+                        visModule.IsVisibleToPlayer(false);
+                    }
+                }
             }
+
+            
         }   
     }
 

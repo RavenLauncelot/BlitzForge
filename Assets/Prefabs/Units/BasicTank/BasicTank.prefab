@@ -1202,6 +1202,16 @@ MonoBehaviour:
   - VisibilityManager
   visibilityTimers: []
   visibilityMask: 
+  meshRenderers:
+  - {fileID: 4128067556488985756}
+  - {fileID: 6816551445989475603}
+  - {fileID: 8392070374183520831}
+  - {fileID: 4268562349719415575}
+  - {fileID: 943249056881139541}
+  - {fileID: 7317231817644435290}
+  - {fileID: 4731207329810460663}
+  - {fileID: 9218529440581060786}
+  - {fileID: 2966809039013881235}
 --- !u!1 &9206841930876184720
 GameObject:
   m_ObjectHideFlags: 0
