@@ -63,7 +63,7 @@ public class Point : MonoBehaviour
         colliders = new Collider[100];
         if (Physics.OverlapSphereNonAlloc(transform.position, captureRadius, colliders, unitLayer) > 0)
         {
-            Debug.Log("Meow");
+            //Debug.Log("Meow");
 
             firstUnitTeam = colliders[0].transform.root.GetComponent<Unit>().TeamId;
             foreach (Collider col in colliders)
@@ -72,7 +72,7 @@ public class Point : MonoBehaviour
 
                 if (col.transform.root.GetComponent<Unit>().TeamId != firstUnitTeam)
                 {
-                    Debug.Log("Contested capture point " + gameObject.name);
+                    //Debug.Log("Contested capture point " + gameObject.name);
                     isCaptured = false;
                     capturingTeam = UnitManager.TeamId.None;
                     captureProgress = 0;    

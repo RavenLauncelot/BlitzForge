@@ -184,7 +184,6 @@ public class UnitManager : MonoBehaviour
             //I was going to refresh the timers in here but that could potentially mean units that are not within LOS would stay detected.
             if (visModule.visibilityTimers[(int)detectedBy] > 1f)
             {               
-                Debug.Log("This unit is detected already");
                 return true;           
             }
         }

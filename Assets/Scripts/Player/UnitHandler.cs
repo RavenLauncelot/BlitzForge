@@ -39,6 +39,12 @@ public class UnitHandler : MonoBehaviour
     [SerializeField] private List<CommandData> commandList;
     [SerializeField] private CommandData currentlySetCommand;
 
+    public void InitHandler(UnitManager managerIn, UnitManager.TeamId controlledTeamIn)
+    {
+        manager = managerIn;
+        controlledTeam = controlledTeamIn;
+    }
+
     private void OnEnable()
     {
         UnitControls = new PlayerControls();
