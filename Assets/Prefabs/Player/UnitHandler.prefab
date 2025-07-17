@@ -57,13 +57,13 @@ MonoBehaviour:
   selectedUnits: []
   targetedUnits: []
   commandList:
-  - targetModule: MovementManager
+  - targetModule: 1
     commandType: BasicMovementCommand
     selectedUnits: 
     targettedArea: []
     targettedUnits: 
   currentlySetCommand:
-    targetModule: MovementManager
+    targetModule: 1
     commandType: BasicMovementCommand
     selectedUnits: 00000000
     targettedArea:

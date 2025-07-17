@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -8,22 +7,31 @@ using UnityEngine.Rendering;
 public class VisibilityManager : ModuleManager
 {
     private float elapsedTime;
-    private Stopwatch stopWatch;
 
     Coroutine updateLoop;
 
-    public UnitManager.TeamId playerTeam; 
+    public UnitManager.TeamId playerTeam;
+
+    public VisibilityModule[] visibilityModules;
+    public Dictionary<int, VisibilityModule> visModuleIdLookup;
+
+    public override void StartModuleManager()
+    {
+        base.StartModuleManager();
+
+        visibilityModules = managedModules.Cast<VisibilityModule>().ToArray();
+
+        visModuleIdLookup = visibilityModules.ToDictionary(val => val.InstanceId, val => val);
+    }
 
     private void Update()
     {        
         elapsedTime = Time.deltaTime;
 
         //updating detection timers
-        foreach (UnitModule module in managedModules)
+        foreach (VisibilityModule visModule in visibilityModules)
         {
             //updating visibility timers and mesh renderers 
-
-            VisibilityModule visModule = module as VisibilityModule;
 
             for (int team = 0; team < visModule.visibilityTimers.Length; team++)
             {
@@ -64,12 +72,15 @@ public class VisibilityManager : ModuleManager
 
     public void SetDetected(int instanceId, float detectionTime, UnitManager.TeamId detectedBy)
     {
-        if (moduleIdLookup.TryGetValue(instanceId, out UnitModule module))
+        if (visModuleIdLookup.TryGetValue(instanceId, out VisibilityModule visModule))
         {
-            VisibilityModule visModule = module as VisibilityModule;
-
             visModule.visibilityTimers[(int)detectedBy] = detectionTime;
             visModule.visibilityMask[(int)detectedBy] = true;
+        }
+
+        else
+        {
+            Debug.Log("Aint working bro instanceId: " + instanceId);
         }
     }
 }

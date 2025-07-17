@@ -11,8 +11,8 @@ public class UnitModule : MonoBehaviour
         get { return instanceId; }
     }
 
-    [SerializeField] protected string[] targetModuleManager;
-    public string[] TargetModuleManager
+    [SerializeField] protected ModuleType[] targetModuleManager;
+    public ModuleType[] TargetModuleManager
     {
         get { return targetModuleManager; }
     }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -8,7 +9,7 @@ public class UnitManager : MonoBehaviour
     //[SerializeField] public TeamId managedTeam;
 
     private LevelManager levelManager;
-    private Dictionary<string, ModuleManager> moduleManagers;
+    private Dictionary<ModuleType, ModuleManager> moduleManagers;
 
     [SerializeField] private GameObject playerControllerPrefab;
     [SerializeField] private GameObject aiControllerPrefab;
@@ -16,6 +17,7 @@ public class UnitManager : MonoBehaviour
     [SerializeField] private LayerMask unitLayermask;
 
     Unit[] allUnits;
+    Dictionary<int, Unit> unitIdLookUp;
 
     public enum TeamId
     {
@@ -37,14 +39,14 @@ public class UnitManager : MonoBehaviour
         List<Unit> tempAllUnits = new List<Unit>();
 
         levelManager = levelManagerIn;
-        moduleManagers = new Dictionary<string, ModuleManager>();
+        moduleManagers = new Dictionary<ModuleType, ModuleManager>();
 
         //Finding all the unitModules and adding them to a dictionary and initiliasing them
         ModuleManager[] modules = GetComponents<ModuleManager>();
         foreach (ModuleManager module in modules)
         {
             moduleManagers.Add(module.ManagerType, module);
-            module.InitModule(this, levelManager);
+            module.InitModuleManager(this, levelManager);
         }
 
         //spawning units per team.
@@ -70,6 +72,7 @@ public class UnitManager : MonoBehaviour
         }
 
         allUnits = tempAllUnits.ToArray();
+        unitIdLookUp = allUnits.ToDictionary(val => val.InstanceId);
 
         //new version
         foreach (ModuleManager module in moduleManagers.Values)
@@ -125,7 +128,7 @@ public class UnitManager : MonoBehaviour
 
     private void RegisterModule(UnitModule unitModule)
     {
-        foreach (string targetManager in unitModule.TargetModuleManager)
+        foreach (ModuleType targetManager in unitModule.TargetModuleManager)
         {
             if (moduleManagers.TryGetValue(targetManager, out var module))
             {
@@ -147,31 +150,43 @@ public class UnitManager : MonoBehaviour
 
     public Unit[] GetDetectedUnits(TeamId detectedBy)
     {
-        VisibilityModule visibilityModule;
-        List<Unit> detectedUnits = new List<Unit>();
+        VisibilityManager visManager;
+        moduleManagers.TryGetValue(ModuleType.VisManager, out ModuleManager module);
+        visManager = module as VisibilityManager;
 
-        foreach (Unit unit in allUnits)
-        {
-            visibilityModule = GetUnitManagerModule<VisibilityManager>(unit.InstanceId) as VisibilityModule;
-            Debug.Log("Vis module: " + visibilityModule.visibilityMask[0]);
+        List<Unit> detectedUnits = new List<Unit>();       
+
+        foreach (VisibilityModule visModule in visManager.visibilityModules)
+        { 
+            //visibilityModule = GetUnitManagerModule<VisibilityManager>(unit.InstanceId) as VisibilityModule;
+            //Debug.Log("Vis module: " + visibilityModule.visibilityMask[0]);
 
             //since units don't detected themselves I don't need to check if they are on the same team
-            if (visibilityModule.visibilityMask[(int)detectedBy] == true)
+            if (visModule.visibilityMask[(int)detectedBy] == true)
             {
-                detectedUnits.Add(unit);
+                detectedUnits.Add(unitIdLookUp.GetValueOrDefault(visModule.InstanceId));
             }
         }
 
         return detectedUnits.ToArray();
     }
 
-    public bool IsTargetDetected(int targetId, TeamId attackingTeam)
+    public bool IsTargetDetected(int targetId, TeamId detectedBy)
     {
-        VisibilityModule visibilityModule = GetUnitManagerModule<VisibilityManager>(targetId) as VisibilityModule;
+        VisibilityManager visibilityManager = moduleManagers.GetValueOrDefault(ModuleType.VisManager) as VisibilityManager;
 
-        if (visibilityModule.visibilityMask[(int)attackingTeam] == true)
-        {
-            return true;
+        VisibilityModule visModule;
+        if (visibilityManager.visModuleIdLookup.TryGetValue(targetId, out visModule))
+        { 
+            //This check if the timer is above 1.
+            //When it would check the mask it would result in the units flickering. 
+            //as the timers would not be refreshed. 
+            //I was going to refresh the timers in here but that could potentially mean units that are not within LOS would stay detected.
+            if (visModule.visibilityTimers[(int)detectedBy] > 1f)
+            {               
+                Debug.Log("This unit is detected already");
+                return true;           
+            }
         }
 
         return false;

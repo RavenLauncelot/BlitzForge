@@ -539,7 +539,7 @@ MonoBehaviour:
       data:
         spawns:
         - objectToBeSpawned: {fileID: 8727416021569130910, guid: e587bb4c9b821c34fa4f4b1d2daad7d5, type: 3}
-          amountOf: 1
+          amountOf: 200
           spawnPoint: {fileID: 1794756575}
         teamId: 1
         AiPlayer: 0
@@ -548,7 +548,7 @@ MonoBehaviour:
       data:
         spawns:
         - objectToBeSpawned: {fileID: 8727416021569130910, guid: e587bb4c9b821c34fa4f4b1d2daad7d5, type: 3}
-          amountOf: 194
+          amountOf: 200
           spawnPoint: {fileID: 1969937888}
         teamId: 2
         AiPlayer: 1

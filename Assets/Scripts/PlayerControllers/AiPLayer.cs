@@ -31,13 +31,13 @@ public class AiPLayer : UnitController
 
         CommandData attackCommand = new CommandData()
         {
-            targetModule = "AttackManager",
+            targetModule = ModuleType.AttackManager,
             commandType = "BasicAttackCommand",
         };
 
         CommandData moveCommand = new CommandData()
         {
-            targetModule = "MovementManager",
+            targetModule = ModuleType.MoveManager,
             commandType = "BasicMovementCommand"
         };
 
@@ -48,7 +48,6 @@ public class AiPLayer : UnitController
             detectedUnits = manager.GetDetectedUnits(controlledTeam); 
             foreach (Unit unit in teamUnits)
             {
-                Debug.Log("Ai checkint Unit");
                 enemyUnit = FindClosestUnitInRange(detectedUnits, attackDistance, unit.transform);
 
                 if (enemyUnit != null)

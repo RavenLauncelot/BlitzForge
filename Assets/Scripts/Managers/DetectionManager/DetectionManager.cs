@@ -78,7 +78,7 @@ public class DetectionManager : ModuleManager
             if (detected[i].transform.root.TryGetComponent<Unit>(out Unit unitCode))
             {
                 //if the team id is the same as the detecting unit it will skip
-                if (unitCode.TeamId == detectionModule.TeamId)
+                if (unitCode.TeamId == detectionModule.TeamId | manager.IsTargetDetected(unitCode.InstanceId, detectionModule.TeamId))
                 {
                     continue;
                 }

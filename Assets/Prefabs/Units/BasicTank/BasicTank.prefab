@@ -1131,11 +1131,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbdd6aa78f35ba742bbf516e0b4b142b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager:
-  - MovementManager
-  maxSpeed: 50
-  acceleration: 10
-  stoppingDistance: 10
+  targetModuleManager: 01000000
+  maxSpeed: 10
+  acceleration: 5
+  stoppingDistance: 1
   agent: {fileID: 4644742412608787664}
 --- !u!114 &-6867326789130607143
 MonoBehaviour:
@@ -1149,8 +1148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16c525d721db2da4e9c137a71d459998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager:
-  - DetectionManager
+  targetModuleManager: 02000000
   detectionRange: 200
   detectionTime: 10
   observPos: {fileID: 2479150518429289625}
@@ -1166,8 +1164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 931ac92951552524bbc7e4592c914453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager:
-  - AttackManager
+  targetModuleManager: 00000000
   aimingPos: {fileID: 2371224646621743961}
   currentTarget: {fileID: 0}
   TargetRayCheck: {fileID: 0}
@@ -1198,8 +1195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78e1bb305a3cd1c458a78a123eec16aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager:
-  - VisibilityManager
+  targetModuleManager: 03000000
   visibilityTimers: []
   visibilityMask: 
   meshRenderers:

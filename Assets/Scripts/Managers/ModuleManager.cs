@@ -17,13 +17,13 @@ public class ModuleManager : MonoBehaviour
     [SerializeReference] protected UnitModule[] managedModules;
     protected Dictionary<int, UnitModule> moduleIdLookup;
 
-    [SerializeField] protected string managerType;
-    public string ManagerType
+    [SerializeField] protected ModuleType managerType;
+    public ModuleType ManagerType
     {
         get { return managerType; }
     }
 
-    public void InitModule(UnitManager unitManager, LevelManager LevelManager)
+    public void InitModuleManager(UnitManager unitManager, LevelManager LevelManager)
     {
         manager = unitManager;
         levelManager = LevelManager;
@@ -32,7 +32,7 @@ public class ModuleManager : MonoBehaviour
         moduleIdLookup = new Dictionary<int, UnitModule>();
     }
 
-    public void StartModuleManager()
+    public virtual void StartModuleManager()
     {
         managedModules = tempUnitModules.ToArray();
     }

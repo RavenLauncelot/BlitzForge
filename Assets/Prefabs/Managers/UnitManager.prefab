@@ -67,7 +67,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managedModules: []
-  managerType: AttackManager
+  managerType: 0
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managedModules: []
-  managerType: DetectionManager
+  managerType: 2
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managedModules: []
-  managerType: MovementManager
+  managerType: 1
 --- !u!114 &-3329357671778217599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,8 +118,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managedModules: []
-  managerType: VisibilityManager
-  playerTeam: 0
+  managerType: 3
+  playerTeam: 1
+  visibilityModules: []
 --- !u!114 &6337418114579704609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,4 +135,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visibilityManager: {fileID: -3329357671778217599}
   levelManager: {fileID: 0}
-  playerTeam: 0
+  playerTeam: 1
