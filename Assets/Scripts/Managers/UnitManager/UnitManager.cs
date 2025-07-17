@@ -10,6 +10,9 @@ public class UnitManager : MonoBehaviour
     private LevelManager levelManager;
     private Dictionary<string, ModuleManager> moduleManagers;
 
+    [SerializeField] private GameObject playerControllerPrefab;
+    [SerializeField] private GameObject aiControllerPrefab;
+
     [SerializeField] private LayerMask unitLayermask;
 
     Unit[] allUnits;
@@ -28,6 +31,9 @@ public class UnitManager : MonoBehaviour
 
     public void InitManager(List<SpawnData> spawnData, LevelManager levelManagerIn)
     {
+        //temp list for unit controllers so i can start them once everything is spawned in 
+        List<UnitController> unitControllers = new List<UnitController>();
+
         List<Unit> tempAllUnits = new List<Unit>();
 
         levelManager = levelManagerIn;
@@ -41,11 +47,23 @@ public class UnitManager : MonoBehaviour
             module.InitModule(this, levelManager);
         }
 
-        //spawning all units for all teams 
+        //spawning units per team.
         foreach (SpawnData data in spawnData)
         {
+            UnitController controller;
+            //Spawn unit controller. Player or AI. The player just spawns a UnitHandler. I will include it with the camera as it needs that and a additional script
+            if (data.AiPlayer)
+            {
+                controller = Instantiate(aiControllerPrefab).GetComponent<UnitController>();
+            }
+            else
+            {
+                controller = Instantiate(playerControllerPrefab).GetComponent<UnitController>();
+            }
+
             List<Unit> teamUnits = SpawnTeam(data);
-            //player controller.Init(teamUnits)
+            controller.InitController(teamUnits, this, data.teamId);
+            unitControllers.Add(controller);
 
             tempAllUnits.AddRange(teamUnits);
             teamUnits.Clear();
@@ -57,6 +75,13 @@ public class UnitManager : MonoBehaviour
         foreach (ModuleManager module in moduleManagers.Values)
         {
             module.StartModuleManager();
+        }
+
+
+        //Once is everything is initiliased start the controllers
+        foreach (UnitController controller in unitControllers)
+        {
+            controller.StartGame();
         }
     }
 
@@ -92,6 +117,8 @@ public class UnitManager : MonoBehaviour
                 counter++;
             }
         }
+        
+
 
         return teamUnits;
     }
@@ -118,9 +145,29 @@ public class UnitManager : MonoBehaviour
 
     }
 
+    public Unit[] GetDetectedUnits(TeamId detectedBy)
+    {
+        VisibilityModule visibilityModule;
+        List<Unit> detectedUnits = new List<Unit>();
+
+        foreach (Unit unit in allUnits)
+        {
+            visibilityModule = GetUnitManagerModule<VisibilityManager>(unit.InstanceId) as VisibilityModule;
+            Debug.Log("Vis module: " + visibilityModule.visibilityMask[0]);
+
+            //since units don't detected themselves I don't need to check if they are on the same team
+            if (visibilityModule.visibilityMask[(int)detectedBy] == true)
+            {
+                detectedUnits.Add(unit);
+            }
+        }
+
+        return detectedUnits.ToArray();
+    }
+
     public bool IsTargetDetected(int targetId, TeamId attackingTeam)
     {
-        VisibilityModule visibilityModule = GetUnitModule<VisibilityManager>(targetId) as VisibilityModule;
+        VisibilityModule visibilityModule = GetUnitManagerModule<VisibilityManager>(targetId) as VisibilityModule;
 
         if (visibilityModule.visibilityMask[(int)attackingTeam] == true)
         {
@@ -130,7 +177,7 @@ public class UnitManager : MonoBehaviour
         return false;
     }
 
-    public UnitModule GetUnitModule<TManager>(int instanceId)
+    public UnitModule GetUnitManagerModule<TManager>(int instanceId)
         where TManager : ModuleManager
     {
         foreach (var moduleManager in moduleManagers.Values)

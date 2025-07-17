@@ -44,8 +44,8 @@ public class VisibilityManager : ModuleManager
                     continue;
                 }
 
-                //updating mesh renderers if detected by player team
-                if (team == (int)UnitManager.TeamId.PlayerTeam)
+                //updating mesh renderers if detected by player team. Does not update the playerTeam as they need to always be on 
+                if (team == (int)UnitManager.TeamId.PlayerTeam & visModule.TeamId != UnitManager.TeamId.PlayerTeam)
                 {
                     if (visModule.visibilityTimers[team] > 0)
                     {

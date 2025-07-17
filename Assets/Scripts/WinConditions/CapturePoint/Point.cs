@@ -7,6 +7,10 @@ public class Point : MonoBehaviour
 {
     [SerializeField] private float captureTime;
     [SerializeField] private float captureRadius;
+    public float CaptureRadius
+    {
+        get { return captureRadius; }
+    }
     [SerializeField] private LayerMask unitLayer;
 
     [ShowInInspector] private UnitManager.TeamId capturingTeam;

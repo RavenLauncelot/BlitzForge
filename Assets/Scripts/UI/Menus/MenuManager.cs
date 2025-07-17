@@ -2,11 +2,23 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Jobs;
+using System.Linq;
 
 public class MenuManager : MonoBehaviour
 {
-    List<MenuPage> menuPages;
-    private int CurrentPageIndex = 0;   
+    [SerializeField] List<MenuPage> menuPages;
+
+    [SerializeField] List<string> currentMenuDirec;
+
+    [SerializeField] string startingMenu;
+
+    private int CurrentPageIndex = 0;
+
+    public void Start()
+    {
+        currentMenuDirec = new List<string>();
+        GoToPage(startingMenu);      
+    }
 
     public void StartLevel(int levelNumber)
     {
@@ -21,13 +33,44 @@ public class MenuManager : MonoBehaviour
         {
             if (page.PageType == pageType)
             {
-                page.enabled = true;
+                page.gameObject.SetActive(true);
+               
+                currentMenuDirec.Add(pageType);                
             }
             else
             {
-                page.enabled = false;
+                page.gameObject.SetActive(false);
             }
         }
+    }
+
+    public void GoToPageNoDirec(string pageType)
+    {
+        //PageType pageType = PageType.MainMenu; // This should be set based on the desired page
+        foreach (MenuPage page in menuPages)
+        {
+            if (page.PageType == pageType)
+            {
+                page.gameObject.SetActive(true);
+            }
+            else
+            {
+                page.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void PreviousPage()
+    {
+        //only has 1 index
+        if (currentMenuDirec.Count < 2)
+        {
+            Debug.Log("Can't go back anymore");
+            return;
+        }
+
+        GoToPageNoDirec(currentMenuDirec[currentMenuDirec.Count - 2]);
+        currentMenuDirec.RemoveAt(currentMenuDirec.Count-1);
     }
 
     public void QuitGame()

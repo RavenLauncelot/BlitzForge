@@ -10,6 +10,8 @@ public class SpawnData
     [SerializeField]
     public Spawn[] spawns;
     public UnitManager.TeamId teamId;
+
+    public bool AiPlayer;
 }
 
 [System.Serializable]
