@@ -9,6 +9,8 @@ using Sirenix.OdinInspector.Editor.Modules;
 
 public class ModuleManager : MonoBehaviour
 {
+    protected bool managerStarted = false;
+
     private List<UnitModule> tempUnitModules;
 
     protected UnitManager manager;
@@ -35,6 +37,7 @@ public class ModuleManager : MonoBehaviour
     public virtual void StartModuleManager()
     {
         managedModules = tempUnitModules.ToArray();
+        managerStarted = true;
     }
 
     public void RegisterUnit(UnitModule unitModule)

@@ -20,15 +20,29 @@ public class AttackManager : ModuleManager
 
     private Collider[] colliders;
 
+    AttackModule[] attackModules;
+
     //first lets get all instance Ids we need that have this component
     public void Start()
     {
         colliders = new Collider[200];
     }
 
+    public override void StartModuleManager()
+    {
+        base.StartModuleManager();
+
+        attackModules = managedModules.Cast<AttackModule>().ToArray();
+
+        updateLoop = StartCoroutine(UpdateLoop());
+    }
+
     private void OnEnable()
     {
-        updateLoop = StartCoroutine(UpdateLoop());
+        if (managerStarted)
+        {
+            updateLoop = StartCoroutine(UpdateLoop());
+        }
     }
 
     private void OnDisable()
@@ -36,14 +50,20 @@ public class AttackManager : ModuleManager
         StopAllCoroutines();
     }
 
+    private void Update()
+    {
+        foreach (AttackModule attackModule in attackModules)
+        {
+            UpdateReloadTimer(attackModule);
+        }
+    }
+
     private IEnumerator UpdateLoop()
     {
         while (true)
-        {
-            foreach (UnitModule unitModule in managedModules)
+        {          
+            foreach (AttackModule attackModule in attackModules)
             {
-                AttackModule attackModule = unitModule as AttackModule;
-
                 //if (attackModule.currentTarget == null && attackModule.fireAtWill == true)
                 //{
                 //    //Skip past other checks 
@@ -57,7 +77,6 @@ public class AttackManager : ModuleManager
                         ResetTarget(attackModule);
                     }
 
-                    UpdateReloadTimer(attackModule);
                     continue;
                 }
 
@@ -81,7 +100,7 @@ public class AttackManager : ModuleManager
                     AutoTargetMode(attackModule);
                 }             
 
-                if (attackModule.inLOS && UpdateReloadTimer(attackModule))
+                if (attackModule.inLOS && attackModule.reloadTimer == 0)
                 {
                     UnitFire(attackModule);
                 }
@@ -152,6 +171,7 @@ public class AttackManager : ModuleManager
         {
             attackModule.inLOS = false;
         }
+
     }         
     
     private bool IsTargetValid(Unit targetUnit, AttackModule attackModule)
@@ -184,7 +204,7 @@ public class AttackManager : ModuleManager
 
     private void SetNewTarget(Unit target, AttackModule attackModule)
     {
-        attackModule.TargetRayCheck = target.aimingPos;
+        attackModule.TargetRayCheck = target.rayTarget;
         attackModule.UpdateTurretRotation(attackModule.TargetRayCheck);
         attackModule.currentTarget = target;
     }
@@ -194,18 +214,16 @@ public class AttackManager : ModuleManager
         return Vector3.Distance(attackModule.AimingPos.position, attackModule.TargetRayCheck.position) < attackModule.range;
     }
 
-    public bool UpdateReloadTimer(AttackModule attackData)
+    public void UpdateReloadTimer(AttackModule attackData)
     {
         if (attackData.reloadTimer < Time.deltaTime)
         {
             attackData.reloadTimer = 0;
-            return true;
+            return;
         }
-        else
-        {
-            attackData.reloadTimer -= Time.deltaTime;
-            return false;
-        }
+
+        attackData.reloadTimer -= Time.deltaTime;
+        
     }
 
     private int cols;
