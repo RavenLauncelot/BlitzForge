@@ -2,7 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using System.Collections.Generic;
 
-public class UnitController : MonoBehaviour
+public abstract class UnitController : MonoBehaviour
 {
     [SerializeField] protected UnitManager.TeamId controlledTeam;
     [SerializeField] protected Unit[] teamUnits;

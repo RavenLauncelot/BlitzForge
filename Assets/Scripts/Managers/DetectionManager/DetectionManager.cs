@@ -4,6 +4,7 @@ using UnityEngine.Rendering;
 using System.Collections;
 using static UnitManager;
 using Unity.VisualScripting;
+using System.Linq;
 
 public class DetectionManager : ModuleManager
 {
@@ -15,20 +16,29 @@ public class DetectionManager : ModuleManager
 
     [SerializeField] private VisibilityManager visibilityManager;
 
-    public void Start()
-    {
-        if (!TryGetComponent<VisibilityManager>(out visibilityManager))
-        {
-            Debug.LogWarning("DetectionManager requires visibiltiyManger to function - disabling");
-            this.enabled = false;
-        }
+    DetectionModule[] detectionModules;
 
-        StartCoroutine(UpdateLoop());
+    public override void InitModuleManager()
+    {
+        base.InitModuleManager();
+
+        detectionModules = managedModules.Cast<DetectionModule>().ToArray();
+        visibilityManager = GetComponent<VisibilityManager>();
+    }
+
+    public override void StartModuleManager()
+    {
+        base.StartModuleManager();
+
+        updateLoop = StartCoroutine(UpdateLoop());
     }
 
     private void OnEnable()
     {
-        updateLoop = StartCoroutine(UpdateLoop());
+        if (managerStarted)
+        {
+            updateLoop = StartCoroutine(UpdateLoop());
+        }
     }
 
     private void OnDisable()
@@ -42,10 +52,8 @@ public class DetectionManager : ModuleManager
 
         while (true)
         {
-            foreach (UnitModule unitModule in managedModules)
+            foreach (DetectionModule detectionModule in detectionModules)
             {
-                DetectionModule detectionModule = unitModule as DetectionModule;
-
                 tempList = DetectEnemies(detectionModule.ObservPos.position, detectionModule);
 
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them

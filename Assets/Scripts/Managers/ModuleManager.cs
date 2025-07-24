@@ -25,7 +25,9 @@ public abstract class ModuleManager : MonoBehaviour
         get { return managerType; }
     }
 
-    public void InitModuleManager(UnitManager unitManager, LevelManager LevelManager)
+    //These methods InitModuleManager, CustomInitModuleManager and StartModuleManager are run in this specific order.
+    //Make sure all important variables are all sorted before StartModuleManager() this method should only included startin the coroutine if applicable.
+    public void SetupModuleManager(UnitManager unitManager, LevelManager LevelManager)
     {
         manager = unitManager;
         levelManager = LevelManager;
@@ -34,9 +36,20 @@ public abstract class ModuleManager : MonoBehaviour
         moduleIdLookup = new Dictionary<int, UnitModule>();
     }
 
-    public virtual void StartModuleManager()
+    ///<Summary>
+    ///The base must always be executed or managedModules will be null
+    ///</Summary>
+    public virtual void InitModuleManager()
     {
         managedModules = tempUnitModules.ToArray();
+    }
+
+    ///<Summary>
+    ///You should only start the managers coroutine in here if applicable
+    ///The base needs to be executed or you will be...
+    ///</Summary>
+    public virtual void StartModuleManager()
+    {
         managerStarted = true;
     }
 

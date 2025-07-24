@@ -46,7 +46,7 @@ public class UnitManager : MonoBehaviour
         foreach (ModuleManager module in modules)
         {
             moduleManagers.Add(module.ManagerType, module);
-            module.InitModuleManager(this, levelManager);
+            module.SetupModuleManager(this, levelManager);
         }
 
         //spawning units per team.
@@ -74,10 +74,20 @@ public class UnitManager : MonoBehaviour
         allUnits = tempAllUnits.ToArray();
         unitIdLookUp = allUnits.ToDictionary(val => val.InstanceId);
 
-        //new version
-        foreach (ModuleManager module in moduleManagers.Values)
+        //This is a bit weird
+        //But each module needs to cast their array of UnitModules to their respective module they are managing
+        //While this could be done in StartModuleManager() it can cause issues if other things access modules that access this custom array 
+        //So they're in total there is a InitModuleManager() which is done first equivalent of Start(). Then CustomInit() and then StartModuleManager which then starts then loop. 
+        //Diciontionaries man. Beg you just like instantiate before runtime
+        foreach (ModuleManager moduleManager in moduleManagers.Values)
         {
-            module.StartModuleManager();
+            moduleManager.InitModuleManager();
+        }
+
+        //new version
+        foreach (ModuleManager moduleManager in moduleManagers.Values)
+        {
+            moduleManager.StartModuleManager();
         }
 
 

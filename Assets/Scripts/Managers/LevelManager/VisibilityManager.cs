@@ -15,13 +15,18 @@ public class VisibilityManager : ModuleManager
     public VisibilityModule[] visibilityModules;
     public Dictionary<int, VisibilityModule> visModuleIdLookup;
 
-    public override void StartModuleManager()
+    public override void InitModuleManager()
     {
-        base.StartModuleManager();
+        base.InitModuleManager();
 
         visibilityModules = managedModules.Cast<VisibilityModule>().ToArray();
 
         visModuleIdLookup = visibilityModules.ToDictionary(val => val.InstanceId, val => val);
+    }
+
+    public override void StartModuleManager()
+    {
+        base.StartModuleManager();
     }
 
     private void Update()

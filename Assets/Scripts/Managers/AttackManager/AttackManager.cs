@@ -22,17 +22,17 @@ public class AttackManager : ModuleManager
 
     AttackModule[] attackModules;
 
-    //first lets get all instance Ids we need that have this component
-    public void Start()
+    public override void InitModuleManager()
     {
+        base.InitModuleManager();
+
+        attackModules = managedModules.Cast<AttackModule>().ToArray();
         colliders = new Collider[200];
     }
 
     public override void StartModuleManager()
     {
         base.StartModuleManager();
-
-        attackModules = managedModules.Cast<AttackModule>().ToArray();
 
         updateLoop = StartCoroutine(UpdateLoop());
     }
@@ -198,6 +198,7 @@ public class AttackManager : ModuleManager
     {
         attackModule.forcedTarget = false;
         attackModule.currentTarget = null;
+        attackModule.inLOS = false;
 
         attackModule.UpdateTurretRotation(null);
     }
