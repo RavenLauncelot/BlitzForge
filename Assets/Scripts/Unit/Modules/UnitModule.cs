@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UnitModule : MonoBehaviour
+public abstract class UnitModule : MonoBehaviour
 {
     //Id's will still be used for identification. This is so we can use dictionaries to find the correct modules data. 
     //Instead of checking each individual module for the relevant data.

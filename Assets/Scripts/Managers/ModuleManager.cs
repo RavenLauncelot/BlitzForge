@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor.Modules;
 
-public class ModuleManager : MonoBehaviour
+public abstract class ModuleManager : MonoBehaviour
 {
     protected bool managerStarted = false;
 
