@@ -4,16 +4,32 @@ using System.Collections;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Xml;
+using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 public class AttackManager : ModuleManager
 {
+    public static AttackManager instance;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            instance = this;
+        }
+    }
     //This script will do all the processing of the unitsusing the attack data
     //object stored in each struct
 
     [SerializeField] private LayerMask unitLayer;
+    [SerializeField] private LayerMask everything;
 
     [SerializeField] private int targetSkipSearchCooldown;
     Coroutine updateLoop;
@@ -50,6 +66,54 @@ public class AttackManager : ModuleManager
         StopAllCoroutines();
     }
 
+    public override void StopCommands(int[] ids)
+    {
+        base.StopCommands(ids);
+        AttackModule attackModule;
+
+        foreach(int id in ids)
+        {
+            if (moduleIdLookup.TryGetValue(id, out UnitModule module))
+            {
+                attackModule = module as AttackModule;
+
+                ResetTarget(attackModule);
+            }
+        }
+    }
+
+    public override void SetCommand(CommandData command)
+    {
+        base.SetCommand(command);
+
+        if (command.commandType == "AttackCommand")
+        {
+            AttackCommand(command.selectedUnits, command.targettedUnits[0]);
+        }
+    }
+
+    public void AttackCommand(int[] instanceIds, int target)
+    {
+        Unit targetUnit;
+
+        if (!manager.unitIdLookUp.TryGetValue(target, out targetUnit))
+        {
+            Debug.Log("Invalid target");
+            return;
+        }
+
+        for (int i = 0;  i < instanceIds.Length; i++)
+        {
+            moduleIdLookup.TryGetValue(instanceIds[i], out UnitModule module);
+            AttackModule attackModule = module as AttackModule;
+
+            ResetTarget(attackModule);
+
+            attackModule.forcedTarget = true;
+            SetNewTarget(targetUnit, attackModule);
+        }
+    }
+
     private void Update()
     {
         foreach (AttackModule attackModule in attackModules)
@@ -64,12 +128,6 @@ public class AttackManager : ModuleManager
         {          
             foreach (AttackModule attackModule in attackModules)
             {
-                //if (attackModule.currentTarget == null && attackModule.fireAtWill == true)
-                //{
-                //    //Skip past other checks 
-                //    AutoTargetMode(attackModule);
-                //}
-
                 if (!attackModule.fireAtWill)
                 {
                     if (attackModule.currentTarget != null)
@@ -113,9 +171,100 @@ public class AttackManager : ModuleManager
         }
     }
 
+    //This will mainly handle movement 
     private void ForcedTargetMode(AttackModule attackData)
     {
-        //The can fire logic differs between modes. AutoTargetMode will find a new target if line of sight is not gained. 
+        //if it is aiming at the target it will then check LOS. if not it will return and wait
+        if (IsAimingAt(attackData))
+        {
+            if (CheckCurrentLOS(attackData) && InRangeCheck(attackData))
+            {
+                //if not within line of sight it will find a new position. If not it won't 
+                attackData.inLOS = true;
+            }
+            else
+            {
+                attackData.inLOS = false;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        //If is still moving we don't check anything till it's finished moving 
+        if (!attackData.moveMod.ReachedTarget)
+        {
+            return;
+        }
+
+        //If not in range move to closest point in range
+        if (!InRangeCheck(attackData))
+        {
+            Debug.Log("Not in range");
+
+            Vector3 positonToMove = attackData.TargetRayCheck.position;
+
+            Vector3 vectorFromTarget = attackData.AimingPos.position - positonToMove;
+            vectorFromTarget.Normalize();
+
+            positonToMove = positonToMove + (vectorFromTarget * (attackData.range - 1)); //the minus 1 is to make sure it's in range
+
+            if (NavMesh.SamplePosition(positonToMove, out NavMeshHit hit, 10f, everything))
+            {
+                CommandData command = new CommandData()
+                {
+                    commandType = "MovementCommand",
+                    targettedArea = new Vector3[] { hit.position, hit.position },
+                    selectedUnits = new int[] { attackData.InstanceId }
+                };
+
+                MovementManager.instance.SetCommand(command);
+
+                return;
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        //if it's not within LOS but within range it will move closer a certain amount unless it is within the min range
+        if (!attackData.inLOS)
+        {
+            Debug.Log("Not in LOS");
+
+            float currentDistance = Vector3.Distance(attackData.AimingPos.position, attackData.TargetRayCheck.position);
+
+            CommandData command = new CommandData()
+            {
+                commandType = "MovementCommand",
+                selectedUnits = new int[] { attackData.InstanceId }
+            };
+
+            Vector3 positionToMove = Vector3.zero;
+
+            //If within 5 units it will just find a random positon within 5 otherwise it will find a postion that's 10% closer
+            if (currentDistance < 5)
+            {
+                positionToMove = NavmeshTools.RandomPointEdgeNav(attackData.AimingPos.position, 5, 10);
+
+                command.targettedArea = new Vector3[] { positionToMove, positionToMove };
+
+                MovementManager.instance.SetCommand(command);
+            }
+            //if it isnt it will find a postion 10% closer than previous
+            else
+            {
+                positionToMove = NavmeshTools.RandomPointInsideNav(attackData.AimingPos.position, currentDistance * 0.8f, 10);
+
+                command.targettedArea = new Vector3[] { positionToMove, positionToMove };
+
+                MovementManager.instance.SetCommand(command);
+            }
+        }
+
+
     }
 
     private void AutoTargetMode(AttackModule attackModule)
@@ -186,7 +335,7 @@ public class AttackManager : ModuleManager
             return false;
         }
 
-        if (manager.IsTargetDetected(targetUnit.InstanceId, attackModule.TeamId))
+        if (VisibilityManager.instance.IsTargetDetected(targetUnit.InstanceId, attackModule.TeamId, 0f))
         {
             return true;
         }

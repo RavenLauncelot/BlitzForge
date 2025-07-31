@@ -3,7 +3,7 @@ using Unity;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class NormalTurretComp : AttackModule
+public class NormalTurretMod : AttackModule
 {
     //This compoennt is for normal tanks with a normal moving turret as a oppose to a artillery tank.
 
@@ -85,11 +85,6 @@ public class NormalTurretComp : AttackModule
         {
             return Quaternion.Euler(0, 0, 0); //error
         }
-    }
-
-    public void SetTargetPos(Transform targetPos)
-    {
-        targetTrans = targetPos;
     }
 
     public override void FireGun()

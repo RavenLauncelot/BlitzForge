@@ -8,13 +8,25 @@ using System.Linq;
 
 public class DetectionManager : ModuleManager
 {
+    public static DetectionManager instance;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            instance = this;
+        }
+    }
+
     public LayerMask unitLayer;
 
     private Coroutine updateLoop;
 
     [SerializeField] private int frameSkip;
-
-    [SerializeField] private VisibilityManager visibilityManager;
 
     DetectionModule[] detectionModules;
 
@@ -23,7 +35,6 @@ public class DetectionManager : ModuleManager
         base.InitModuleManager();
 
         detectionModules = managedModules.Cast<DetectionModule>().ToArray();
-        visibilityManager = GetComponent<VisibilityManager>();
     }
 
     public override void StartModuleManager()
@@ -59,7 +70,7 @@ public class DetectionManager : ModuleManager
                 //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
                 foreach (Unit detected in tempList)
                 {
-                    visibilityManager.SetDetected(detected.InstanceId, detectionModule.DetectionTime, detectionModule.TeamId);
+                    VisibilityManager.instance.SetDetected(detected.InstanceId, detectionModule.DetectionTime, detectionModule.TeamId);
                 }
 
                 for (int frame = 0; frame < frameSkip; frame++)
@@ -86,7 +97,7 @@ public class DetectionManager : ModuleManager
             if (detected[i].transform.root.TryGetComponent<Unit>(out Unit unitCode))
             {
                 //if the team id is the same as the detecting unit it will skip
-                if (unitCode.TeamId == detectionModule.TeamId | manager.IsTargetDetected(unitCode.InstanceId, detectionModule.TeamId))
+                if (unitCode.TeamId == detectionModule.TeamId | VisibilityManager.instance.IsTargetDetected(unitCode.InstanceId, detectionModule.TeamId, 1f))
                 {
                     continue;
                 }

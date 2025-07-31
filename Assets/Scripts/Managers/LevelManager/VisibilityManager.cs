@@ -3,9 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static UnitManager;
 
 public class VisibilityManager : ModuleManager
 {
+    public static VisibilityManager instance;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            instance = this;
+        }
+    }
+
     private float elapsedTime;
 
     Coroutine updateLoop;
@@ -87,6 +102,26 @@ public class VisibilityManager : ModuleManager
         {
             Debug.Log("Aint working bro instanceId: " + instanceId);
         }
+    }
+
+    public bool IsTargetDetected(int targetId, TeamId detectedBy, float timerMinimum)
+    {
+        VisibilityModule visModule;
+        if (VisibilityManager.instance.visModuleIdLookup.TryGetValue(targetId, out visModule))
+        {
+            //This check if the timer is above 1.
+            //When it would check the mask it would result in the units flickering. 
+            //as the timers would not be refreshed. 
+            //I was going to refresh the timers in here but that could potentially mean units that are not within LOS would stay detected.
+            if (visModule.visibilityTimers[(int)detectedBy] > timerMinimum)
+            {
+                Debug.Log("this works still");
+                return true;
+            }
+        }
+
+        Debug.Log("bruh");
+        return false;
     }
 }
 

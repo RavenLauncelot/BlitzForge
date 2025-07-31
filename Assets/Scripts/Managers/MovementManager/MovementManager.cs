@@ -7,6 +7,20 @@ using UnityEngine.AI;
 
 public class MovementManager : ModuleManager
 {
+    public static MovementManager instance;
+
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            instance = this;
+        }
+    }
+
     public void Start()
     {
         foreach (UnitModule unit in managedModules)
@@ -19,7 +33,7 @@ public class MovementManager : ModuleManager
         }
     }
 
-    public void BasicMovementCommand(int[] instanceIds, Vector3 target)
+    public void MovementCommand(int[] instanceIds, Vector3 target)
     {
         for (int i = 0; i < instanceIds.Length; i++)
         {
@@ -33,7 +47,9 @@ public class MovementManager : ModuleManager
                 movementModule.ReachedTarget = false;
                 movementModule.CurrentTarget = target;
                 movementModule.Agent.SetDestination(target);
-            }              
+
+                Debug.Log("Movement command set: " + target);
+            }                
         }
     }
 
@@ -76,9 +92,16 @@ public class MovementManager : ModuleManager
 
     public override void SetCommand(CommandData command)
     {
-        if (command.commandType == "BasicMovementCommand")
+        if (command.commandType == "MovementCommand")
         {
-            BasicMovementCommand(command.selectedUnits, command.targettedArea[0]);
+            MovementCommand(command.selectedUnits, command.targettedArea[0]);
+
+            Debug.Log("Command sent");
+        }
+
+        else
+        {
+            Debug.Log("Command: " + command.commandType + " doesn't exist");
         }
     }
 }

@@ -6,6 +6,19 @@ public class AttackModule : UnitModule
     //This exists so that different types of attack components can be added
     //e.g. Artillery type aiming or normal turret aiming
 
+    public override void CustomInit()
+    {
+        if (TryGetComponent<MovementModule>(out MovementModule movement))
+        {
+            moveMod = movement;
+            canMove = true;
+        }
+        else
+        {
+            canMove = false;
+        }
+    }
+
     [SerializeField] private Transform aimingPos;
     public Transform AimingPos
     {
@@ -24,7 +37,7 @@ public class AttackModule : UnitModule
 
     }
 
-    //the current targets instance Id
+    //the current targets Unit ref
      public Unit currentTarget;
      public Transform TargetRayCheck;
 
@@ -40,4 +53,7 @@ public class AttackModule : UnitModule
     public float damage = 0;
     public float reloadTime = 0;
 
+    //movementModule for it can move (AttackCommand)
+    public bool canMove;
+    public MovementModule moveMod;
 }

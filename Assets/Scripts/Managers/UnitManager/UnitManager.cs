@@ -6,10 +6,10 @@ using UnityEngine;
 
 public class UnitManager : MonoBehaviour
 {
-    //[SerializeField] public TeamId managedTeam;
-
     private LevelManager levelManager;
     private Dictionary<ModuleType, ModuleManager> moduleManagers;
+
+    private UnitController[] unitControllers;
 
     [SerializeField] private GameObject playerControllerPrefab;
     [SerializeField] private GameObject aiControllerPrefab;
@@ -17,7 +17,9 @@ public class UnitManager : MonoBehaviour
     [SerializeField] private LayerMask unitLayermask;
 
     Unit[] allUnits;
-    Dictionary<int, Unit> unitIdLookUp;
+    public Dictionary<int, Unit> unitIdLookUp;
+
+    private bool gameStarted = false;
 
     public enum TeamId
     {
@@ -34,7 +36,7 @@ public class UnitManager : MonoBehaviour
     public void InitManager(List<SpawnData> spawnData, LevelManager levelManagerIn)
     {
         //temp list for unit controllers so i can start them once everything is spawned in 
-        List<UnitController> unitControllers = new List<UnitController>();
+        List<UnitController> unitControllersList = new List<UnitController>();
 
         List<Unit> tempAllUnits = new List<Unit>();
 
@@ -65,12 +67,13 @@ public class UnitManager : MonoBehaviour
 
             List<Unit> teamUnits = SpawnTeam(data);
             controller.InitController(teamUnits, this, data.teamId);
-            unitControllers.Add(controller);
+            unitControllersList.Add(controller);
 
             tempAllUnits.AddRange(teamUnits);
             teamUnits.Clear();
         }
 
+        unitControllers = unitControllersList.ToArray();
         allUnits = tempAllUnits.ToArray();
         unitIdLookUp = allUnits.ToDictionary(val => val.InstanceId);
 
@@ -82,19 +85,23 @@ public class UnitManager : MonoBehaviour
         foreach (ModuleManager moduleManager in moduleManagers.Values)
         {
             moduleManager.InitModuleManager();
-        }
+        }   
+    }
 
-        //new version
-        foreach (ModuleManager moduleManager in moduleManagers.Values)
+    public void StartGame()
+    {
+        if (gameStarted == false)
         {
-            moduleManager.StartModuleManager();
-        }
+            //new version
+            foreach (ModuleManager moduleManager in moduleManagers.Values)
+            {
+                moduleManager.StartModuleManager();
+            }
 
-
-        //Once is everything is initiliased start the controllers
-        foreach (UnitController controller in unitControllers)
-        {
-            controller.StartGame();
+            foreach (UnitController controller in unitControllers)
+            {
+                controller.StartGame();
+            }
         }
     }
 
@@ -179,41 +186,6 @@ public class UnitManager : MonoBehaviour
         }
 
         return detectedUnits.ToArray();
-    }
-
-    public bool IsTargetDetected(int targetId, TeamId detectedBy)
-    {
-        VisibilityManager visibilityManager = moduleManagers.GetValueOrDefault(ModuleType.VisManager) as VisibilityManager;
-
-        VisibilityModule visModule;
-        if (visibilityManager.visModuleIdLookup.TryGetValue(targetId, out visModule))
-        { 
-            //This check if the timer is above 1.
-            //When it would check the mask it would result in the units flickering. 
-            //as the timers would not be refreshed. 
-            //I was going to refresh the timers in here but that could potentially mean units that are not within LOS would stay detected.
-            if (visModule.visibilityTimers[(int)detectedBy] > 1f)
-            {               
-                return true;           
-            }
-        }
-
-        return false;
-    }
-
-    public UnitModule GetUnitManagerModule<TManager>(int instanceId)
-        where TManager : ModuleManager
-    {
-        foreach (var moduleManager in moduleManagers.Values)
-        {
-            if (moduleManager is TManager typedManager)
-            {
-                UnitModule unitModule = moduleManager.GetModuleData(instanceId);
-                return unitModule;
-            }
-        }
-
-        return null;
     }
 
     //This takes a generic command and depending on the enum type of module it will send it to that module

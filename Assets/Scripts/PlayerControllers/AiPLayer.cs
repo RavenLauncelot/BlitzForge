@@ -32,13 +32,13 @@ public class AiPLayer : UnitController
         CommandData attackCommand = new CommandData()
         {
             targetModule = ModuleType.AttackManager,
-            commandType = "BasicAttackCommand",
+            commandType = "AttackCommand",
         };
 
         CommandData moveCommand = new CommandData()
         {
             targetModule = ModuleType.MoveManager,
-            commandType = "BasicMovementCommand"
+            commandType = "MovementCommand"
         };
 
         while (true)
@@ -57,7 +57,8 @@ public class AiPLayer : UnitController
                     attackCommand.targettedUnits = new int[] { enemyUnit.InstanceId };
 
                     //This won't work yet attack Command don't work
-                    //manager.SendCommand(attackCommand);
+                    MovementManager.instance.StopCommands(new int[] { unit.InstanceId });
+                    manager.SendCommand(attackCommand);
                 }
                 else
                 {
@@ -76,7 +77,7 @@ public class AiPLayer : UnitController
 
             //icl this was a cheap solution to units updating their position too frequently
             //Would result in them stopping right at the edge of the points when moving and stuff like that. Might be worth adjusting it so it only updated their logic once they've finished moving.
-            yield return new WaitForSeconds(10f);
+            yield return new WaitForSeconds(1f);
         }
     }
 
@@ -146,29 +147,7 @@ public class AiPLayer : UnitController
         }
 
         //This will keep finding a point for as many as stated in parametres. It will self iterate
-        return GetRandomPointOnNav(closestPoint.transform.position, closestPoint.CaptureRadius, 10);
-    }
-
-    private Vector3 GetRandomPointOnNav(Vector3 position, float radius, int counter)
-    {
-        if (counter == 0)
-        {
-            return position;
-        }
-
-        //finding a random point within that capture point
-        Vector3 randomPoint = position + (Random.insideUnitSphere * radius);
-        NavMeshHit hit;
-
-        if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
-        {
-            return hit.position;
-        }
-
-        else
-        {
-            return GetRandomPointOnNav(position, radius, counter-1);
-        }
+        return NavmeshTools.RandomPointInsideNav(closestPoint.transform.position, closestPoint.CaptureRadius, 10);
     }
 
     private void OnEnable()

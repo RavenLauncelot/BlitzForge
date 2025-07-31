@@ -71,6 +71,9 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 128
+  everything:
+    serializedVersion: 2
+    m_Bits: 247
   targetSkipSearchCooldown: 5
 --- !u!114 &8381392937698650365
 MonoBehaviour:
@@ -90,7 +93,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   frameSkip: 2
-  visibilityManager: {fileID: 0}
 --- !u!114 &-2530838446215479751
 MonoBehaviour:
   m_ObjectHideFlags: 0
