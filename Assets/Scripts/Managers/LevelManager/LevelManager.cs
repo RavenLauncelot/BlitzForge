@@ -50,7 +50,7 @@ public class LevelManager : MonoBehaviour
 
     public void Update()
     {
-        if (CheckWin(winMode) != UnitManager.TeamId.None)
+        if (CheckWin(winMode) != TeamInfo.TeamId.None)
         {
             //Winning game logic here
             //tell game manager
@@ -58,7 +58,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public UnitManager.TeamId CheckWin(LevelManager.WinMode winMode)
+    public TeamInfo.TeamId CheckWin(LevelManager.WinMode winMode)
     {
         if (winMode == WinMode.winAllObjectives)
         {
@@ -69,7 +69,7 @@ public class LevelManager : MonoBehaviour
 
             else
             {
-                return UnitManager.TeamId.None;
+                return TeamInfo.TeamId.None;
             }
         }
 
@@ -77,13 +77,13 @@ public class LevelManager : MonoBehaviour
         {
             foreach(WinConditions winCon in winConditions)
             {
-                if (winCon.WinStates != UnitManager.TeamId.None)
+                if (winCon.WinStates != TeamInfo.TeamId.None)
                 {
                     return winCon.WinStates;
                 }
             }
 
-            return UnitManager.TeamId.None;
+            return TeamInfo.TeamId.None;
         }        
     }
 }

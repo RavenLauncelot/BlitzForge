@@ -8,8 +8,8 @@ using Unity.VisualScripting;
 
 public class Unit : MonoBehaviour
 {
-    [SerializeField] private UnitManager.TeamId teamId;
-    public UnitManager.TeamId TeamId
+    [SerializeField] private TeamInfo.TeamId teamId;
+    public TeamInfo.TeamId TeamId
     {
         get { return teamId; }
     }
@@ -40,7 +40,7 @@ public class Unit : MonoBehaviour
     [Header("ray target is where other units will send rays to")]
     public Transform rayTarget;
 
-    public void InitUnit(UnitManager.TeamId team)
+    public void InitUnit(TeamInfo.TeamId team)
     {
         instanceId = gameObject.GetInstanceID();
         teamId = team;

@@ -17,7 +17,7 @@ public abstract class UnitModule : MonoBehaviour
         get { return targetModuleManager; }
     }
 
-    public void InitModule(int instanceID, UnitManager.TeamId team)
+    public void InitModule(int instanceID, TeamInfo.TeamId team)
     {
         instanceId = instanceID;
         teamId = team;
@@ -28,8 +28,8 @@ public abstract class UnitModule : MonoBehaviour
 
     }
 
-    protected UnitManager.TeamId teamId;
-    public UnitManager.TeamId TeamId
+    protected TeamInfo.TeamId teamId;
+    public TeamInfo.TeamId TeamId
     {
         get { return teamId; }
     }

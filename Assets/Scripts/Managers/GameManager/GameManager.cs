@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     //debug
     public bool startGame = false;
 
+    MenuManager UIController;
+
     private void Awake()
     {
         if (instance != null)
@@ -57,6 +59,8 @@ public class GameManager : MonoBehaviour
         {
             levelManager = GameObject.Find("LevelManager").GetComponent<LevelManager>();
             gameState = GameStates.GamePaused;
+
+            UIController = GameObject.Find("GameUI").GetComponent<MenuManager>();
         }
         else
         {
@@ -68,24 +72,41 @@ public class GameManager : MonoBehaviour
     {
         if (levelManager == null)
         {
-            return;
+            if (!GameObject.Find("LevelManager").TryGetComponent<LevelManager>(out levelManager))
+            {
+                return;
+            }
         }
 
-        //If game is not already running start game
-        if (gameState == GameStates.GamePaused)
+        if (UIController == null)
         {
-            levelManager.StartGame();
-            gameState = GameStates.GameInProgress;
+            if (!GameObject.Find("GameUI").TryGetComponent<MenuManager>(out UIController))
+            {
+                Debug.LogWarning("No \"GameUI\" present");
+            }
         }
+
+        levelManager.StartGame();
+        gameState = GameStates.GameInProgress;
+        
     }
 
-    public void GameFinished(UnitManager.TeamId teamId)
+    public void GameFinished(TeamInfo.TeamId teamId)
     {
         levelManager = null;
         gameState = GameStates.GameFinished;
 
         //Code for Ui here yippeyayyy game won 
         Debug.Log("Game Won by " +  teamId);
+
+        if (teamId == TeamInfo.TeamId.PlayerTeam)
+        {
+            UIController.GoToPage("PlayerWin");
+        }
+        else
+        {
+            UIController.GoToPage("PlayerLost");
+        }
     }
 
     //Debug ignore

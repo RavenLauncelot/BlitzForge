@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using static UnitManager;
+
 
 public class VisibilityManager : ModuleManager
 {
@@ -26,7 +26,7 @@ public class VisibilityManager : ModuleManager
 
     Coroutine updateLoop;
 
-    public UnitManager.TeamId playerTeam;
+    public TeamInfo.TeamId playerTeam;
 
     public VisibilityModule[] visibilityModules;
     public Dictionary<int, VisibilityModule> visModuleIdLookup;
@@ -80,7 +80,7 @@ public class VisibilityManager : ModuleManager
                 }
 
                 //updating mesh renderers if detected by player team. Does not update the playerTeam as they need to always be on 
-                if (team == (int)UnitManager.TeamId.PlayerTeam & visModule.TeamId != UnitManager.TeamId.PlayerTeam)
+                if (team == (int)TeamInfo.TeamId.PlayerTeam & visModule.TeamId != TeamInfo.TeamId.PlayerTeam)
                 {
                     if (visModule.visibilityTimers[team] > 0)
                     {
@@ -97,7 +97,7 @@ public class VisibilityManager : ModuleManager
         }   
     }
 
-    public void SetDetected(int instanceId, float detectionTime, UnitManager.TeamId detectedBy)
+    public void SetDetected(int instanceId, float detectionTime, TeamInfo.TeamId detectedBy)
     {
         if (visModuleIdLookup.TryGetValue(instanceId, out VisibilityModule visModule))
         {
@@ -106,7 +106,7 @@ public class VisibilityManager : ModuleManager
         }
     }
 
-    public bool IsTargetDetected(int targetId, TeamId detectedBy, float timerMinimum)
+    public bool IsTargetDetected(int targetId, TeamInfo.TeamId detectedBy, float timerMinimum)
     {
         VisibilityModule visModule;
         if (VisibilityManager.instance.visModuleIdLookup.TryGetValue(targetId, out visModule))

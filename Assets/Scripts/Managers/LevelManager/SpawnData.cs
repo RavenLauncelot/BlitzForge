@@ -9,7 +9,7 @@ public class SpawnData
 {
     [SerializeField]
     public Spawn[] spawns;
-    public UnitManager.TeamId teamId;
+    public TeamInfo.TeamId teamId;
 
     public bool AiPlayer;
 }

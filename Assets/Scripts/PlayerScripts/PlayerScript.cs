@@ -8,7 +8,7 @@ public class PlayerScript : MonoBehaviour
     Unit[] unitArray;
     UnitManager unitManager;
 
-    public void InitController(UnitManager unitManagerIn, UnitManager.TeamId team, List<Unit> teamUnits)
+    public void InitController(UnitManager unitManagerIn, TeamInfo.TeamId team, List<Unit> teamUnits)
     {
         unitManager = unitManagerIn;
 

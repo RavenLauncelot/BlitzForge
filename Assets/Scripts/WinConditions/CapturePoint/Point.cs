@@ -13,12 +13,12 @@ public class Point : MonoBehaviour
     }
     [SerializeField] private LayerMask unitLayer;
 
-    [ShowInInspector] private UnitManager.TeamId capturingTeam;
+    [ShowInInspector] private TeamInfo.TeamId capturingTeam;
 
     private SpriteRenderer spriteRend;
     [SerializeField] private List<Color> teamColours;
 
-    public UnitManager.TeamId CapturingTeam
+    public TeamInfo.TeamId CapturingTeam
     {
         get { return capturingTeam; }
     }
@@ -33,8 +33,8 @@ public class Point : MonoBehaviour
     {
         get { return isCaptured; }
     }
-    [ShowInInspector] private UnitManager.TeamId capturedBy;
-    public UnitManager.TeamId CapturedBy
+    [ShowInInspector] private TeamInfo.TeamId capturedBy;
+    public TeamInfo.TeamId CapturedBy
     {
         get { return capturedBy; }
     }
@@ -42,12 +42,12 @@ public class Point : MonoBehaviour
 
     //frequently used variables
     Collider[] colliders;
-    public UnitManager.TeamId firstUnitTeam;
+    public TeamInfo.TeamId firstUnitTeam;
 
     private void Start()
     {
-        capturedBy = UnitManager.TeamId.None;
-        capturingTeam = UnitManager.TeamId.None;
+        capturedBy = TeamInfo.TeamId.None;
+        capturingTeam = TeamInfo.TeamId.None;
 
         colliders = new Collider[100];
 
@@ -74,7 +74,7 @@ public class Point : MonoBehaviour
                 {
                     //Debug.Log("Contested capture point " + gameObject.name);
                     isCaptured = false;
-                    capturingTeam = UnitManager.TeamId.None;
+                    capturingTeam = TeamInfo.TeamId.None;
                     captureProgress = 0;    
                     return;
                 }
@@ -110,7 +110,7 @@ public class Point : MonoBehaviour
         else if (!isCaptured)
         {
             captureProgress = 0f;
-            capturingTeam = UnitManager.TeamId.None;
+            capturingTeam = TeamInfo.TeamId.None;
         }
 
     }

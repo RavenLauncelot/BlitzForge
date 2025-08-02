@@ -48,7 +48,7 @@ public class AiPLayer : UnitController
             detectedUnits = manager.GetDetectedUnits(controlledTeam); 
             foreach (Unit unit in teamUnits)
             {
-                if (!unit.IsAlive)
+                if (unit == null || !unit.IsAlive)
                 {
                     continue;
                 }
@@ -128,7 +128,7 @@ public class AiPLayer : UnitController
         foreach (Point point in points)
         {
             //If the point is already captured it will move on to the next point
-            if (point.CapturedBy == controlledTeam)
+            if (point.CapturedBy == controlledTeam && point.CapturingTeam == controlledTeam)
             {
                 continue;
             }

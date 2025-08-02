@@ -11,7 +11,7 @@ public class UnitHandler : MonoBehaviour
 {
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private UnitManager manager;
-    [SerializeField] private UnitManager.TeamId controlledTeam;
+    [SerializeField] private TeamInfo.TeamId controlledTeam;
 
     PlayerControls UnitControls;
 
@@ -36,10 +36,9 @@ public class UnitHandler : MonoBehaviour
     Vector3 initialPoint;
     Vector3 currentPoint;
 
-    [SerializeField] private List<CommandData> commandList;
     [SerializeField] private CommandData currentlySetCommand;
 
-    public void InitHandler(UnitManager managerIn, UnitManager.TeamId controlledTeamIn)
+    public void InitHandler(UnitManager managerIn, TeamInfo.TeamId controlledTeamIn)
     {
         manager = managerIn;
         controlledTeam = controlledTeamIn;
@@ -73,6 +72,11 @@ public class UnitHandler : MonoBehaviour
         leftButton.Disable();
         rightButton.Disable();
         mousePos.Disable();
+    }
+
+    public void ChangeCommand(CommandData command)
+    {
+        currentlySetCommand = command;
     }
 
     //Selecting Units

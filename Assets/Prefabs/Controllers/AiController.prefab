@@ -46,4 +46,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controlledTeam: 0
   teamUnits: []
-  attackDistance: 0
+  attackDistance: 200

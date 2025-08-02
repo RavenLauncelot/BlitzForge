@@ -21,17 +21,17 @@ public class UnitManager : MonoBehaviour
 
     private bool gameStarted = false;
 
-    public enum TeamId
-    {
-        None,
-        PlayerTeam,
-        TeamA,
-        TeamB,
-        TeamC,
-        TeamD,
-        TeamE,
-        TeamF
-    }
+    //public enum TeamId
+    //{
+    //    None,
+    //    PlayerTeam,
+    //    TeamA,
+    //    TeamB,
+    //    TeamC,
+    //    TeamD,
+    //    TeamE,
+    //    TeamF
+    //}
 
     public void InitManager(List<SpawnData> spawnData, LevelManager levelManagerIn)
     {
@@ -112,7 +112,7 @@ public class UnitManager : MonoBehaviour
         //Spawning all the units for this team
         int counter = 0;
         Unit tempUnit = null;
-        TeamId team = spawnData.teamId;
+        TeamInfo.TeamId team = spawnData.teamId;
         //Loop for the amount of spawns - A spawn contains the unit to be spawned, location and the amount to be spawned.
         foreach (Spawn spawn in spawnData.spawns)
         {
@@ -185,7 +185,7 @@ public class UnitManager : MonoBehaviour
         }
     }
 
-    public Unit[] GetDetectedUnits(TeamId detectedBy)
+    public Unit[] GetDetectedUnits(TeamInfo.TeamId detectedBy)
     {
         VisibilityManager visManager;
         moduleManagers.TryGetValue(ModuleType.VisManager, out ModuleManager module);

@@ -9,15 +9,12 @@ public class MenuManager : MonoBehaviour
 {
     [SerializeField] List<MenuPage> menuPages;
 
-    [SerializeField] List<string> currentMenuDirec;
-
     [SerializeField] string startingMenu;
 
     private int CurrentPageIndex = 0;
 
     public void Start()
     {
-        currentMenuDirec = new List<string>();
         GoToPage(startingMenu);      
     }
 
@@ -27,25 +24,8 @@ public class MenuManager : MonoBehaviour
         //Start scene
     }
 
-    public void GoToPage(string pageType)
-    {
-        //PageType pageType = PageType.MainMenu; // This should be set based on the desired page
-        foreach(MenuPage page in menuPages)
-        {
-            if (page.PageType == pageType)
-            {
-                page.gameObject.SetActive(true);
-               
-                currentMenuDirec.Add(pageType);                
-            }
-            else
-            {
-                page.gameObject.SetActive(false);
-            }
-        }
-    }
 
-    public void GoToPageNoDirec(string pageType)
+    public void GoToPage(string pageType)
     {
         //PageType pageType = PageType.MainMenu; // This should be set based on the desired page
         foreach (MenuPage page in menuPages)
@@ -59,19 +39,6 @@ public class MenuManager : MonoBehaviour
                 page.gameObject.SetActive(false);
             }
         }
-    }
-
-    public void PreviousPage()
-    {
-        //only has 1 index
-        if (currentMenuDirec.Count < 2)
-        {
-            Debug.Log("Can't go back anymore");
-            return;
-        }
-
-        GoToPageNoDirec(currentMenuDirec[currentMenuDirec.Count - 2]);
-        currentMenuDirec.RemoveAt(currentMenuDirec.Count-1);
     }
 
     public void QuitGame()

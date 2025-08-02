@@ -6,7 +6,7 @@ public class CapturePoint : WinConditions
 {
     [SerializeField] List<Point> points;
 
-    private UnitManager.TeamId firstTeam;
+    private TeamInfo.TeamId firstTeam;
 
     public void Start()
     {
@@ -24,7 +24,7 @@ public class CapturePoint : WinConditions
         }
         else
         {
-            winStates = UnitManager.TeamId.None;
+            winStates = TeamInfo.TeamId.None;
         }   
     }
 }

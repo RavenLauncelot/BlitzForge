@@ -68,8 +68,12 @@ public class AttackManager : ModuleManager
 
     public override void UnregisterModule(int id)
     {
+        StopAllCoroutines();
+
         attackModules = attackModules.Where(val => val.InstanceId != id).ToArray();
         managedModules = managedModules.Where(val => val.InstanceId != id).ToArray();
+
+        updateLoop = StartCoroutine(UpdateLoop());
     }
 
     public override void StopCommands(int[] ids)
@@ -92,6 +96,11 @@ public class AttackManager : ModuleManager
 
         if (command.commandType == "AttackCommand")
         {
+            if (command.targettedUnits.Length == 0)
+            {
+                return;
+            }
+
             AttackCommand(command.selectedUnits, command.targettedUnits[0]);
         }
     }

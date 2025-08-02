@@ -69,6 +69,7 @@ public static class NavmeshTools
         }
 
         positionList.Add(origin);
+        positions--;
 
         return GetSquarePoints(2, positions, spacing, origin, positionList).ToArray();
     }
