@@ -1066,7 +1066,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4692792180056017521}
   - {fileID: 7421936484878123072}
   - {fileID: 6223204444409055667}
   m_Father: {fileID: 0}
@@ -1109,7 +1108,7 @@ MonoBehaviour:
   health: 100
   selectedUnitSprite: {fileID: 2890326913493723736}
   rayTarget: {fileID: 4312223258647239888}
-  explosionParticles: {fileID: 4640717033134402221}
+  explosionParticles: {fileID: 3761526365752541596, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
 --- !u!114 &1679171193168915209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1122,7 +1121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dbdd6aa78f35ba742bbf516e0b4b142b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager: 01000000
+  targetModuleManager: 1
   maxSpeed: 8
   acceleration: 5
   stoppingDistance: 1
@@ -1139,7 +1138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16c525d721db2da4e9c137a71d459998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager: 02000000
+  targetModuleManager: 2
   detectionRange: 180
   detectionTime: 20
   observPos: {fileID: 2479150518429289625}
@@ -1155,7 +1154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 931ac92951552524bbc7e4592c914453, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager: 00000000
+  targetModuleManager: 0
   aimingPos: {fileID: 2371224646621743961}
   currentTarget: {fileID: 0}
   targetRayCheck: {fileID: 0}
@@ -1188,7 +1187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78e1bb305a3cd1c458a78a123eec16aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetModuleManager: 03000000
+  targetModuleManager: 3
   visibilityTimers: []
   visibilityMask: 
   meshRenderers:
@@ -1535,71 +1534,4 @@ SpriteRenderer:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2898463376336977858, guid: 699cd11436655b04da418a96a1d38032, type: 3}
   m_PrefabInstance: {fileID: 6478047695217751150}
-  m_PrefabAsset: {fileID: 0}
---- !u!1001 &8382469671611722545
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 5372307583605549810}
-    m_Modifications:
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7500347558530810829, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-      propertyPath: m_Name
-      value: DestroyEffect
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
---- !u!198 &4640717033134402221 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 3761526365752541596, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-  m_PrefabInstance: {fileID: 8382469671611722545}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &4692792180056017521 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3851886507658748224, guid: 34d67cb96b7214c408b422c1f396baee, type: 3}
-  m_PrefabInstance: {fileID: 8382469671611722545}
   m_PrefabAsset: {fileID: 0}

@@ -78,7 +78,7 @@ public class UnitManager : MonoBehaviour
         unitIdLookUp = allUnits.ToDictionary(val => val.InstanceId);
 
         //This is a bit weird
-        //But each module needs to cast their array of UnitModules to their respective module they are managing
+        //But some moduled needs to cast their array of UnitModules to their respective module they are managing
         //While this could be done in StartModuleManager() it can cause issues if other things access modules that access this custom array 
         //So they're in total there is a InitModuleManager() which is done first equivalent of Start(). Then CustomInit() and then StartModuleManager which then starts then loop. 
         //Diciontionaries man. Beg you just like instantiate before runtime

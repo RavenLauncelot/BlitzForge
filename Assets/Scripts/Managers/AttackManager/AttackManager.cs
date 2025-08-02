@@ -129,9 +129,12 @@ public class AttackManager : ModuleManager
 
     private void Update()
     {
-        foreach (AttackModule attackModule in attackModules)
+        if (managerStarted)
         {
-            UpdateReloadTimer(attackModule);
+            foreach (AttackModule attackModule in attackModules)
+            {
+                UpdateReloadTimer(attackModule);
+            }
         }
     }
 
@@ -255,9 +258,9 @@ public class AttackManager : ModuleManager
             Vector3 positionToMove = Vector3.zero;
 
             //If within 5 units it will just find a random positon within 5 otherwise it will find a postion that's 10% closer
-            if (currentDistance < 5)
+            if (currentDistance > attackData.range)
             {
-                positionToMove = NavmeshTools.RandomPointEdgeNav(attackData.AimingPos.position, 5, 10);
+                positionToMove = NavmeshTools.RandomPointInsideNav(attackData.AimingPos.position, attackData.range-1, 10);
 
                 command.targettedArea = new Vector3[] { positionToMove, positionToMove };
 
@@ -266,7 +269,7 @@ public class AttackManager : ModuleManager
             //if it isnt it will find a postion 10% closer than previous
             else
             {
-                positionToMove = NavmeshTools.RandomPointInsideNav(attackData.AimingPos.position, currentDistance * 0.8f, 10);
+                positionToMove = NavmeshTools.RandomPointInsideNav(attackData.AimingPos.position, currentDistance * 0.7f, 10);
 
                 command.targettedArea = new Vector3[] { positionToMove, positionToMove };
 

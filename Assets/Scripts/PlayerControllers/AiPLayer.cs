@@ -76,7 +76,6 @@ public class AiPLayer : UnitController
 
                     manager.SendCommand(moveCommand);
 
-                    Debug.Log("Movment command sent to AI");
                 }
                 
                 yield return null;

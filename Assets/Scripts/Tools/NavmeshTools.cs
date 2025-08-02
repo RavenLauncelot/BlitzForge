@@ -58,6 +58,8 @@ public static class NavmeshTools
     {
         List<Vector3> positionList = new List<Vector3>();
 
+        NavMeshHit navMeshHit = new NavMeshHit();
+
         if (positions < 1)
         {
             Debug.LogWarning("NavmeshTools.EvenSpacing error positions 0");
@@ -65,11 +67,30 @@ public static class NavmeshTools
 
         if (positions == 1)
         {
-            return new Vector3[] { origin };
+            Ray raya = new Ray(origin + (Vector3.up * 1000), Vector3.down);
+            if (Physics.Raycast(raya, out RaycastHit hita, Mathf.Infinity))
+            {
+
+                if (NavMesh.SamplePosition(hita.point, out navMeshHit, 2f, NavMesh.AllAreas))
+                {
+                    positionList.Add(navMeshHit.position);
+
+                    return positionList.ToArray();
+                }
+            }
         }
 
-        positionList.Add(origin);
-        positions--;
+        Ray rayb = new Ray(origin + (Vector3.up * 1000), Vector3.down);
+        if (Physics.Raycast(rayb, out RaycastHit hitb, Mathf.Infinity))
+        {
+
+            if (NavMesh.SamplePosition(hitb.point, out navMeshHit, 2f, NavMesh.AllAreas))
+            {
+                positionList.Add(navMeshHit.position);
+
+                positions--;
+            }
+        }
 
         return GetSquarePoints(2, positions, spacing, origin, positionList).ToArray();
     }
@@ -80,6 +101,8 @@ public static class NavmeshTools
         {
             Debug.LogWarning("NavmeshTools.EvenSpacing No positions available aborting");
             
+
+
             return positionList;
         }
 
@@ -109,10 +132,11 @@ public static class NavmeshTools
                 currentPoint += Side * spacing;
 
                 //If it can't find a position on the navmesh it will skip
-                Ray ray = new Ray(currentPoint + (Vector3.up * 500), Vector3.down);
+                Ray ray = new Ray(currentPoint + (Vector3.up * 1000), Vector3.down);
                 if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
                 {
-                    if (NavMesh.SamplePosition(hit.point, out navMeshHit, 1f, NavMesh.AllAreas))
+
+                    if (NavMesh.SamplePosition(hit.point, out navMeshHit, 2f, NavMesh.AllAreas))
                     {
                         positionList.Add(navMeshHit.position);
 

@@ -693,8 +693,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 310920655}
         m_TargetAssemblyTypeName: MenuManager, Assembly-CSharp
-        m_MethodName: PreviousPage
-        m_Mode: 1
+        m_MethodName: GoToPage
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -982,7 +982,6 @@ MonoBehaviour:
   - {fileID: 1153869568}
   - {fileID: 1773451933}
   - {fileID: 1811485030}
-  currentMenuDirec: []
   startingMenu: MainMenu
 --- !u!4 &310920656
 Transform:
@@ -2083,7 +2082,7 @@ MonoBehaviour:
   m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 247
 --- !u!114 &1398732745
 MonoBehaviour:
   m_ObjectHideFlags: 0

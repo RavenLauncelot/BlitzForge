@@ -8,8 +8,10 @@ public class BasicTank : Unit
     {
         base.DestroyUnitAnim();
 
-        explosionParticles.Play();
+        Instantiate(explosionParticles);
 
         GameObject.Destroy(gameObject);
     }
 }
+
+
