@@ -147,20 +147,15 @@ public class UnitManager : MonoBehaviour
 
     private void RegisterModule(UnitModule unitModule)
     {
-        foreach (ModuleType targetManager in unitModule.TargetModuleManager)
+        if (moduleManagers.TryGetValue(unitModule.TargetModuleManager, out var module))
         {
-            if (moduleManagers.TryGetValue(targetManager, out var module))
-            {
-                module.RegisterUnit(unitModule);
-            }
-        }
+            module.RegisterUnit(unitModule);
+        }        
     }
 
-    //This needs to be done 
+ 
     public void DestroyUnit(Unit unit)
-    {
-        
-
+    {      
         foreach (ModuleManager manager in moduleManagers.Values)
         {
             manager.StopCommands(new int[] {unit.InstanceId});
@@ -188,8 +183,7 @@ public class UnitManager : MonoBehaviour
     public Unit[] GetDetectedUnits(TeamInfo.TeamId detectedBy)
     {
         VisibilityManager visManager;
-        moduleManagers.TryGetValue(ModuleType.VisManager, out ModuleManager module);
-        visManager = module as VisibilityManager;
+        visManager = VisibilityManager.instance;
 
         List<Unit> detectedUnits = new List<Unit>();       
 
