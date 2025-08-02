@@ -44,3 +44,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9820fc277993c794d9016f29fc83a14e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controlledTeam: 0
+  teamUnits: []
+  attackDistance: 0

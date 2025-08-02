@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using static UnitManager;
@@ -42,6 +43,12 @@ public class VisibilityManager : ModuleManager
     public override void StartModuleManager()
     {
         base.StartModuleManager();
+    }
+
+    public override void UnregisterModule(int id)
+    {
+        visibilityModules = visibilityModules.Where(val => val.InstanceId != id).ToArray();
+        managedModules = managedModules.Where(val => val.InstanceId != id).ToArray();
     }
 
     private void Update()
@@ -97,11 +104,6 @@ public class VisibilityManager : ModuleManager
             visModule.visibilityTimers[(int)detectedBy] = detectionTime;
             visModule.visibilityMask[(int)detectedBy] = true;
         }
-
-        else
-        {
-            Debug.Log("Aint working bro instanceId: " + instanceId);
-        }
     }
 
     public bool IsTargetDetected(int targetId, TeamId detectedBy, float timerMinimum)
@@ -115,12 +117,10 @@ public class VisibilityManager : ModuleManager
             //I was going to refresh the timers in here but that could potentially mean units that are not within LOS would stay detected.
             if (visModule.visibilityTimers[(int)detectedBy] > timerMinimum)
             {
-                Debug.Log("this works still");
                 return true;
             }
         }
 
-        Debug.Log("bruh");
         return false;
     }
 }

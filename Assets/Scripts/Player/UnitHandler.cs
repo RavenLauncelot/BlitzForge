@@ -176,7 +176,10 @@ public class UnitHandler : MonoBehaviour
         {
             foreach (var unit in selectedUnits)
             {
-                unit.UnitSelected(false);
+                if (unit != null)
+                {
+                    unit.UnitSelected(false);
+                }
             }
         }
 
@@ -186,7 +189,10 @@ public class UnitHandler : MonoBehaviour
         {
             foreach (var unit in targetedUnits)
             {
-                unit.UnitSelected(false);
+                if (unit != null)
+                {
+                    unit.UnitSelected(false);
+                }
             }
         }
 

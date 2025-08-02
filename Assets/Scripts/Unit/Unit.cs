@@ -27,38 +27,27 @@ public class Unit : MonoBehaviour
         get { return isAlive; }
     }
 
+    [SerializeField] private float health;
+    public float Health
+    {
+        get { return health; }
+    }
+
     [SerializeField] private SpriteRenderer selectedUnitSprite;
 
-    [SerializeField] private MeshRenderer[] meshRend;
+    //[SerializeField] private MeshRenderer[] meshRend;
 
-    [Header("Observing pos is the positon it will send raycasts to detect enemies")]
-    public Transform observingPos;
-    [Header("aimingPos is the position it will fire from")]
-    public Transform aimingPos;
     [Header("ray target is where other units will send rays to")]
     public Transform rayTarget;
- 
-    public void MeshRendEnabled(bool enabled)
-    {
-        foreach(MeshRenderer rend in meshRend)
-        {
-            rend.enabled = enabled;
-        }
-    }
 
     public void InitUnit(UnitManager.TeamId team)
     {
         instanceId = gameObject.GetInstanceID();
         teamId = team;
 
-        if (observingPos == null)
+        if (rayTarget == null)
         {
-            observingPos = this.transform;
-        }
-
-        if (aimingPos == null)
-        {
-            aimingPos = this.transform;
+            rayTarget = transform;
         }
 
         isAlive = true;
@@ -74,6 +63,11 @@ public class Unit : MonoBehaviour
         selectedUnitSprite.enabled = isSelected;
     }
 
+    public void DamageUnit(float damage)
+    {
+        health -= damage;
+    }
+
     public void DestroyUnit()
     {
         if (!isAlive)
@@ -84,6 +78,7 @@ public class Unit : MonoBehaviour
         //Do unit death logic here or in new class
         isAlive = false;
         instanceId = 0;
+        SetLayer(this.gameObject, 0);
 
         Debug.Log(this.gameObject.name + " was destroyed");
 
@@ -93,6 +88,21 @@ public class Unit : MonoBehaviour
     protected virtual void DestroyUnitAnim()
     {
         //Specific code can be written here for specific animations or effects
+    }
+
+    private void SetLayer(GameObject parent, int layer)
+    {
+        parent.layer = layer;
+        foreach (Transform child in parent.transform)
+        {
+            child.gameObject.layer = layer;
+
+            Transform _HasChildren = child.GetComponentInChildren<Transform>();
+            if (_HasChildren != null)
+            {
+                SetLayer(child.gameObject, layer);
+            }
+        }
     }
 }
 

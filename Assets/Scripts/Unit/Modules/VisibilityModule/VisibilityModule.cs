@@ -20,6 +20,7 @@ public class VisibilityModule : UnitModule
         foreach (var renderer in meshRenderers)
         {
             renderer.enabled = visible;
+            renderer.material.color = Color.red;
         }
     }
 }

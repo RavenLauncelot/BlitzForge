@@ -1,6 +1,7 @@
 using System.IO;
 using System.Linq;
 using Unity.VisualScripting;
+using Unity.VisualScripting.FullSerializer;
 using UnityEditor.Analytics;
 using UnityEngine;
 using UnityEngine.AI;
@@ -33,9 +34,18 @@ public class MovementManager : ModuleManager
         }
     }
 
-    public void MovementCommand(int[] instanceIds, Vector3 target)
+    public override void UnregisterModule(int id)
     {
-        for (int i = 0; i < instanceIds.Length; i++)
+        //I didn't cast them to movement modules when the script starts so yeah i guess
+      
+        managedModules = managedModules.Where(val => val.InstanceId != id).ToArray();
+    }
+
+    private void MovementCommand(int[] instanceIds, Vector3 target)
+    {
+        Vector3[] positions = NavmeshTools.EvenSpacing(instanceIds.Length, target, 10);
+
+        for (int i = 0; i < positions.Length; i++)
         {
             MovementModule movementModule = null;
 
@@ -46,9 +56,7 @@ public class MovementManager : ModuleManager
                 movementModule.Agent.isStopped = false;
                 movementModule.ReachedTarget = false;
                 movementModule.CurrentTarget = target;
-                movementModule.Agent.SetDestination(target);
-
-                Debug.Log("Movement command set: " + target);
+                movementModule.Agent.SetDestination(positions[i]);
             }                
         }
     }
@@ -95,8 +103,6 @@ public class MovementManager : ModuleManager
         if (command.commandType == "MovementCommand")
         {
             MovementCommand(command.selectedUnits, command.targettedArea[0]);
-
-            Debug.Log("Command sent");
         }
 
         else

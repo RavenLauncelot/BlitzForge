@@ -39,7 +39,7 @@ public class AttackModule : UnitModule
 
     //the current targets Unit ref
      public Unit currentTarget;
-     public Transform TargetRayCheck;
+     public Transform targetRayCheck;
 
     //state booleans and counters
     public bool forcedTarget = false;

@@ -48,7 +48,13 @@ public class AiPLayer : UnitController
             detectedUnits = manager.GetDetectedUnits(controlledTeam); 
             foreach (Unit unit in teamUnits)
             {
+                if (!unit.IsAlive)
+                {
+                    continue;
+                }
+
                 enemyUnit = FindClosestUnitInRange(detectedUnits, attackDistance, unit.transform);
+                
 
                 if (enemyUnit != null)
                 {
@@ -56,8 +62,7 @@ public class AiPLayer : UnitController
                     attackCommand.selectedUnits = new int[] { unit.InstanceId };
                     attackCommand.targettedUnits = new int[] { enemyUnit.InstanceId };
 
-                    //This won't work yet attack Command don't work
-                    MovementManager.instance.StopCommands(new int[] { unit.InstanceId });
+                    //MovementManager.instance.StopCommands(new int[] { unit.InstanceId });
                     manager.SendCommand(attackCommand);
                 }
                 else
@@ -70,6 +75,8 @@ public class AiPLayer : UnitController
                     moveCommand.targettedArea = new Vector3[] { Waypoint };
 
                     manager.SendCommand(moveCommand);
+
+                    Debug.Log("Movment command sent to AI");
                 }
                 
                 yield return null;
@@ -77,7 +84,7 @@ public class AiPLayer : UnitController
 
             //icl this was a cheap solution to units updating their position too frequently
             //Would result in them stopping right at the edge of the points when moving and stuff like that. Might be worth adjusting it so it only updated their logic once they've finished moving.
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(10f);
         }
     }
 

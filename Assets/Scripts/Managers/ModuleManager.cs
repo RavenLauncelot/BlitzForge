@@ -59,6 +59,8 @@ public abstract class ModuleManager : MonoBehaviour
         moduleIdLookup.Add(unitModule.InstanceId, unitModule);
     }
 
+    public abstract void UnregisterModule(int id);
+
     public virtual void SetCommand(CommandData command)
     {
 

@@ -57,6 +57,16 @@ public class DetectionManager : ModuleManager
         StopAllCoroutines();
     }
 
+    public override void UnregisterModule(int id)
+    {
+        StopAllCoroutines();
+
+        detectionModules = detectionModules.Where(val => val.InstanceId != id).ToArray();
+        managedModules = managedModules.Where(val => val.InstanceId != id).ToArray();
+
+        updateLoop = StartCoroutine(UpdateLoop());
+    }
+
     private IEnumerator UpdateLoop()
     {
         List<Unit> tempList = new List<Unit>();
@@ -88,7 +98,7 @@ public class DetectionManager : ModuleManager
     {
         List<Unit> detectedUnits = new List<Unit>();
 
-        Collider[] detected = new Collider[100];
+        Collider[] detected = new Collider[400];
 
         int collisions = Physics.OverlapSphereNonAlloc(observPos, detectionModule.DetectionRange, detected, unitLayer);
         for (int i = 0; i < collisions; i++)

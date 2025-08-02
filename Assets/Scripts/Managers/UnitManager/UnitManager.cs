@@ -116,10 +116,12 @@ public class UnitManager : MonoBehaviour
         //Loop for the amount of spawns - A spawn contains the unit to be spawned, location and the amount to be spawned.
         foreach (Spawn spawn in spawnData.spawns)
         {
+            Vector3[] positionsToSpawn = NavmeshTools.EvenSpacing(spawn.amountOf, spawn.spawnPoint.position, 10f);
+
             //Spawning the individual units
             for (int i = 0; i < spawn.amountOf; i++)
             {
-                tempUnit = Instantiate(spawn.objectToBeSpawned, spawn.spawnPoint.position, Quaternion.identity).GetComponent<Unit>();
+                tempUnit = Instantiate(spawn.objectToBeSpawned, positionsToSpawn[i], Quaternion.identity).GetComponent<Unit>();
                 tempUnit.InitUnit(team);
                 tempUnit.name = spawnData.teamId.ToString() + " Tank " + counter;
 
@@ -155,14 +157,32 @@ public class UnitManager : MonoBehaviour
     }
 
     //This needs to be done 
-    public void DestroyUnit(int instanceId)
+    public void DestroyUnit(Unit unit)
     {
+        
 
+        foreach (ModuleManager manager in moduleManagers.Values)
+        {
+            manager.StopCommands(new int[] {unit.InstanceId});
+            manager.UnregisterModule(unit.InstanceId);
+        }
+
+        unitIdLookUp.Remove(unit.InstanceId);
+        allUnits = allUnits.Where(val => val != unit).ToArray();
+        unit.DestroyUnit();
     }
 
     public void DamageUnit(int instanceId, float damage)
     {
+        if (unitIdLookUp.TryGetValue(instanceId, out Unit unit))
+        {
+            unit.DamageUnit(damage);
 
+            if (unit.Health <= 0)
+            {
+                DestroyUnit(unit);
+            }
+        }
     }
 
     public Unit[] GetDetectedUnits(TeamId detectedBy)

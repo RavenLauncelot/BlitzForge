@@ -66,9 +66,14 @@ public class AttackManager : ModuleManager
         StopAllCoroutines();
     }
 
+    public override void UnregisterModule(int id)
+    {
+        attackModules = attackModules.Where(val => val.InstanceId != id).ToArray();
+        managedModules = managedModules.Where(val => val.InstanceId != id).ToArray();
+    }
+
     public override void StopCommands(int[] ids)
     {
-        base.StopCommands(ids);
         AttackModule attackModule;
 
         foreach(int id in ids)
@@ -76,8 +81,7 @@ public class AttackManager : ModuleManager
             if (moduleIdLookup.TryGetValue(id, out UnitModule module))
             {
                 attackModule = module as AttackModule;
-
-                ResetTarget(attackModule);
+                attackModule.forcedTarget = false;
             }
         }
     }
@@ -138,19 +142,16 @@ public class AttackManager : ModuleManager
                     continue;
                 }
 
-                if (attackModule.forcedTarget)
+                if (!IsTargetValid(attackModule.currentTarget, attackModule))
                 {
-                    if (IsTargetValid(attackModule.currentTarget, attackModule))
-                    {
-                        ForcedTargetMode(attackModule);
-                    }
+                    ResetTarget(attackModule);
+                    attackModule.forcedTarget = false;
+                    AutoTargetMode(attackModule);
+                }
 
-                    else
-                    {
-                        ResetTarget(attackModule);
-                        attackModule.forcedTarget = false;
-                        AutoTargetMode(attackModule);
-                    }
+                else if (attackModule.forcedTarget)
+                {
+                    ForcedTargetMode(attackModule);
                 }
 
                 else
@@ -203,7 +204,7 @@ public class AttackManager : ModuleManager
         {
             Debug.Log("Not in range");
 
-            Vector3 positonToMove = attackData.TargetRayCheck.position;
+            Vector3 positonToMove = attackData.targetRayCheck.position;
 
             Vector3 vectorFromTarget = attackData.AimingPos.position - positonToMove;
             vectorFromTarget.Normalize();
@@ -234,7 +235,7 @@ public class AttackManager : ModuleManager
         {
             Debug.Log("Not in LOS");
 
-            float currentDistance = Vector3.Distance(attackData.AimingPos.position, attackData.TargetRayCheck.position);
+            float currentDistance = Vector3.Distance(attackData.AimingPos.position, attackData.targetRayCheck.position);
 
             CommandData command = new CommandData()
             {
@@ -335,7 +336,7 @@ public class AttackManager : ModuleManager
             return false;
         }
 
-        if (VisibilityManager.instance.IsTargetDetected(targetUnit.InstanceId, attackModule.TeamId, 0f))
+        if (VisibilityManager.instance.IsTargetDetected(targetUnit.InstanceId, attackModule.TeamId, 0.1f))
         {
             return true;
         }
@@ -345,23 +346,29 @@ public class AttackManager : ModuleManager
 
     private void ResetTarget(AttackModule attackModule)
     {
+        if (attackModule == null)
+        {
+            return;
+        }
+
         attackModule.forcedTarget = false;
         attackModule.currentTarget = null;
         attackModule.inLOS = false;
+        attackModule.targetRayCheck = null;
 
         attackModule.UpdateTurretRotation(null);
     }
 
     private void SetNewTarget(Unit target, AttackModule attackModule)
     {
-        attackModule.TargetRayCheck = target.rayTarget;
-        attackModule.UpdateTurretRotation(attackModule.TargetRayCheck);
+        attackModule.targetRayCheck = target.rayTarget;
+        attackModule.UpdateTurretRotation(attackModule.targetRayCheck);
         attackModule.currentTarget = target;
     }
 
     public bool InRangeCheck(AttackModule attackModule)
     {
-        return Vector3.Distance(attackModule.AimingPos.position, attackModule.TargetRayCheck.position) < attackModule.range;
+        return Vector3.Distance(attackModule.AimingPos.position, attackModule.targetRayCheck.position) < attackModule.range;
     }
 
     public void UpdateReloadTimer(AttackModule attackData)
@@ -413,7 +420,7 @@ public class AttackManager : ModuleManager
     private bool IsAimingAt(AttackModule attackModule)
     {
         //check dotProduct first
-        Vector3 vector = (attackModule.TargetRayCheck.transform.position - attackModule.AimingPos.position).normalized;
+        Vector3 vector = (attackModule.targetRayCheck.transform.position - attackModule.AimingPos.position).normalized;
         Vector3 currentVector = attackModule.AimingPos.forward;
         if (Vector3.Dot(vector, currentVector) < 0.9999)
         {
