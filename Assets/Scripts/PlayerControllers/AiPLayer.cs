@@ -65,7 +65,7 @@ public class AiPLayer : UnitController
                     //MovementManager.instance.StopCommands(new int[] { unit.InstanceId });
                     manager.SendCommand(attackCommand);
                 }
-                else
+                else if (unit.GetComponent<MovementModule>().ReachedTarget)
                 {
                     //go towards capture point
                     //Get capture point location
@@ -102,6 +102,11 @@ public class AiPLayer : UnitController
 
         foreach (Unit unit in detectedUnits)
         {
+            if (unit == null)
+            {
+                continue;
+            }
+
             calculatedDistance = Vector3.Distance(unit.transform.position, position.position);
             if (calculatedDistance < range)
             {
@@ -153,7 +158,30 @@ public class AiPLayer : UnitController
         }
 
         //This will keep finding a point for as many as stated in parametres. It will self iterate
-        return NavmeshTools.RandomPointInsideNav(closestPoint.transform.position, closestPoint.CaptureRadius, 10);
+        return RandomPointInsideNav(closestPoint.transform.position, closestPoint.CaptureRadius, 10);
+    }
+
+    public Vector3 RandomPointInsideNav(Vector3 position, float radius, int counter)
+    {
+        if (counter == 0)
+        {
+            return position;
+        }
+
+        //finding a random point within that capture point
+        Vector3 randomPoint = position + (Random.insideUnitSphere * (radius * 2));
+        randomPoint.y = position.y;
+        NavMeshHit hit;
+
+        if (NavMesh.SamplePosition(randomPoint, out hit, 1.0f, NavMesh.AllAreas))
+        {
+            return hit.position;
+        }
+
+        else
+        {
+            return RandomPointInsideNav(position, radius, counter - 1);
+        }
     }
 
     private void OnEnable()

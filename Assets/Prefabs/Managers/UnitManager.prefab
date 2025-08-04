@@ -53,6 +53,7 @@ MonoBehaviour:
   unitLayermask:
     serializedVersion: 2
     m_Bits: 128
+  visibilityManager: {fileID: -3329357671778217599}
 --- !u!114 &-8515516161953769519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,6 +75,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 247
   targetSkipSearchCooldown: 5
+  visibilityManager: {fileID: -3329357671778217599}
+  movementManager: {fileID: -2530838446215479751}
 --- !u!114 &8381392937698650365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -88,6 +91,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   managedModules: []
   managerType: 2
+  visibilityManager: {fileID: -3329357671778217599}
   unitLayer:
     serializedVersion: 2
     m_Bits: 128

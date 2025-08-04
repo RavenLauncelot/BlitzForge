@@ -10,4 +10,19 @@ public class RealPlayer : UnitController
 
         unitHandler.InitHandler(manager, controlledTeam);
     }
+
+    public int RemainingUnits()
+    {
+        int counter = 0;
+
+        foreach (Unit unit in teamUnits)
+        {
+            if (unit != null)
+            {
+                counter++;
+            }
+        }
+
+        return counter;
+    }
 }

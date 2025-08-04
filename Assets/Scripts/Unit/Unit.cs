@@ -1,10 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using System;
-using System.Linq;
-using UnityEditor.ShaderGraph.Internal;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 
 public class Unit : MonoBehaviour
 {

@@ -20,6 +20,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject playerController;
     [SerializeField] private GameObject AiController;
 
+    private RealPlayer realPlayer;
 
     private UnitManager unitManager;
     [SerializeField] private WinConditions[] winConditions;
@@ -46,6 +47,8 @@ public class LevelManager : MonoBehaviour
     public void StartGame()
     {
         unitManager.StartGame();
+
+        realPlayer = GameObject.Find("PlayerController(Clone)").GetComponent<RealPlayer>();    
     }
 
     public void Update()
@@ -55,6 +58,15 @@ public class LevelManager : MonoBehaviour
             //Winning game logic here
             //tell game manager
             GameManager.instance.GameFinished(CheckWin(winMode));
+        }
+
+        if (realPlayer == null)
+        {
+            return;
+        }
+        if (realPlayer.RemainingUnits() == 0)
+        {
+            GameManager.instance.GameFinished(TeamInfo.TeamId.None);
         }
     }
 

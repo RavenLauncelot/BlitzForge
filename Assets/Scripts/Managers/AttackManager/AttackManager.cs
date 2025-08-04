@@ -1,30 +1,11 @@
-using Mono.Cecil.Cil;
-using System;
 using System.Collections;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Xml;
-using UnityEditor.Build;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
 
 
 public class AttackManager : ModuleManager
 {
-    public static AttackManager instance;
-
-    private void Awake()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            instance = this;
-        }
-    }
     //This script will do all the processing of the unitsusing the attack data
     //object stored in each struct
 
@@ -37,6 +18,9 @@ public class AttackManager : ModuleManager
     private Collider[] colliders;
 
     AttackModule[] attackModules;
+
+    [SerializeField] VisibilityManager visibilityManager;
+    [SerializeField] MovementManager movementManager;
 
     public override void InitModuleManager()
     {
@@ -232,7 +216,7 @@ public class AttackManager : ModuleManager
                     selectedUnits = new int[] { attackData.InstanceId }
                 };
 
-                MovementManager.instance.SetCommand(command);
+                movementManager.SetCommand(command);
 
                 return;
             }
@@ -264,7 +248,7 @@ public class AttackManager : ModuleManager
 
                 command.targettedArea = new Vector3[] { positionToMove, positionToMove };
 
-                MovementManager.instance.SetCommand(command);
+                movementManager.SetCommand(command);
             }
             //if it isnt it will find a postion 10% closer than previous
             else
@@ -273,7 +257,7 @@ public class AttackManager : ModuleManager
 
                 command.targettedArea = new Vector3[] { positionToMove, positionToMove };
 
-                MovementManager.instance.SetCommand(command);
+                movementManager.SetCommand(command);
             }
         }
 
@@ -348,7 +332,7 @@ public class AttackManager : ModuleManager
             return false;
         }
 
-        if (VisibilityManager.instance.IsTargetDetected(targetUnit.InstanceId, attackModule.TeamId, 0.1f))
+        if (visibilityManager.IsTargetDetected(targetUnit.InstanceId, attackModule.TeamId, 0.1f))
         {
             return true;
         }

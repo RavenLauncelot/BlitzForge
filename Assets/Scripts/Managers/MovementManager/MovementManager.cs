@@ -8,19 +8,6 @@ using UnityEngine.AI;
 
 public class MovementManager : ModuleManager
 {
-    public static MovementManager instance;
-
-    private void Awake()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            instance = this;
-        }
-    }
 
     public void Start()
     {

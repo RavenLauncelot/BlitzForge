@@ -8,7 +8,7 @@ public class BasicTank : Unit
     {
         base.DestroyUnitAnim();
 
-        Instantiate(explosionParticles);
+        Instantiate(explosionParticles, transform.position, Quaternion.identity);
 
         GameObject.Destroy(gameObject);
     }

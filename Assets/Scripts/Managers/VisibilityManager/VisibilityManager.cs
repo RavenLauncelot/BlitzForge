@@ -7,21 +7,7 @@ using UnityEngine.Rendering;
 
 
 public class VisibilityManager : ModuleManager
-{
-    public static VisibilityManager instance;
-
-    private void Awake()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            instance = this;
-        }
-    }
-
+{  
     private float elapsedTime;
 
     Coroutine updateLoop;
@@ -109,7 +95,8 @@ public class VisibilityManager : ModuleManager
     public bool IsTargetDetected(int targetId, TeamInfo.TeamId detectedBy, float timerMinimum)
     {
         VisibilityModule visModule;
-        if (VisibilityManager.instance.visModuleIdLookup.TryGetValue(targetId, out visModule))
+
+        if (visModuleIdLookup.TryGetValue(targetId, out visModule))
         {
             //This check if the timer is above 1.
             //When it would check the mask it would result in the units flickering. 

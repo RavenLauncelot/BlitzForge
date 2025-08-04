@@ -16,6 +16,8 @@ public class UnitManager : MonoBehaviour
 
     [SerializeField] private LayerMask unitLayermask;
 
+    [SerializeField] VisibilityManager visibilityManager;
+
     Unit[] allUnits;
     public Dictionary<int, Unit> unitIdLookUp;
 
@@ -102,6 +104,8 @@ public class UnitManager : MonoBehaviour
             {
                 controller.StartGame();
             }
+
+            gameStarted = true;
         }
     }
 
@@ -182,12 +186,9 @@ public class UnitManager : MonoBehaviour
 
     public Unit[] GetDetectedUnits(TeamInfo.TeamId detectedBy)
     {
-        VisibilityManager visManager;
-        visManager = VisibilityManager.instance;
-
         List<Unit> detectedUnits = new List<Unit>();       
 
-        foreach (VisibilityModule visModule in visManager.visibilityModules)
+        foreach (VisibilityModule visModule in visibilityManager.visibilityModules)
         { 
             //visibilityModule = GetUnitManagerModule<VisibilityManager>(unit.InstanceId) as VisibilityModule;
             //Debug.Log("Vis module: " + visibilityModule.visibilityMask[0]);

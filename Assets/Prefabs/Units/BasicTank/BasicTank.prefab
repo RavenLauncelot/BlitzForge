@@ -531,9 +531,6 @@ GameObject:
   - component: {fileID: 6692214722167892264}
   - component: {fileID: 3627086040456233798}
   - component: {fileID: 7317231817644435290}
-  - component: {fileID: 3831774632031728821}
-  - component: {fileID: 9159299711268615315}
-  - component: {fileID: 263946690617940080}
   m_Layer: 7
   m_Name: Tank
   m_TagString: Untagged
@@ -614,72 +611,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &3831774632031728821
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4793931907298166309}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 1
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 1973893103929547111, guid: 26bc314adf5a2cb439b424b4512ab307, type: 3}
---- !u!64 &9159299711268615315
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4793931907298166309}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 1
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 1899504947727282711, guid: 26bc314adf5a2cb439b424b4512ab307, type: 3}
---- !u!64 &263946690617940080
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4793931907298166309}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 1
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 2165579551946672802, guid: 26bc314adf5a2cb439b424b4512ab307, type: 3}
 --- !u!1 &5741531975494624823
 GameObject:
   m_ObjectHideFlags: 0
@@ -1043,8 +974,8 @@ GameObject:
   - component: {fileID: 4644742412608787664}
   - component: {fileID: 4475218266519788174}
   - component: {fileID: 1679171193168915209}
-  - component: {fileID: -6867326789130607143}
   - component: {fileID: 1182206926724357065}
+  - component: {fileID: 847280754027998040}
   - component: {fileID: 5248252670745286496}
   m_Layer: 7
   m_Name: BasicTank
@@ -1126,22 +1057,6 @@ MonoBehaviour:
   acceleration: 5
   stoppingDistance: 1
   agent: {fileID: 4644742412608787664}
---- !u!114 &-6867326789130607143
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8727416021569130910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16c525d721db2da4e9c137a71d459998, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetModuleManager: 2
-  detectionRange: 180
-  detectionTime: 20
-  observPos: {fileID: 2479150518429289625}
 --- !u!114 &1182206926724357065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1175,6 +1090,22 @@ MonoBehaviour:
   turretPosReference: {fileID: 1194121532418535003}
   gunPosReference: {fileID: 4857640851182870074}
   particleSys: {fileID: 5319186201038033122}
+--- !u!114 &847280754027998040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8727416021569130910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16c525d721db2da4e9c137a71d459998, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetModuleManager: 2
+  detectionRange: 180
+  detectionTime: 20
+  observPos: {fileID: 2479150518429289625}
 --- !u!114 &5248252670745286496
 MonoBehaviour:
   m_ObjectHideFlags: 0

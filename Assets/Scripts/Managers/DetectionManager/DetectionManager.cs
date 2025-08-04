@@ -8,19 +8,8 @@ using System.Linq;
 
 public class DetectionManager : ModuleManager
 {
-    public static DetectionManager instance;
 
-    private void Awake()
-    {
-        if (instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            instance = this;
-        }
-    }
+    [SerializeField] VisibilityManager visibilityManager;
 
     public LayerMask unitLayer;
 
@@ -46,51 +35,86 @@ public class DetectionManager : ModuleManager
 
     private void OnEnable()
     {
-        if (managerStarted)
-        {
-            updateLoop = StartCoroutine(UpdateLoop());
-        }
+        //if (managerStarted)
+        //{
+        //    updateLoop = StartCoroutine(UpdateLoop());
+        //}
     }
 
     private void OnDisable()
     {
-        StopAllCoroutines();
+        //StopAllCoroutines();
     }
 
     public override void UnregisterModule(int id)
     {
-        StopAllCoroutines();
+        //StopAllCoroutines();
 
         detectionModules = detectionModules.Where(val => val.InstanceId != id).ToArray();
         managedModules = managedModules.Where(val => val.InstanceId != id).ToArray();
 
-        updateLoop = StartCoroutine(UpdateLoop());
+        //updateLoop = StartCoroutine(UpdateLoop());
     }
 
     private IEnumerator UpdateLoop()
     {
+        Debug.Log("Coroutine starts");
+
         List<Unit> tempList = new List<Unit>();
+        int moduleIndex = 0;
 
         while (true)
         {
-            foreach (DetectionModule detectionModule in detectionModules)
+            if (detectionModules.Length == 0)
             {
-                tempList = DetectEnemies(detectionModule.ObservPos.position, detectionModule);
-
-                //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
-                foreach (Unit detected in tempList)
-                {
-                    VisibilityManager.instance.SetDetected(detected.InstanceId, detectionModule.DetectionTime, detectionModule.TeamId);
-                }
-
-                for (int frame = 0; frame < frameSkip; frame++)
-                {
-                    yield return null;
-                }             
+                yield return null;
+                continue;
             }
 
-            //this is so unity doesn't crash when there are zero units lmoa
+            if (moduleIndex >= detectionModules.Length)
+            {
+                moduleIndex = 0;
+            }
+
+            DetectionLoop(detectionModules[moduleIndex], tempList);
+
+            Debug.Log("Unit done " + this.gameObject.name);
+
+            moduleIndex++;
+
+            // Spread module updates across frames
             yield return null;
+
+            //foreach (DetectionModule detectionModule in detectionModules)
+            //{
+            //    DetectionLoop(detectionModule, tempList);
+
+            //    //tempList = DetectEnemies(detectionModule.ObservPos.position, detectionModule);
+
+            //    ////now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
+            //    //foreach (Unit detected in tempList)
+            //    //{
+            //    //    visibilityManager.SetDetected(detected.InstanceId, detectionModule.DetectionTime, detectionModule.TeamId);
+            //    //} 
+                
+            //    yield return null;
+
+            //    Debug.Log("Unit done");
+            //}
+
+            ////this is so unity doesn't crash when there are zero units lmoa
+            //yield return null;
+        }
+    }
+
+    private void DetectionLoop(DetectionModule detectionModule, List<Unit> tempList)
+    {
+        tempList = DetectEnemies(detectionModule.ObservPos.position, detectionModule);
+
+        //now we set the unitdata for the detected enemies to say tehy are detected by the team that detected them
+        foreach (Unit detected in tempList)
+        {
+            visibilityManager.SetDetected(detected.InstanceId, detectionModule.DetectionTime, detectionModule.TeamId);
         }
     }
 
@@ -98,7 +122,7 @@ public class DetectionManager : ModuleManager
     {
         List<Unit> detectedUnits = new List<Unit>();
 
-        Collider[] detected = new Collider[400];
+        Collider[] detected = new Collider[100];
 
         int collisions = Physics.OverlapSphereNonAlloc(observPos, detectionModule.DetectionRange, detected, unitLayer);
         for (int i = 0; i < collisions; i++)
@@ -107,7 +131,7 @@ public class DetectionManager : ModuleManager
             if (detected[i].transform.root.TryGetComponent<Unit>(out Unit unitCode))
             {
                 //if the team id is the same as the detecting unit it will skip
-                if (unitCode.TeamId == detectionModule.TeamId | VisibilityManager.instance.IsTargetDetected(unitCode.InstanceId, detectionModule.TeamId, 1f))
+                if (unitCode.TeamId == detectionModule.TeamId | visibilityManager.IsTargetDetected(unitCode.InstanceId, detectionModule.TeamId, 1f))
                 {
                     continue;
                 }
